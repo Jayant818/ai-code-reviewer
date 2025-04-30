@@ -47,12 +47,12 @@ const Page = () => {
   type CodeValue = z.infer<typeof codeSchema>;
 
   // Setup react-hook-form (though we're not actively using it with the Editor)
-  const { handleSubmit } = useForm<CodeValue>({
-    resolver: zodResolver(codeSchema),
-    defaultValues: {
-      code: DEFAULT_CODE,
-    }
-  });
+  // const { handleSubmit } = useForm<CodeValue>({
+  //   resolver: zodResolver(codeSchema),
+  //   defaultValues: {
+  //     code: DEFAULT_CODE,
+  //   }
+  // });
 
   // API mutation hook
   const { 
