@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+// import { useForm } from "react-hook-form";
 import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 import { Triangle } from "react-loader-spinner";
 import { useGetReviewMutation } from "@/src/hooks/api-hooks/useReviewQuery";
 import Markdown from "react-markdown";
@@ -40,11 +40,11 @@ const Page = () => {
   }, []);
 
   // Form validation schema
-  const codeSchema = z.object({
-    code: z.string().min(2, "Code is required"),
-  });
+  // const codeSchema = z.object({
+  //   code: z.string().min(2, "Code is required"),
+  // });
   
-  type CodeValue = z.infer<typeof codeSchema>;
+  // type CodeValue = z.infer<typeof codeSchema>;
 
   // Setup react-hook-form (though we're not actively using it with the Editor)
   // const { handleSubmit } = useForm<CodeValue>({
