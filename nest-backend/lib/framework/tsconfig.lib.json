@@ -1,0 +1,13 @@
+// Each library has its own tsconfig.lib.json that extends the root  tsconfig.json. This is for:
+// Independent compilation of each library
+// Separate output directories (outDir)
+// Library-specific TypeScript configurations
+{
+    "extends":"../../tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "outDir": "../../dist/libs/framework"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules","dist","test","**/*spec.ts"]
+}
