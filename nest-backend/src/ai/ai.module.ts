@@ -8,6 +8,6 @@ import { GeminiStrategy } from './strategies/gemini.strategy';
   imports: [],
   controllers: [AIController],
   providers: [AIService, AIFactory, GeminiStrategy],
-  exports: [],
+  exports: [AIService],
 })
 export class AIModule {}
