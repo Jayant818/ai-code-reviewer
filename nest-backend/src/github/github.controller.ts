@@ -35,8 +35,8 @@ export class GithubController {
     switch (githubEvent) {
       case 'pull_request':
         return this.handlePullRequestEvent(body);
-      // case 'check_run':
-      //   return this.handleCheckRunEvent(body);
+      case 'check_run':
+        return this.handleCheckRunEvent(body);
       // case 'check_suite':
       //   return this.handleCheckSuiteEvent(body);
       default:
@@ -60,14 +60,14 @@ export class GithubController {
     return { message: `PR ${action} event received` };
   }
 
-  // private async handleCheckRunEvent(payload: any) {
-  //   if (payload.action === 'rerequested') {
-  //     await this.githubService.handleCheckRunRerequest(payload);
-  //     return { message: 'Check run re-requested' };
-  //   }
+  private async handleCheckRunEvent(payload: any) {
+    if (payload.action === 'rerequested') {
+      await this.githubService.handleCheckRunRerequest(payload);
+      return { message: 'Check run re-requested' };
+    }
 
-  //   return { message: 'Check run event received' };
-  // }
+    return { message: 'Check run event received' };
+  }
 
   // private async handleCheckSuiteEvent(payload: any) {
   //   if (payload.action === 'requested') {

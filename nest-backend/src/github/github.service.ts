@@ -169,4 +169,28 @@ export class GithubService {
   private combineReviews(fileReviews: string[]): string {
     return fileReviews.join('\n\n');
   }
+
+  async handleCheckRunRerequest(payload: any): Promise<void> {
+    const installationId = payload.installation.id;
+    const checkRun = payload.check_run;
+    const repository = payload.repository;
+
+    if (checkRun.name === 'AI Code Review') {
+      // Find the associated PR
+      const octokit = await this.getOctoKit(installationId);
+      const { data: pullRequests } = await octokit.pulls.list({
+        owner: repository.owner.login,
+        repo: repository.name,
+        head: `${repository.owner.login}:${checkRun.check_suite.head_branch}`,
+      });
+
+      if (pullRequests.length > 0) {
+        await this.reviewPullRequest(
+          repository.full_name,
+          pullRequests[0].number,
+          installationId,
+        );
+      }
+    }
+  }
 }
