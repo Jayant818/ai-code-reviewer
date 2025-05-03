@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AIModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CommonModule } from './config/common.module';
+import { GithubModule } from './github/github.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CommonModule } from './config/common.module';
     }),
     CommonModule,
     AIModule,
+    GithubModule,
   ],
   controllers: [],
   providers: [],
