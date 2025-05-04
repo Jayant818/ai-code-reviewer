@@ -1,6 +1,6 @@
 import { AppInjectable } from 'lib/framework/src/decorators';
 import { GeminiStrategy } from './strategies/gemini.strategy';
-import { IAiProvider } from './DTO/post-code-review-dto';
+import { IAiProvider } from './DTO/post-code-summary.dto';
 
 @AppInjectable()
 export class AIFactory {

@@ -48,12 +48,18 @@ export class GithubController {
     const { action } = payload;
 
     // synchronize - when a pull request is updated
-    if (action === 'opened' || action === 'synchronize') {
+    if (
+      action === 'opened' ||
+      action === 'synchronize' ||
+      action === 'reopened'
+    ) {
       await this.githubService.reviewPullRequest(
         payload.repository.full_name,
         payload.pull_request.number,
         payload.installation.id,
+        action,
       );
+
       return { message: 'PR review initiated' };
     }
 
