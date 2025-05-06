@@ -1,13 +1,13 @@
 import { AppInjectable } from 'lib/framework/src/decorators';
 import { AIFactory } from './ai.factory';
 import { PostCodeReviewDTO } from './DTO/post-code-review-dto';
-import { PostCodeSummaryDTO } from './DTO/post-code-summary.dto';
+import { IAiProvider, PostCodeSummaryDTO } from './DTO/post-code-summary.dto';
 
 @AppInjectable()
 export class AIService {
   constructor(private readonly AIFactory: AIFactory) {}
 
-  async getReview({ code, provider }: PostCodeReviewDTO) {
+  async getReview({ code, provider }: { code: string; provider: IAiProvider }) {
     const strategy = this.AIFactory.getStrategy(provider);
 
     const data = await strategy.getReview({ code });
@@ -15,10 +15,10 @@ export class AIService {
     return { review: data };
   }
 
-  async getPRReview({ code, provider }: PostCodeReviewDTO) {
+  async getPRReview({ code, provider, fileContent }: PostCodeReviewDTO) {
     const strategy = this.AIFactory.getStrategy(provider);
 
-    const data = await strategy.getPRReview({ code });
+    const data = await strategy.getPRReview({ code, fileContent });
 
     return { review: data };
   }

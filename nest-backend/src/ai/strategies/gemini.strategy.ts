@@ -20,10 +20,16 @@ export class GeminiStrategy implements AIStrategy {
   async getResponseFromAI({
     content,
     prompt,
+    FullFileContent,
   }: {
     content: any;
     prompt: string;
+    FullFileContent?: string;
   }): Promise<any> {
+    if (FullFileContent) {
+      prompt += `\n\nHere is the Full File Content, Now review only the change that I have made, this file is for context only :\n${FullFileContent}`;
+    }
+
     const genAI = new GoogleGenAI({
       apiKey: this.configService.get('GEMINI_API_KEY'),
     });
@@ -37,8 +43,15 @@ export class GeminiStrategy implements AIStrategy {
     return response.text;
   }
 
-  async getPRReview({ code }: { code: string }): Promise<any> {
+  async getPRReview({
+    code,
+    fileContent,
+  }: {
+    code: string;
+    fileContent: string;
+  }): Promise<any> {
     return await this.getResponseFromAI({
+      FullFileContent: fileContent,
       content: code,
       prompt: githubReviewPrompt,
     });

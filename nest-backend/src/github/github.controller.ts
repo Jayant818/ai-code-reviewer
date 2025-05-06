@@ -98,8 +98,6 @@ export class GithubController {
 
     // digest - output of hash function we can simply call it hash
     const digest = 'sha256=' + hmac.update(payload).digest('hex');
-    console.log('digest', digest);
-    console.log('signature', signature);
 
     // It compares two buffers in a way that is resistant to timing attacks.
     // Means it will take same time to compare two buffers regardless of their content.
@@ -107,10 +105,5 @@ export class GithubController {
     // It takes binary buffer as input and returns boolean value.
     // Buffer.from converts a string to a buffer.
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
-  }
-
-  @Get('test')
-  testRoute() {
-    return { status: 'ok', message: 'GitHub controller is working' };
   }
 }

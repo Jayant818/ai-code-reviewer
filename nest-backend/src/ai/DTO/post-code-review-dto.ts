@@ -1,4 +1,4 @@
-import { IsIn, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 import { AiProvider, IAiProvider } from './post-code-summary.dto';
 
 export class PostCodeReviewDTO {
@@ -7,4 +7,8 @@ export class PostCodeReviewDTO {
 
   @IsIn(AiProvider)
   provider: IAiProvider;
+
+  @IsOptional()
+  @IsString()
+  fileContent: string;
 }
