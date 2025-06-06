@@ -1,4 +1,4 @@
-import { AppInjectable } from 'lib/framework/src/decorators';
+import { AppInjectable } from '@app/framework';
 import { AIFactory } from './ai.factory';
 import { PostCodeReviewDTO } from './DTO/post-code-review-dto';
 import { IAiProvider, PostCodeSummaryDTO } from './DTO/post-code-summary.dto';

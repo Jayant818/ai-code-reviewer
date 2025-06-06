@@ -1,8 +1,8 @@
 import { Body, Post } from '@nestjs/common';
-import { AppController } from 'lib/framework/src/decorators';
 import { AIService } from './ai.service';
 import { PostCodeReviewDTO } from './DTO/post-code-review-dto';
 import { IAiProvider, PostCodeSummaryDTO } from './DTO/post-code-summary.dto';
+import { AppController } from '@app/framework';
 
 @AppController('ai')
 export class AIController {

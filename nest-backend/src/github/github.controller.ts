@@ -2,7 +2,7 @@ import { Body, Post, Headers, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { GithubService } from './github.service';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { AppController } from 'lib/framework/src/decorators';
+import { AppController } from '@app/framework';
 
 @AppController('github')
 export class GithubController {

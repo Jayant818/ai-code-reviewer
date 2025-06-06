@@ -1,4 +1,4 @@
-import { AppInjectable } from 'lib/framework/src/decorators';
+import { AppInjectable } from '@app/framework/src/decorators';
 import AIStrategy from '../strategy.interface';
 import {
   fullReviewPrompt,

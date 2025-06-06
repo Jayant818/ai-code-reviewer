@@ -1,9 +1,8 @@
 import { ConfigService } from '@nestjs/config';
-import { AppInjectable } from 'lib/framework/src/decorators';
 import { AIService } from 'src/ai/ai.service';
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
-import { marked } from 'marked';
+import { AppInjectable } from '@app/framework';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -24,7 +23,7 @@ export class GithubService {
   ) {}
 
   // Helper Functions
-  // 1Getting the octokit instance using GitHub App Authentication
+  // Getting the octokit instance using GitHub App Authentication
   private async getOctoKit(installationId: number) {
     const appId = this.configService.get('BUG_CHECKER_APP_ID');
 
@@ -398,6 +397,8 @@ export class GithubService {
         repo,
         pull_number: prNumber,
       });
+
+      console.log('Files', files);
 
       // file.sha - hash used to uniquely identify the file, so it can compare 2 file
       // if the file contentes are same they will have the same file.sha

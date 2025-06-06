@@ -2,6 +2,53 @@
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
+  "projects": {
+    "rabbitMq":{
+      "type": "library",
+      "entryFile": "index",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rabbitMq/tsconfig.lib.json"
+      },
+      "root": "libs/rabbitMq",
+      "sourceRoot": "libs/rabbitMq/src"
+    },
+    "framework":{
+      "type": "library",
+      "entryFile": "index",
+      "root": "libs/framework",
+      "sourceRoot": "libs/framework/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/framework/tsconfig.lib.json"
+      }
+    },
+    "common":{
+      "type": "library",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      },
+      "entryFile": "index",
+      "root": "libs/common",
+      "sourceRoot": "libs/common/src"
+    },
+    "mongoDb":{
+      "type": "library",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mongoDb/tsconfig.lib.json"
+      },
+      "entryFile": "index",
+      "root": "libs/mongoDb",
+      "sourceRoot": "libs/mongoDb/src"
+    },
+    "config":{
+      "type": "library",
+      "compilerOptions": {
+        "tsConfigPath": "libs/config/tsconfig.lib.json"
+        },
+        "entryFile": "index",
+        "root": "libs/config",
+        "sourceRoot": "libs/config/src"
+    }
+  },
   "compilerOptions": {
     "deleteOutDir": true
   }

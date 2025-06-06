@@ -1,0 +1,12 @@
+{
+    "extends":"../../tsconfig.json",
+    "compilerOptions": {
+        // .d.ts - one declaration file will be generated. It will contains types
+        // The allow seperate compilation of dependent TypeScript projects without needing access to the source code
+        // IntelliSense support
+        "declaration": true,
+        "outDir": "../../dist/libs/rabbits",
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules","dist","test","**/*spec.ts"]
+}
