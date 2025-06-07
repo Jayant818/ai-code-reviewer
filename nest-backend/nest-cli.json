@@ -47,6 +47,15 @@
         "entryFile": "index",
         "root": "libs/config",
         "sourceRoot": "libs/config/src"
+    },
+    "types":{
+      "type": "library",
+      "entryFile": "index",
+      "root": "libs/types",
+      "sourceRoot": "libs/types/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/types/tsconfig.lib.json"
+      }
     }
   },
   "compilerOptions": {

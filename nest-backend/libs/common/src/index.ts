@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule } from "@app/config";
 import { MongoModule } from "libs/mongoDb/src";
 
 @Module({

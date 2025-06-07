@@ -3,6 +3,8 @@ import { GithubService } from './github.service';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { AppController } from '@app/framework';
+import { INSTALLATION_EVENTS } from 'src/common/enums';
+import { InstallationEventDTO } from './DTO/InstallationEvent.dto';
 
 @AppController('github')
 export class GithubController {
@@ -39,8 +41,16 @@ export class GithubController {
         return this.handleCheckRunEvent(body);
       case 'check_suite':
         return this.handleCheckSuiteEvent(body);
+      case 'installation':
+        return this.handleInstallationEvent(body);
       default:
         return { message: 'Unsupported event' };
+    }
+  }
+
+  private async handleInstallationEvent(payload: InstallationEventDTO) {
+    if (payload.action === INSTALLATION_EVENTS.CREATED) { 
+      await this.githubService.createInstallation(payload.installation);
     }
   }
 

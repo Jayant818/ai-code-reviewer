@@ -3,6 +3,7 @@ import { AIService } from 'src/ai/ai.service';
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
 import { AppInjectable } from '@app/framework';
+import { InstallationEventDTO, Installations } from './DTO/InstallationEvent.dto';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -349,6 +350,10 @@ export class GithubService {
   }
 
   // --------- Main Function ---------
+
+  async createInstallation(InstallationData: Installations) {
+    
+  }
 
   async reviewPullRequest(
     repoFullName: string,
