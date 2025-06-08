@@ -2,3 +2,15 @@
   "singleQuote": true,
   "trailingComma": "all"
 }
+
+{
+  "printWidth": 240,
+  "trailingComma": "all",
+  "tabWidth": 2,
+  "bracketSpacing": false,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "arrowParens": "always",
+  "endOfLine": "lf"
+}

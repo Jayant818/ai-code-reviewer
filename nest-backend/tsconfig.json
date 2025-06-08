@@ -20,7 +20,17 @@
     // Path Aliases: : If you move a library, you only need to update the path in one place
     "paths": {
       "@app/framework":["libs/framework/src"],
-      "@app/framework/*":["libs/framework/*"]
+      "@app/framework/*":["libs/framework/*"],
+      "@app/rabbitMq":["libs/rabbitMq/src"],
+      "@app/rabbitMq/*":["libs/rabbitMq/*"],
+      "@app/common":["libs/common/src"],
+      "@app/common/*":["libs/common/*"],
+      "@app/mongodb":["libs/mongoDb/src"],
+      "@app/mongodb/*":["libs/mongoDb/*"],
+      "@app/config":["libs/config/src"],
+      "@app/config/*":["libs/config/*"],
+      "@app/types":["libs/types/src"],
+      "@app/types/*":["libs/types/*"]
     }
   }
 }

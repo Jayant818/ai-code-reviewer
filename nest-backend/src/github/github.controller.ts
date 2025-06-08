@@ -1,22 +1,26 @@
-import { Body, Post, Headers, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Post, Headers, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { GithubService } from './github.service';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { AppController } from 'lib/framework/src/decorators';
+import { AppController } from '@app/framework';
+import { INSTALLATION_EVENTS } from 'src/common/enums';
+import { InstallationEventDTO } from './DTO/InstallationEvent.dto';
+import { IntegrationRepository } from 'src/Integrations/Integration.repository';
 
 @AppController('github')
 export class GithubController {
   constructor(
     private readonly githubService: GithubService,
     private readonly configService: ConfigService,
+    private readonly integrationRepository: IntegrationRepository,
   ) {}
 
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
   async handleWebhook(
     @Body() body: any,
-    @Headers('x-github-event') githubEvent: string,
-    @Headers('x-hub-signature-256') signature: string,
+    @Headers('X-GitHub-Event') githubEvent: string,
+    @Headers('X-Hub-Signature-256') signature: string,
   ) {
     console.log('Received GitHub webhook event:', githubEvent);
 
@@ -24,7 +28,7 @@ export class GithubController {
     const isValid = this.verifySignature(
       signature,
       JSON.stringify(body),
-      this.configService.get('GITHUB_WEBHOOK_SECRET'),
+      this.configService.get('BUG_CHECKER_WEBHOOK_SECRET'),
     );
 
     if (!isValid) {
@@ -35,12 +39,26 @@ export class GithubController {
     switch (githubEvent) {
       case 'pull_request':
         return this.handlePullRequestEvent(body);
-      // case 'check_run':
-      //   return this.handleCheckRunEvent(body);
-      // case 'check_suite':
-      //   return this.handleCheckSuiteEvent(body);
+      case 'check_run':
+        return this.handleCheckRunEvent(body);
+      case 'check_suite':
+        return this.handleCheckSuiteEvent(body);
+      case 'installation':
+        return this.handleInstallationEvent(body);
       default:
         return { message: 'Unsupported event' };
+    }
+  }
+
+  private async handleInstallationEvent(payload: InstallationEventDTO) {
+    if (payload.action === INSTALLATION_EVENTS.CREATED) { 
+      await this.integrationRepository.createIntegration({
+        installationId: payload.installation.id,
+        integrationTypes: 'Github_APP',
+        type: payload.installation.account.type,
+        userId: payload.installation.account.id,
+        username: payload.installation.account.login,
+      });
     }
   }
 
@@ -48,42 +66,51 @@ export class GithubController {
     const { action } = payload;
 
     // synchronize - when a pull request is updated
-    if (action === 'opened' || action === 'synchronize') {
+    if (
+      action === 'opened' ||
+      action === 'synchronize' ||
+      action === 'reopened'
+    ) {
       await this.githubService.reviewPullRequest(
         payload.repository.full_name,
         payload.pull_request.number,
         payload.installation.id,
+        action,
       );
+
       return { message: 'PR review initiated' };
     }
 
     return { message: `PR ${action} event received` };
   }
 
-  // private async handleCheckRunEvent(payload: any) {
-  //   if (payload.action === 'rerequested') {
-  //     await this.githubService.handleCheckRunRerequest(payload);
-  //     return { message: 'Check run re-requested' };
-  //   }
+  private async handleCheckRunEvent(payload: any) {
+    if (payload.action === 'rerequested') {
+      await this.githubService.handleCheckRunRerequest(payload);
+      return { message: 'Check run re-requested' };
+    }
 
-  //   return { message: 'Check run event received' };
-  // }
+    return { message: 'Check run event received' };
+  }
 
-  // private async handleCheckSuiteEvent(payload: any) {
-  //   if (payload.action === 'requested') {
-  //     await this.githubService.handleCheckSuiteRequested(payload);
-  //     return { message: 'Check suite requested' };
-  //   }
+  private async handleCheckSuiteEvent(payload: any) {
+    if (payload.action === 'requested') {
+      await this.githubService.handleCheckSuiteRequested(payload);
+      return { message: 'Check suite requested' };
+    }
 
-  //   return { message: 'Check suite event received' };
-  // }
+    return { message: 'Check suite event received' };
+  }
 
   private verifySignature(
-    payload: string,
     signature: string,
+    payload: string,
     secret: string,
   ): boolean {
-    if (!secret || !signature) return false;
+    if (!secret || !signature) {
+      console.log('Missing secret or signature for verification');
+      return false;
+    }
 
     const hmac = crypto.createHmac('sha256', secret);
 

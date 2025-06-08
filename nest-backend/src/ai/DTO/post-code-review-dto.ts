@@ -1,12 +1,14 @@
-import { IsIn, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { AiProvider, IAiProvider } from './post-code-summary.dto';
 
-export const AiProvider = ['GEMINI', 'CLAUDE'] as const;
-export type IAiProvider = (typeof AiProvider)[number];
-
-export class postCodeReviewDTO {
+export class PostCodeReviewDTO {
   @IsString()
   code: string;
 
   @IsIn(AiProvider)
   provider: IAiProvider;
+
+  @IsOptional()
+  @IsString()
+  fileContent: string;
 }
