@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
 import { ACCOUNT_TYPES, IACCOUNT_TYPES, IPERMISSION_TYPE } from "src/common/enums";
 
-const IntegrationTypes = ["Github_APP"];
+const IntegrationTypes = ["Github_APP"] as const;
 
 type IIntegrationTypes = typeof IntegrationTypes[number];
 
@@ -12,8 +12,6 @@ type IIntegrationTypes = typeof IntegrationTypes[number];
     collection:COLLECTION_NAMES.Integrations.Integration
 })
 export class Integration{
-    _id: MongooseTypes.ObjectId;
-
     @Prop({
         required: true,
         type: Number,

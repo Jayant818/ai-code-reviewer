@@ -5,12 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { AppController } from '@app/framework';
 import { INSTALLATION_EVENTS } from 'src/common/enums';
 import { InstallationEventDTO } from './DTO/InstallationEvent.dto';
+import { IntegrationRepository } from 'src/Integrations/Integration.repository';
 
 @AppController('github')
 export class GithubController {
   constructor(
     private readonly githubService: GithubService,
     private readonly configService: ConfigService,
+    private readonly integrationRepository: IntegrationRepository,
   ) {}
 
   @Post('webhook')
@@ -50,7 +52,13 @@ export class GithubController {
 
   private async handleInstallationEvent(payload: InstallationEventDTO) {
     if (payload.action === INSTALLATION_EVENTS.CREATED) { 
-      await this.githubService.createInstallation(payload.installation);
+      await this.integrationRepository.createIntegration({
+        installationId: payload.installation.id,
+        integrationTypes: 'Github_APP',
+        type: payload.installation.account.type,
+        userId: payload.installation.account.id,
+        username: payload.installation.account.login,
+      });
     }
   }
 

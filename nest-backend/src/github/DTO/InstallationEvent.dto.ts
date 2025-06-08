@@ -21,6 +21,12 @@ class Account {
   @IsNumber()
   @IsNotEmpty()
   id: number;
+    
+  @IsString()
+  @IsNotEmpty()
+  login: string;
+    
+  
 
   @IsString()
   @IsNotEmpty()
@@ -54,6 +60,11 @@ class Permission {
 }
 
 export class Installations {
+
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
   @IsString()
   @IsNotEmpty()
   client_id: string;
