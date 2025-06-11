@@ -5,6 +5,7 @@ import { COLLECTION_NAMES } from "src/common/constants";
 import { UserSchema } from "./model/user.model";
 import { Mongoose } from "mongoose";
 import { MongooseModule } from "@nestjs/mongoose";
+import { UserRepository } from "./user.repository";
 
 const USER_MODULES = [
     {
@@ -18,7 +19,7 @@ const USER_MODULES = [
         MongooseModule.forFeature(USER_MODULES)
     ],
     controllers: [UserController],
-    providers: [UserService],
-    exports: [MongooseModule]
+    providers: [UserService,UserRepository],
+    exports: [MongooseModule,UserService,UserRepository]
 })
 export class UserModule{}
