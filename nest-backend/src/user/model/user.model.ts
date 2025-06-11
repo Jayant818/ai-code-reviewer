@@ -1,4 +1,4 @@
-import { MongooseDocument, MongooseModel } from "@app/types";
+import { MongooseDocument, MongooseModel, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Collection } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
@@ -73,6 +73,8 @@ const RepositorySchema = SchemaFactory.createForClass(Repository);
   collection: COLLECTION_NAMES.User.user,
 })
 export class User{
+  _id: MongooseTypes.ObjectId;
+
   @Prop({
       required: true,
       type: String,
@@ -94,6 +96,20 @@ export class User{
     select:false,
   })
   password: string;
+
+
+  @Prop({
+    default: null,
+    type:String,
+  })
+  hashedRefreshToken: string;
+
+  @Prop({
+    type: Number,
+    unique: true,
+    sparse: true, // Allows null values while maintaining uniqueness
+  })
+  githubId: number;
 
   @Prop({
     type: Boolean,
@@ -138,7 +154,8 @@ export const UserSchema = SchemaFactory.createForClass(User);
 export type UserDocument = User & MongooseDocument;
 
 export interface IUserModel extends MongooseModel<UserDocument>{
-  findByEmailAndPassword:(email:string,password:string)=>Promise<UserDocument|null>
+  findByEmailAndPassword: (email: string, password: string) => Promise<UserDocument | null>
+  findByGithubId: (profileId: number) => Promise<UserDocument | null>
 } 
 
 // will work on save command
@@ -172,6 +189,14 @@ UserSchema.static("findByEmailAndPassword",async function (email: string, passwo
   return user;
 
 
+})
+
+UserSchema.static("findByGithubId", async function(profileId:number){
+  const user = await this.findOne<UserDocument>({
+    githubId:profileId
+  })
+
+  return user;
 })
 
 
