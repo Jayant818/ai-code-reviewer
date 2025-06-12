@@ -67,7 +67,7 @@ export default function Home() {
           >
             <GitHubLoginButton size="lg" />
             <Link
-              className="flex gap-2 items-center px-8 py-4 glass-card text-foreground rounded-lg hover:fire-glow transition-all duration-300 text-lg font-medium"
+              className="flex gap-2 items-center px-8 py-4 glass-card text-foreground rounded-lg hover:fire-glow transition-all duration-300 text-lg font-medium text-center"
               href="/try"
             >
               Try Demo <IoIosLink />

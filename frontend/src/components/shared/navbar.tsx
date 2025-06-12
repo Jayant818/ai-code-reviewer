@@ -1,18 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-
 import { useSelectedLayoutSegment } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
+import { isAuthenticated } from "@/src/lib/auth";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
   const segment = useSelectedLayoutSegment();
 
-  const navLinks = [
-    { href: "/connect-github", label: "Connect", segment: "connect-github" },
-    { href: "/try", label: "Try Demo", segment: "try" }
-  ];
+  useEffect(() => {
+    setIsAuth(isAuthenticated());
+  }, []);
+
+  const navLinks = isAuth
+    ? [
+        { href: "/dashboard", label: "Dashboard", segment: "dashboard" },
+        { href: "/try", label: "Try Demo", segment: "try" }
+      ]
+    : [
+        { href: "/connect-github", label: "Connect", segment: "connect-github" },
+        { href: "/try", label: "Try Demo", segment: "try" }
+      ];
 
   return (
     <header className="sticky top-0 z-50 w-full glass-card border-b border-border backdrop-blur-md">

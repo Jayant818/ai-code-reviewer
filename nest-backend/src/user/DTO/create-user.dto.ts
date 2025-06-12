@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { AUTH_PROVIDER_VALUES, IAUTH_PROVIDER } from "../model/user.model";
 
 export class CreateUserDTO{
     @IsString()
@@ -20,4 +21,7 @@ export class CreateUserDTO{
     @IsString()
     @IsNotEmpty()
     password: string;
+
+    @IsIn(AUTH_PROVIDER_VALUES)
+    authProvider: IAUTH_PROVIDER;
 }

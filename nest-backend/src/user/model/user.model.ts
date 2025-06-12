@@ -5,6 +5,17 @@ import { COLLECTION_NAMES } from "src/common/constants";
 import { IPERMISSION_TYPE, PERMISSION_TYPES } from "src/common/enums";
 import * as bcrypt from "bcrypt"
 
+export const AUTH_PROVIDER = {
+  'GITHUB' : 'github',
+  'LOCAL' : 'local'
+} as const;
+
+export type IAUTH_PROVIDER = typeof AUTH_PROVIDER[keyof typeof AUTH_PROVIDER];
+
+export const AUTH_PROVIDER_VALUES = Object.values(AUTH_PROVIDER);
+
+
+
 class Permission {
   @Prop({
       type: String,
@@ -91,9 +102,10 @@ export class User{
   email: string;
 
   @Prop({
-    required: true,
+    required: false,
     // Now we have explicitly select the password
-    select:false,
+    select: false,
+    sparse:true,
   })
   password: string;
 
@@ -142,9 +154,14 @@ export class User{
 
   @Prop({
     default: [],
-    type:RepositorySchema
   })
   repoAccess: Repository[];
+
+  @Prop({
+    required: true,
+    enum:AUTH_PROVIDER,
+  })
+  authProvider: IAUTH_PROVIDER;
 
   verifyPassword: (candidatePassword: string) => Promise<boolean>;
 }
@@ -159,7 +176,10 @@ export interface IUserModel extends MongooseModel<UserDocument>{
 } 
 
 // will work on save command
-UserSchema.pre("save", async function(next)  {
+UserSchema.pre("save", async function (next) {
+    if (!this.isModified('password') || !this.password) {
+    return next();
+  }
   const hashedPassword = await bcrypt.hash(this.password, 10);
   this.password = hashedPassword;
   next();

@@ -124,6 +124,7 @@ export class AuthService {
                     email: userData.email, 
                     avatar: userData.avatar,
                     password: userData.password,
+                    authProvider: userData.authProvider,
                 });
             }
 

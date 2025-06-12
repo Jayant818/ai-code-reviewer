@@ -32,6 +32,7 @@ export class AuthController {
   @Get('/github/login')
   async githubLogin() {}
 
+  @Public()
   @UseGuards(GithubAuthGuard)
   @Get('/github/callback')
   async githubCallback(@Req() req, @Res() res) {
@@ -41,10 +42,14 @@ export class AuthController {
 
     // Now create JWT Access Token & Refresh token and send it to the client 
     const response = await this.authService.login(req.user._id);
+
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL')?.trim();
     
-    res.redirect(`
-        ${this.configService.get<string>('FRONTEND_URL')}/${this.configService.get<string>('REDIRECT_LOGIN_URL')}?token=${response.accessToken}&refreshToken=${response.refreshToken}
-      `)
+    const redirectPath = this.configService.get<string>('REDIRECT_LOGIN_URL')?.trim();
+
+    const redirectUrl = `${frontendUrl}/${redirectPath}?token=${response.accessToken}&refreshToken=${response.refreshToken}`;
+
+    res.redirect(redirectUrl);
   }
 
   @Get('logout')

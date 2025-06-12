@@ -1,7 +1,6 @@
 import { AppInjectable } from '@app/framework/src/decorators';
 import AIStrategy from '../strategy.interface';
 import {
-  fullReviewPrompt,
   githubReviewPrompt,
   summaryPrompt,
 } from '../constants';

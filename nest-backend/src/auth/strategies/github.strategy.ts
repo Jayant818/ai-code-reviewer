@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy } from "passport-github2";
 import { AuthService } from "../auth.service";
+import { AUTH_PROVIDER } from "src/user/model/user.model";
 
 @AppInjectable()
 export class GithubStrategy extends PassportStrategy(Strategy){
@@ -19,19 +20,24 @@ export class GithubStrategy extends PassportStrategy(Strategy){
         })
     }
 
-    validate(accessToken:string,refreshToken:string,profile:any,done:Function) {
+    async validate(accessToken:string,refreshToken:string,profile:any,done:Function) {
 
         const primaryEmail = profile.emails && profile.emails.length > 0 
                     ? profile.emails[0].value 
-                    : null;
+            : null;
+        
+        console.log("Hello",primaryEmail);
 
-        const user = this.authService.validateGithubUser({
+        const user = await this.authService.validateGithubUser({
             githubId: profile.id,
             username: profile.username,
             email: primaryEmail ,
             avatar: profile.photos[0].value,
-            password: "",
+            password: null,
+            authProvider: AUTH_PROVIDER.GITHUB,
         });
+
+        console.log("Hello",user);
         done(null, user);
     }
 }

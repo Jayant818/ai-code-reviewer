@@ -6,6 +6,7 @@ import { GithubModule } from './github/github.module';
 import { IntegrationModule } from './Integrations/Integration.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from '@app/common';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CommonModule } from '@app/common';
     GithubModule,
     IntegrationModule,
     AuthModule,
+    OrganizationModule,
   ],
   controllers: [],
   providers: [],
