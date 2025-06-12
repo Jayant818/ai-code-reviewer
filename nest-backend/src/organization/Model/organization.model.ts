@@ -1,5 +1,5 @@
-import { MongooseTypes } from "@app/types";
-import { Prop, Schema } from "@nestjs/mongoose";
+import { MongooseDocument, MongooseTypes } from "@app/types";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Mongoose } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
 
@@ -24,3 +24,9 @@ export class Organization {
     seatsLeft: number;
 
 }
+
+export const OrganizationSchema = SchemaFactory.createForClass(Organization);
+
+export type OrganizationDocument = Organization & MongooseDocument;
+
+OrganizationSchema.index({ name: 1 }, { unique: true });

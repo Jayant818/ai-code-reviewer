@@ -9,10 +9,12 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './gaurds/jwt-auth/jwt-auth.guard';
+import { OrganizationModule } from 'src/organization/organization.module';
 
 @Module({
   imports: [
     UserModule,
+    OrganizationModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),

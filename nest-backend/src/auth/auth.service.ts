@@ -1,14 +1,14 @@
-import { JWT_PAYLOAD, MongooseModel, MongooseTypes } from '@app/types';
+import { JWT_PAYLOAD, MongooseConnection, MongooseModel, MongooseTypes } from '@app/types';
 import { Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { COLLECTION_NAMES } from 'src/common/constants';
 import { CreateUserDTO } from 'src/user/DTO/create-user.dto';
 import { IUserModel } from 'src/user/model/user.model';
-import { UserService } from 'src/user/user.service';
 import * as argon from "argon2";
 import { UserRepository } from 'src/user/user.repository';
+import { OrganizationRepository } from 'src/organization/organization.repository';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +18,11 @@ export class AuthService {
 
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
-        private readonly userService: UserService,
-        private readonly userRepository:UserRepository,
+        private readonly userRepository: UserRepository,
+        private readonly orgRepository: OrganizationRepository,
+
+        @InjectConnection()
+        private readonly mongooseConnection: MongooseConnection,
     ){ }
     
     async validateUser(email: string, password: string) { 
@@ -37,10 +40,14 @@ export class AuthService {
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
-        await this.userService.updateRefreshToken({
-            userId,
-            hashedRefreshToken
-        })
+         await this.userRepository.update(
+            {
+                _id:new MongooseTypes.ObjectId(userId)
+            },
+            {
+                hashedRefreshToken
+            }, {}
+        )
 
         return {
             id: userId,
@@ -72,10 +79,14 @@ export class AuthService {
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
-        await this.userService.updateRefreshToken({
-            userId,
-            hashedRefreshToken
-        })
+         await this.userRepository.update(
+            {
+                _id:new MongooseTypes.ObjectId(userId)
+            },
+            {
+                hashedRefreshToken
+            }, {}
+        )
 
         return {
             id: userId,
@@ -114,24 +125,41 @@ export class AuthService {
     }
 
     async validateGithubUser(userData: CreateUserDTO) {
+        const session = await this.mongooseConnection.startSession();
         try {
-            let user = await this.userModel.findByGithubId(userData.githubId);
+            session.startTransaction();
+            let user = await this.userModel.findByGithubId(userData.githubId,session)
 
             if (!user) {
-                user = await this.userModel.create({
+
+                // Create a DUMMY ORG
+                const org = await this.orgRepository.createOrganization({
+                    name: user.username,
+                    seatsLeft: 0,
+                },session)
+
+                user = await this.userRepository.createUser({
                     githubId: userData.githubId,
                     username: userData.username,
                     email: userData.email, 
                     avatar: userData.avatar,
                     password: userData.password,
                     authProvider: userData.authProvider,
-                });
+                    org: org._id,
+                }, session);
+
+                // Create a Trial Subscription
+                // const subscription = await this.orgRepository.
             }
 
+            await session.commitTransaction();
             return user
         } catch (error) {
+            await session.abortTransaction();
             console.error('GitHub validation error:', error);
             throw error;
+        } finally {
+            session.endSession();
         }
     }
 

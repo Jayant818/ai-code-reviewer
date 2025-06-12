@@ -1,6 +1,6 @@
 import { MongooseDocument, MongooseModel, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Collection } from "mongoose";
+import { ClientSession, Collection } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
 import { IPERMISSION_TYPE, PERMISSION_TYPES } from "src/common/enums";
 import * as bcrypt from "bcrypt"
@@ -83,13 +83,13 @@ const RepositorySchema = SchemaFactory.createForClass(Repository);
   timestamps: true,
   collection: COLLECTION_NAMES.User.user,
 })
-export class User{
+export class User {
   _id: MongooseTypes.ObjectId;
 
   @Prop({
-      required: true,
-      type: String,
-      unique:true
+    required: true,
+    type: String,
+    unique: true
   })
   username: string;
 
@@ -97,7 +97,7 @@ export class User{
     required: true,
     type: String,
     lowercase: true,
-    trim:true,
+    trim: true,
   })
   email: string;
 
@@ -105,14 +105,14 @@ export class User{
     required: false,
     // Now we have explicitly select the password
     select: false,
-    sparse:true,
+    sparse: true,
   })
   password: string;
 
 
   @Prop({
     default: null,
-    type:String,
+    type: String,
   })
   hashedRefreshToken: string;
 
@@ -131,12 +131,19 @@ export class User{
 
   @Prop({
     type: String,
-    trim:true,
+    trim: true,
   })
   avatar: string;
 
   @Prop({ default: null })
   stripeAccountId: string;
+
+  @Prop({
+    type: MongooseTypes.ObjectId,
+    ref: COLLECTION_NAMES.Organization.organization,
+    required: true,
+  })
+  org: MongooseTypes.ObjectId;
 
   @Prop({ default: null })
   stripeCustomerId: string;
@@ -172,7 +179,7 @@ export type UserDocument = User & MongooseDocument;
 
 export interface IUserModel extends MongooseModel<UserDocument>{
   findByEmailAndPassword: (email: string, password: string) => Promise<UserDocument | null>
-  findByGithubId: (profileId: number) => Promise<UserDocument | null>
+  findByGithubId: (profileId: number,session?:ClientSession) => Promise<UserDocument | null>  
 } 
 
 // will work on save command
@@ -211,10 +218,10 @@ UserSchema.static("findByEmailAndPassword",async function (email: string, passwo
 
 })
 
-UserSchema.static("findByGithubId", async function(profileId:number){
+UserSchema.static("findByGithubId", async function(profileId:number,session?:ClientSession){
   const user = await this.findOne<UserDocument>({
     githubId:profileId
-  })
+  }).session(session ?? null)
 
   return user;
 })

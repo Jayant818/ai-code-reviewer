@@ -10,23 +10,4 @@ export class UserService {
     constructor(
         private readonly userRepository: UserRepository,
     ) { }
-
-    async updateRefreshToken({
-        userId,
-        hashedRefreshToken
-    }: {
-        userId:number,
-        hashedRefreshToken:string
-        }) {
-        await this.userRepository.update(
-            {
-                _id:new MongooseTypes.ObjectId(userId)
-            },
-            {
-                hashedRefreshToken
-            }, {}
-        )
-    }
-    
-
 }

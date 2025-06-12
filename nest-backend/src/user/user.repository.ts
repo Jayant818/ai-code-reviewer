@@ -4,7 +4,7 @@ import { COLLECTION_NAMES } from "src/common/constants";
 import { User, UserDocument } from "./model/user.model";
 import { MongooseModel } from "@app/types";
 import { InjectModel } from "@nestjs/mongoose";
-import { QueryOptions } from "mongoose";
+import { ClientSession, QueryOptions } from "mongoose";
 
 @AppInjectable()
 export class UserRepository  {
@@ -13,8 +13,10 @@ export class UserRepository  {
         private readonly userModel: MongooseModel<UserDocument>
     ) { }
     
-    async createUser(data: Partial<User>) {
-        const user = await this.userModel.create(data);
+    async createUser(data: Partial<User>,session?:ClientSession): Promise<UserDocument> {
+        const user = new this.userModel(data);
+        await user.save({ session });
+        return user;
     }
 
     async findOne<K extends keyof User>(
