@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BugCatcher - AI Code Reviews",
-  description: "Get instant, intelligent code reviews on every GitHub pull request. Catch bugs, improve quality, and ship with confidence.",
+  title: "BugCatcher - AI-Powered Code Reviews",
+  description: "Transform your development workflow with intelligent code analysis. Catch bugs before they ship, improve code quality, and accelerate your team's velocity with AI that understands your codebase.",
 };
 
 export default function RootLayout({

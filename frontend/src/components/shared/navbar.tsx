@@ -25,28 +25,28 @@ export function Navbar() {
       ];
 
   return (
-    <header className="sticky top-0 z-50 w-full glass-card border-b border-border backdrop-blur-md">
-      <nav className="container mx-auto flex items-center justify-between px-4 py-4 md:px-6 lg:px-8" aria-label="Main navigation">
+    <header className="sticky top-0 z-50 w-full glass-card border-b border-glass-border backdrop-blur-xl">
+      <nav className="container mx-auto flex items-center justify-between px-6 py-5 md:px-8 lg:px-12" aria-label="Main navigation">
         {/* Logo and brand */}
-        <Link href="/" className="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md group">
-          <div className="w-10 h-10 fire-gradient rounded-lg flex items-center justify-center">
-            <span className="text-lg">🔥</span>
+        <Link href="/" className="flex items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group transition-all duration-300">
+          <div className="w-12 h-12 premium-gradient rounded-xl flex items-center justify-center glow-effect group-hover:scale-110 transition-transform duration-300">
+            <span className="text-xl">⚡</span>
           </div>
-          <span className="text-xl font-bold hidden sm:inline-block">
+          <span className="text-2xl font-bold hidden sm:inline-block text-gradient">
             BugCatcher
           </span>
         </Link>
 
         {/* Desktop navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-500 relative overflow-hidden ${
                 segment === link.segment
-                  ? "fire-gradient text-white"
-                  : "text-muted-foreground hover:text-foreground hover:fire-glow"
+                  ? "premium-gradient text-white glow-effect"
+                  : "text-foreground-muted hover:text-foreground glass-card hover:glow-effect"
               }`}
               aria-current={segment === link.segment ? "page" : undefined}
             >
@@ -58,7 +58,7 @@ export function Navbar() {
         {/* Mobile menu button */}
         <button
           type="button"
-          className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground transition-all duration-300"
+          className="md:hidden p-3 rounded-xl glass-card text-foreground hover:glow-effect transition-all duration-500"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
@@ -75,15 +75,15 @@ export function Navbar() {
       {/* Mobile menu, show/hide based on menu state */}
       {isMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
-          <div className="px-4 pt-4 pb-6 space-y-2 border-t border-border glass-card">
+          <div className="px-6 pt-6 pb-8 space-y-4 border-t border-glass-border glass-card">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
+                className={`block px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-500 ${
                   segment === link.segment
-                    ? "fire-gradient text-white"
-                    : "text-muted-foreground hover:text-foreground hover:fire-glow"
+                    ? "premium-gradient text-white glow-effect"
+                    : "text-foreground-muted hover:text-foreground glass-card hover:glow-effect"
                 }`}
                 aria-current={segment === link.segment ? "page" : undefined}
                 onClick={() => setIsMenuOpen(false)}

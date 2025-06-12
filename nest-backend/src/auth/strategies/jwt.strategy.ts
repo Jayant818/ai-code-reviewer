@@ -12,8 +12,7 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 @AppInjectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
-        private readonly configService: ConfigService
-        ,
+        private readonly configService: ConfigService,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -24,6 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     
     validate(payload: JWT_PAYLOAD) {
-        return {id: payload.sub};
+        return {id: payload.sub,org:payload.org};
     }
 }

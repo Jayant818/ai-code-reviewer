@@ -9,6 +9,7 @@ import { IUserModel } from 'src/user/model/user.model';
 import * as argon from "argon2";
 import { UserRepository } from 'src/user/user.repository';
 import { OrganizationRepository } from 'src/organization/organization.repository';
+import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,37 @@ export class AuthService {
 
         @InjectConnection()
         private readonly mongooseConnection: MongooseConnection,
-    ){ }
+    ) { }
+    
+    // ========HELPER FUNCTIONS===========
+    public generateCookieOptions = ({
+    domain,
+    httpOnly,
+    path,
+    sameSite = 'lax',
+    secure = true,
+    expires,
+    }: {
+    domain?: string;
+    httpOnly?: boolean;
+    path?: string;
+    sameSite?: CookieOptions['sameSite']; // ✅ should be optional
+    secure?: CookieOptions['secure'];
+    expires?: CookieOptions['expires'];
+    }): CookieOptions => {
+        const cookieOptions: CookieOptions = {};
+
+        if (sameSite !== undefined) cookieOptions.sameSite = sameSite;
+        if (secure !== undefined) cookieOptions.secure = secure;
+        if (expires !== undefined) cookieOptions.expires = expires;
+        if (httpOnly !== undefined) cookieOptions.httpOnly = httpOnly;
+        if (path !== undefined) cookieOptions.path = path;
+        if (domain !== undefined) cookieOptions.domain = domain;
+
+        return cookieOptions;
+    };
+
+
     
     async validateUser(email: string, password: string) { 
         const user = await this.userModel.findByEmailAndPassword(email, password);
@@ -35,8 +66,8 @@ export class AuthService {
         return {id:user._id}
     }
 
-    async login(userId: number) {
-        const { accessToken, refreshToken } = await this.generateToken(userId);
+    async login(userId: number,orgId:number) {
+        const { accessToken, refreshToken } = await this.generateToken(userId,orgId);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
@@ -56,8 +87,8 @@ export class AuthService {
         }
     }
 
-    async generateToken(userId: number) {
-        const payload:JWT_PAYLOAD = {sub:userId}
+    async generateToken(userId: number,orgId:number) {
+        const payload:JWT_PAYLOAD = {sub:userId,org:orgId}
         
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload),
@@ -73,9 +104,9 @@ export class AuthService {
         }
     }
 
-    async refreshToken(userId: number) {
+    async refreshToken(userId: number,orgId:number) {
         // whenever we are refershing the access token also change the access token this is called Token Rotation/
-        const { accessToken, refreshToken } = await this.generateToken(userId);
+        const { accessToken, refreshToken } = await this.generateToken(userId,orgId);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
@@ -147,9 +178,6 @@ export class AuthService {
                     authProvider: userData.authProvider,
                     org: org._id,
                 }, session);
-
-                // Create a Trial Subscription
-                // const subscription = await this.orgRepository.
             }
 
             await session.commitTransaction();
@@ -164,11 +192,15 @@ export class AuthService {
     }
 
 
-    async logout(userId:number) {
+    async logout(userId: number) {
+        
+        
         return await this.userRepository.update({
             _id: new MongooseTypes.ObjectId(userId)
         }, {
             hashedRefreshToken: null
-        },{})
+        }, {})
+        
+
     }
 }

@@ -5,7 +5,8 @@ import { GithubAuthGuard } from './gaurds/github-auth/github-auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './gaurds/refresh-jwt-auth/refresh-jwt-auth.guard';
 import { Public } from '@app/framework';
-
+import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from 'src/common/constants';
+ 
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -18,13 +19,13 @@ export class AuthController {
   @Post("login")
   async login(@Req() req) {
     // also attach the JWT 
-    return this.authService.login(req.user.id);
+    return this.authService.login(req.user.id,req.user.org);
   }
 
   @Get("refreshToken")
   @UseGuards(RefreshJwtAuthGuard)
   async refreshToken(@Req() req) { 
-    return this.authService.refreshToken(req.user.id);
+    return this.authService.refreshToken(req.user.id,req.user.org);
   }
 
   @Public()
@@ -39,21 +40,39 @@ export class AuthController {
     // This will be called after the user is authenticated
     // and we can get the user data from the request
 
-
     // Now create JWT Access Token & Refresh token and send it to the client 
-    const response = await this.authService.login(req.user._id);
+    const response = await this.authService.login(req.user._id,req.user.org);
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL')?.trim();
-    
+
     const redirectPath = this.configService.get<string>('REDIRECT_LOGIN_URL')?.trim();
 
-    const redirectUrl = `${frontendUrl}/${redirectPath}?token=${response.accessToken}&refreshToken=${response.refreshToken}`;
+   res.cookie(ACCESS_TOKEN_COOKIE_NAME, response.accessToken,
+      this.authService.generateCookieOptions({
+      domain: this.configService.get<string>('DOMAIN_NAME'),
+      httpOnly: true,
+      expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
+      path: '/',
+      })
+    );
 
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, response.refreshToken,
+      this.authService.generateCookieOptions({
+        domain: this.configService.get<string>('DOMAIN_NAME'),
+        httpOnly: true,
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        path: '/',
+      })
+    );
+
+    const redirectUrl = `${frontendUrl}/${redirectPath}`;
     res.redirect(redirectUrl);
   }
 
   @Get('logout')
-  async logout(@Req() req) {
+  async logout(@Req() req,@Res() res) {
+    res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
     await this.authService.logout(req.user.id);
   }
 
