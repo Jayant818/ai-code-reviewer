@@ -11,10 +11,14 @@ export class OrganizationTrials {
 
     @Prop({
         type: MongooseTypes.ObjectId,
-        ref: COLLECTION_NAMES.User.user,
+        ref: COLLECTION_NAMES.Organization.organization,
         required:true,
     })
-    user: MongooseTypes.ObjectId;
+    orgId: MongooseTypes.ObjectId;
+
+    createdAt: Date;
+
+    updatedAt: Date;
 }
 
 export const OrganizationTrialsSchema = SchemaFactory.createForClass(OrganizationTrials);

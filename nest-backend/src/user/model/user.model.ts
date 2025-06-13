@@ -141,7 +141,7 @@ export class User {
   @Prop({
     type: MongooseTypes.ObjectId,
     ref: COLLECTION_NAMES.Organization.organization,
-    required: true,
+    default:null,
   })
   org: MongooseTypes.ObjectId;
 

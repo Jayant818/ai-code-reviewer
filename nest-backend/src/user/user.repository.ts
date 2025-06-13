@@ -23,14 +23,17 @@ export class UserRepository  {
         { 
             filter,
             select,
-            populate=[],
+            populate = [],
+            session,
         }:
         {   filter: Record<K, User[K]>,
             select?: string[],
             populate?: string[] | ({
                 select: string,
-                path:string,
-        })[]}) {
+                path: string,
+            })[],
+            session?:ClientSession,
+        }) {
         
         // create the query 
         const query = this.userModel.findOne(filter);
@@ -43,7 +46,11 @@ export class UserRepository  {
             populate.forEach((item)=>typeof item === 'string'? query.populate(item):query.populate({path:item.path,select:item.select}))
         }
 
-        return query.lean<User>()
+        if (session) {
+            query.session(session);
+        }
+
+        return query.lean<User>().exec();
     }
 
     async update(

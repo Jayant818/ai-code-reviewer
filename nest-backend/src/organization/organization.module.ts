@@ -5,6 +5,7 @@ import { OrganizationRepository } from './organization.repository';
 import { COLLECTION_NAMES } from 'src/common/constants';
 import { OrganizationSchema } from './Model/organization.model';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OrgSubscriptionService } from './subscriptions/org-subscription.service';
 
 
 const OrganizationModules = [
@@ -17,7 +18,7 @@ const OrganizationModules = [
 @Module({
   imports:[MongooseModule.forFeature(OrganizationModules)],
   controllers: [OrganizationController],
-  providers: [OrganizationService, OrganizationRepository],
+  providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService],
   exports:[OrganizationService,OrganizationRepository]
 })
 export class OrganizationModule {}

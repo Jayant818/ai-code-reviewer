@@ -86,6 +86,13 @@ export default function Home() {
               <span>Experience Demo</span>
               <IoIosLink className="group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
+            <Link
+              className="group flex gap-3 items-center px-8 py-4 premium-gradient text-white rounded-xl glow-effect transition-all duration-500 text-lg font-semibold"
+              href="/plans"
+            >
+              <span>View Plans</span>
+              <IoIosLink className="group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
           </motion.div>
 
           {/* Trust Indicators */}

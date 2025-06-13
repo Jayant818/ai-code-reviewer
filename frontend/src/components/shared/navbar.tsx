@@ -17,10 +17,11 @@ export function Navbar() {
   const navLinks = isAuth
     ? [
         { href: "/dashboard", label: "Dashboard", segment: "dashboard" },
-        { href: "/try", label: "Try Demo", segment: "try" }
+        { href: "/try", label: "Try Demo", segment: "try" },
+        { href: "/plans", label: "Plans", segment: "plans" }
       ]
     : [
-        { href: "/connect-github", label: "Connect", segment: "connect-github" },
+        { href: "/plans", label: "Plans", segment: "plans" },
         { href: "/try", label: "Try Demo", segment: "try" }
       ];
 

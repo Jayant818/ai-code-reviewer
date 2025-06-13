@@ -8,6 +8,7 @@ import { GitHubAppInstall } from "@/src/components/dashboard/github-app-install"
 import { DashboardStats } from "@/src/components/dashboard/dashboard-stats";
 import { RecentActivity } from "@/src/components/dashboard/recent-activity";
 import { QuickActions } from "@/src/components/dashboard/quick-actions";
+import { SubscriptionStatus } from "@/src/components/dashboard/subscription-status";
 
 interface UserData {
   username: string;
@@ -141,6 +142,9 @@ export default function Dashboard() {
           >
             {/* User Profile */}
             <UserProfile userData={userData} />
+
+            {/* Subscription Status */}
+            <SubscriptionStatus />
 
             {/* Quick Actions */}
             <QuickActions />

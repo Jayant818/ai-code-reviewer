@@ -12,6 +12,16 @@ export type IPLAN = typeof PLAN[keyof typeof PLAN];
 
 export const PLAN_VALUES = Object.values(PLAN);
 
+export const BILLING_PERIOD = {
+    YEARLY: 'yearly',
+    MONTHLY:'monthly'
+} as const;
+
+export type IBILLING_PERIOD = typeof BILLING_PERIOD[keyof typeof BILLING_PERIOD];
+
+export const BILLING_PERIOD_VALUES = Object.values(BILLING_PERIOD);
+
+
 @Schema({
     timestamps: true,
     collection: COLLECTION_NAMES.Organization.subscription,
@@ -34,6 +44,13 @@ export class OrganizationSubscription {
     plan: IPLAN;
 
     @Prop({
+        type: String,
+        enum: BILLING_PERIOD,
+        required:true,
+    })
+    billingPeriod: IBILLING_PERIOD;
+
+    @Prop({
         required: true,
         type: Date,
     })
@@ -43,7 +60,17 @@ export class OrganizationSubscription {
         required: true,
         type: Date,
     })
-    end: Date;
+    expiresAt: Date;
+
+    @Prop({
+        type: String,
+        required:true
+    })
+    paymentMethod: string;
+
+    createdAt: Date;
+
+    updatedAt: Date;
 
 }
 

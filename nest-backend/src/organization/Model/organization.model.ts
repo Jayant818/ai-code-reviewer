@@ -3,6 +3,16 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Mongoose } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
 
+export const LLM = {
+    GEMINI: 'gemini',
+    CLAUDE: 'claude',
+    GPT: 'gpt'
+} as const;
+
+export type ILLM = typeof LLM[keyof typeof LLM];
+
+export const LLM_VALUES = Object.values(LLM);
+
 @Schema({
     collection: COLLECTION_NAMES.Organization.organization,
     timestamps:true
@@ -22,6 +32,13 @@ export class Organization {
         default:5,
     })
     seatsLeft: number;
+
+    @Prop({
+        type: LLM,
+        default: LLM.GPT,
+        required:true,
+    })
+    LLM : ILLM
 
 }
 

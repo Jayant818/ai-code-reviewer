@@ -162,13 +162,6 @@ export class AuthService {
             let user = await this.userModel.findByGithubId(userData.githubId,session)
 
             if (!user) {
-
-                // Create a DUMMY ORG
-                const org = await this.orgRepository.createOrganization({
-                    name: user.username,
-                    seatsLeft: 0,
-                },session)
-
                 user = await this.userRepository.createUser({
                     githubId: userData.githubId,
                     username: userData.username,
@@ -176,7 +169,6 @@ export class AuthService {
                     avatar: userData.avatar,
                     password: userData.password,
                     authProvider: userData.authProvider,
-                    org: org._id,
                 }, session);
             }
 

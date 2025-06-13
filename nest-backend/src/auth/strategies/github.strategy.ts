@@ -26,8 +26,6 @@ export class GithubStrategy extends PassportStrategy(Strategy){
                     ? profile.emails[0].value 
             : null;
         
-        console.log("Hello",primaryEmail);
-
         const user = await this.authService.validateGithubUser({
             githubId: profile.id,
             username: profile.username,
@@ -37,7 +35,6 @@ export class GithubStrategy extends PassportStrategy(Strategy){
             authProvider: AUTH_PROVIDER.GITHUB,
         });
 
-        console.log("Hello",user);
         done(null, user);
     }
 }
