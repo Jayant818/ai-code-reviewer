@@ -4,6 +4,7 @@ import { CreateOrganizationDto } from './DTO/create-organization.dto';
 import { UpdateOrganizationDto } from './DTO/update-organization.dto';
 import { createOrganizationDTO } from './DTO/create-org-subscription.dto';
 import { OrgSubscriptionService } from './subscriptions/org-subscription.service';
+import { Public } from '@app/framework';
 
 @Controller('organization')
 export class OrganizationController {
@@ -12,7 +13,8 @@ export class OrganizationController {
     private readonly orgSubscriptionService: OrgSubscriptionService,
   ) {}
 
-  @Post()
+  @Public()
+  @Post("/subscription")
   async createSubscription(
     @Req() req,
     @Body() { plan }: createOrganizationDTO

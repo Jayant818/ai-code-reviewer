@@ -3,9 +3,11 @@ import { GithubController } from './github.controller';
 import { GithubService } from './github.service';
 import { AIModule } from 'src/ai/ai.module';
 import { IntegrationModule } from 'src/Integrations/Integration.module';
+import { OrganizationModule } from 'src/organization/organization.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [AIModule,IntegrationModule],
+  imports: [AIModule,IntegrationModule,OrganizationModule,UserModule],
   controllers: [GithubController],
   providers: [GithubService],
   exports: [],

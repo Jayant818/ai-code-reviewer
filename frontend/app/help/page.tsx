@@ -135,7 +135,7 @@ export default function Help() {
                   Profile Settings
                 </Link>
                 <a 
-                  href="https://github.com/apps/bug-checker" 
+                  href="https://github.com/apps/code-sentinel-1" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="block text-sm fire-accent hover:underline"

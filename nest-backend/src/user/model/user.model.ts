@@ -89,7 +89,7 @@ export class User {
   @Prop({
     required: true,
     type: String,
-    unique: true
+    unique: true, // This adds a index
   })
   username: string;
 
@@ -125,7 +125,7 @@ export class User {
 
   @Prop({
     type: Boolean,
-    default: false,
+    default: false
   })
   verifiedEmail: boolean;
 
@@ -143,7 +143,7 @@ export class User {
     ref: COLLECTION_NAMES.Organization.organization,
     default:null,
   })
-  org: MongooseTypes.ObjectId;
+  orgId: MongooseTypes.ObjectId;
 
   @Prop({ default: null })
   stripeCustomerId: string;
@@ -166,7 +166,7 @@ export class User {
 
   @Prop({
     required: true,
-    enum:AUTH_PROVIDER,
+    enum:AUTH_PROVIDER_VALUES,
   })
   authProvider: IAUTH_PROVIDER;
 
@@ -225,6 +225,3 @@ UserSchema.static("findByGithubId", async function(profileId:number,session?:Cli
 
   return user;
 })
-
-
-UserSchema.index({ username: 1 }, { unique: true });

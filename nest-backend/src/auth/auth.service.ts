@@ -49,7 +49,7 @@ export class AuthService {
         if (expires !== undefined) cookieOptions.expires = expires;
         if (httpOnly !== undefined) cookieOptions.httpOnly = httpOnly;
         if (path !== undefined) cookieOptions.path = path;
-        if (domain !== undefined) cookieOptions.domain = domain;
+        if (domain !== undefined) cookieOptions.domain = domain.includes('localhost') ? 'localhost' : `.${domain}`;
 
         return cookieOptions;
     };
@@ -66,19 +66,19 @@ export class AuthService {
         return {id:user._id}
     }
 
-    async login(userId: number,orgId:number) {
-        const { accessToken, refreshToken } = await this.generateToken(userId,orgId);
+    async login(userId: number, orgId: number) {
+        const { accessToken, refreshToken } = await this.generateToken(userId, orgId);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
-         await this.userRepository.update(
-            {
-                _id:new MongooseTypes.ObjectId(userId)
+        await this.userRepository.update({
+            filter:{
+                _id: new MongooseTypes.ObjectId(userId)
             },
-            {
+            update:{
                 hashedRefreshToken
-            }, {}
-        )
+            }
+        })
 
         return {
             id: userId,
@@ -104,20 +104,20 @@ export class AuthService {
         }
     }
 
-    async refreshToken(userId: number,orgId:number) {
+    async refreshToken(userId: number, orgId: number) {
         // whenever we are refershing the access token also change the access token this is called Token Rotation/
-        const { accessToken, refreshToken } = await this.generateToken(userId,orgId);
+        const { accessToken, refreshToken } = await this.generateToken(userId, orgId);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
-         await this.userRepository.update(
-            {
-                _id:new MongooseTypes.ObjectId(userId)
+        await this.userRepository.update({
+            filter:{
+                _id: new MongooseTypes.ObjectId(userId)
             },
-            {
+            update:{
                 hashedRefreshToken
-            }, {}
-        )
+            }
+        })
 
         return {
             id: userId,
@@ -184,15 +184,13 @@ export class AuthService {
     }
 
 
-    async logout(userId: number) {
-        
-        
+    async logout(userId: number) {        
         return await this.userRepository.update({
+            filter: {
             _id: new MongooseTypes.ObjectId(userId)
-        }, {
-            hashedRefreshToken: null
-        }, {})
-        
-
+            },
+            update: {
+                hashedRefreshToken: null
+            }})
     }
 }

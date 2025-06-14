@@ -4,6 +4,9 @@ import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
 import { AppInjectable } from '@app/framework';
 import { InstallationEventDTO, Installations } from './DTO/InstallationEvent.dto';
+import { IntegrationRepository } from 'src/Integrations/Integration.repository';
+import { OrganizationRepository } from 'src/organization/organization.repository';
+import { UserRepository } from 'src/user/user.repository';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -21,6 +24,10 @@ export class GithubService {
   constructor(
     private readonly configService: ConfigService,
     private readonly aiService: AIService,
+    private readonly integrationRepository: IntegrationRepository,
+    private readonly orgRepository: OrganizationRepository,
+    private readonly userRepository : UserRepository,
+
   ) {}
 
   // Helper Functions
@@ -351,8 +358,49 @@ export class GithubService {
 
   // --------- Main Function ---------
 
-  async createInstallation(InstallationData: Installations) {
-    
+  async createIntegration(payload: InstallationEventDTO) {
+    const org = await this.orgRepository.createOrganization({
+      name: payload.installation.account.login,
+      githubId: payload.installation.account.id,
+      seatsLeft: 0,
+    });
+
+    await this.integrationRepository.createIntegration({
+      installationId: payload.installation.id,
+      orgId: org._id,
+      integrationTypes: 'Github_APP',
+      type: payload.installation.account.type,
+      integratedBy: payload.installation.account.id,
+    });
+  
+    console.log('Integration', payload);
+
+    const user = await this.userRepository.findOne({
+      filter: {
+        githubId: payload.installation.account.id,
+      }
+    })
+
+    if (!user) {
+      await this.userRepository.createUser({
+        githubId: payload.installation.account.id,
+        username: payload.installation.account.login,
+        email: "",
+        avatar: payload.installation.account.avatar_url,
+        orgId: org._id,
+      })
+    } else {
+      await this.userRepository.update(
+        {
+          filter: {
+            githubId: payload.installation.account.id,
+          },
+          update: {
+            orgId: org._id,
+          }
+        }
+      )
+    }
   }
 
   async reviewPullRequest(

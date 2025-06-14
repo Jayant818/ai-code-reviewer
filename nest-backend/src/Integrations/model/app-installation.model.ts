@@ -15,9 +15,16 @@ export class Integration{
     @Prop({
         required: true,
         type: Number,
-        unique: true,
+        unique: true, // This adds an Index
     })
     installationId: number;
+
+    @Prop({
+        required: true,
+        type: MongooseTypes.ObjectId,
+        ref: COLLECTION_NAMES.Organization.organization,
+    })
+    orgId: MongooseTypes.ObjectId;
 
     @Prop({
         required: true,
@@ -29,12 +36,8 @@ export class Integration{
     @Prop({
         type:Number,
     })
-    userId: number;
+    integratedBy: number;
 
-    @Prop({
-        type:String,
-    })
-    username: string;
 
     @Prop({
         required: true,
@@ -50,4 +53,3 @@ export const IntegrationSchema = SchemaFactory.createForClass(Integration);
 
 export type IntegrationDocument = Integration & MongooseDocument;
 
-IntegrationSchema.index({ installationId: 1 }, { unique: true });

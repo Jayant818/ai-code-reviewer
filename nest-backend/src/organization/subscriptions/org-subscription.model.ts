@@ -38,14 +38,14 @@ export class OrganizationSubscription {
 
     @Prop({
         type: String,
-        enum: PLAN,
+        enum: PLAN_VALUES,
         default: PLAN.TRIAL,
     })
     plan: IPLAN;
 
     @Prop({
         type: String,
-        enum: BILLING_PERIOD,
+        enum: BILLING_PERIOD_VALUES,
         required:true,
     })
     billingPeriod: IBILLING_PERIOD;

@@ -53,11 +53,15 @@ export class UserRepository  {
         return query.lean<User>().exec();
     }
 
-    async update(
-        filter:Partial<User>,
-        update:Partial<User>,
-        options:QueryOptions,
-    ) {
+    async update({ 
+        filter,
+        update,
+        options,
+    }: {
+        filter: Partial<User>,
+        update: Partial<User>,
+        options?: QueryOptions,
+    }) {
         const user = await this.userModel.findOneAndUpdate(filter, update, options).exec();
 
         if (!user) {

@@ -2,6 +2,7 @@ import { MongooseDocument, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Mongoose } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
+import { ACCOUNT_TYPES } from "src/common/enums";
 
 export const LLM = {
     GEMINI: 'gemini',
@@ -12,6 +13,7 @@ export const LLM = {
 export type ILLM = typeof LLM[keyof typeof LLM];
 
 export const LLM_VALUES = Object.values(LLM);
+
 
 @Schema({
     collection: COLLECTION_NAMES.Organization.organization,
@@ -29,14 +31,20 @@ export class Organization {
     @Prop({
         type: Number,
         required: true,
+    })
+    githubId:  Number;
+
+    @Prop({
+        type: Number,
+        required: true,
         default:5,
     })
     seatsLeft: number;
 
     @Prop({
-        type: LLM,
-        default: LLM.GPT,
-        required:true,
+        type: String,
+        default: LLM.GEMINI,
+        enum: LLM_VALUES,
     })
     LLM : ILLM
 
