@@ -1,7 +1,17 @@
-import { IsIn } from "class-validator";
-import { IPLAN, PLAN_VALUES } from "../subscriptions/org-subscription.model";
+import { IsIn, IsEnum } from "class-validator";
 
-export class createOrganizationDTO{
-    @IsIn(PLAN_VALUES)
-    plan: IPLAN;
+export enum SubscriptionType {
+    FREE = 'free',
+    PRO = 'pro'
+}
+
+export class CreateSubscriptionDto {
+    @IsEnum(SubscriptionType)
+    type: SubscriptionType;
+}
+
+// Keep the old DTO for backward compatibility
+export class createOrganizationDTO {
+    @IsIn(['trial', 'paid', 'inactive'])
+    plan: string;
 }

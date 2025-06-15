@@ -19,6 +19,6 @@ const IntegrationModules = [
     ],
     controllers: [IntegrationController],
     providers: [IntegrationRepository,IntegrationService],
-    exports:[IntegrationRepository]
+    exports:[IntegrationRepository, IntegrationService]
 })
 export class IntegrationModule{ }

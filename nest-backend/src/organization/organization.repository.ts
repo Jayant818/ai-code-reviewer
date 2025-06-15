@@ -144,7 +144,25 @@ export class OrganizationRepository{
         return query.lean<OrganizationSubscription>().exec();
     }
 
-    async findTrial<k extends keyof OrganizationTrials>({ 
+    async updateSubscription<k extends keyof OrganizationSubscription>({
+        filter,
+        update,
+        session,
+    }: {
+        filter: Record<k, OrganizationSubscription[k]>;
+        update: Partial<OrganizationSubscription>;
+        session?: ClientSession;
+    }) {
+        const query = this.subscriptionModel.findOneAndUpdate(filter, update, { new: true });
+
+        if (session) {
+            query.session(session);
+        }
+
+        return query.lean<OrganizationSubscription>().exec();
+    }
+
+    async findTrial<k extends keyof OrganizationTrials>({
         filter,
         select,
         populate = [],

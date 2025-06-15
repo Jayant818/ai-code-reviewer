@@ -7,6 +7,10 @@ import { InstallationEventDTO, Installations } from './DTO/InstallationEvent.dto
 import { IntegrationRepository } from 'src/Integrations/Integration.repository';
 import { OrganizationRepository } from 'src/organization/organization.repository';
 import { UserRepository } from 'src/user/user.repository';
+import { ReviewsService } from 'src/reviews/review.service';
+import { ReviewsRepository } from 'src/reviews/review.repository';
+import { LLM } from 'src/organization/Model/organization.model';
+import { IntegrationService } from 'src/Integrations/Integration.service';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -26,7 +30,9 @@ export class GithubService {
     private readonly aiService: AIService,
     private readonly integrationRepository: IntegrationRepository,
     private readonly orgRepository: OrganizationRepository,
-    private readonly userRepository : UserRepository,
+    private readonly userRepository: UserRepository,
+    private readonly reviewsRepository: ReviewsRepository,
+    private readonly integrationService: IntegrationService,
 
   ) {}
 
@@ -411,6 +417,7 @@ export class GithubService {
   ) {
     let octokit;
     let check;
+    let reviewRecord;
     try {
       octokit = await this.getOctoKit(installationId);
 
@@ -426,6 +433,17 @@ export class GithubService {
 
       // sha  - Commit ID , Its basically a hash
       const headSha = prDetails.head.sha;
+
+      reviewRecord = await this.reviewsRepository.createReview({
+        orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
+        repositoryName: repoFullName,
+        pullRequestNumber: prNumber,
+        pullRequestTitle: prDetails.title,
+        pullRequestUrl: prDetails.html_url,
+        commitSha: headSha,
+        author: prDetails.user.login,
+        aiProvider: LLM.GEMINI, // Default provider, could be made configurable
+      });
 
       // when we create a PR or push a commit some checks need to be performed
       // Like Code Liniting  , Test Casees

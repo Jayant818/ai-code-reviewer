@@ -2,12 +2,13 @@ import { Body, Post } from '@nestjs/common';
 import { AIService } from './ai.service';
 import { PostCodeReviewDTO } from './DTO/post-code-review-dto';
 import { IAiProvider, PostCodeSummaryDTO } from './DTO/post-code-summary.dto';
-import { AppController } from '@app/framework';
+import { AppController, Public } from '@app/framework';
 
 @AppController('ai')
 export class AIController {
   constructor(private readonly aiService: AIService) {}
 
+  @Public()
   @Post('review')
   async getCodeReview(
     @Body() { code, provider }: { code: string; provider: IAiProvider },

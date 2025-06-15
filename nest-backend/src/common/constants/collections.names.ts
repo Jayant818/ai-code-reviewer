@@ -1,3 +1,4 @@
+import { Review } from "src/reviews/models/review.model";
 
 export const COLLECTION_NAMES = {
     User: {
@@ -13,6 +14,9 @@ export const COLLECTION_NAMES = {
         members: 'Organization: Members',
         availedTrials: 'Organization: Availed Trials',
     },
+    Reviews: {
+        Review :'Review'
+     }
 }
 
 // I am making an AI Code Reviewer Tool

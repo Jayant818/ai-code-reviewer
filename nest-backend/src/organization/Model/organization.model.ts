@@ -46,7 +46,7 @@ export class Organization {
         default: LLM.GEMINI,
         enum: LLM_VALUES,
     })
-    LLM : ILLM
+    LLM: ILLM;
 
 }
 

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Triangle } from "react-loader-spinner";
-import { useGetReviewMutation } from "@/src/hooks/api-hooks/useReviewQuery";
+import { useGetReviewMutation } from "@/features/review/useReviewQuery";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
@@ -95,7 +95,7 @@ const Page = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background relative overflow-hidden">
+    <main className="h-full bg-background relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl floating"></div>
@@ -103,9 +103,9 @@ const Page = () => {
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-accent/5 rounded-full blur-3xl floating" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 h-full">
         {/* Header Section */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -118,7 +118,6 @@ const Page = () => {
             Experience the power of AI-driven code analysis. Paste your code below and get instant feedback on bugs, security issues, and optimization opportunities.
           </p>
 
-          {/* Feature Pills */}
           <motion.div
             className="flex flex-wrap justify-center gap-4 mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -137,11 +136,11 @@ const Page = () => {
               </div>
             ))}
           </motion.div>
-        </motion.div>
+        </motion.div> */}
 
         {/* Main Editor Section */}
-        <div className="max-w-7xl mx-auto px-6 pb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-20rem)]">
+        <div className="w-full mx-auto px-1 pb-6 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
             {/* Code Editor */}
             <motion.section
               initial={{ opacity: 0, x: -30 }}
@@ -196,7 +195,7 @@ const Page = () => {
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="glass-card rounded-2xl border-gradient overflow-hidden"
+              className="glass-card rounded-2xl border-gradient overflow-hidden h-full"
             >
               <div className="flex items-center gap-3 p-6 border-b border-glass-border">
                 <div className="w-8 h-8 premium-gradient rounded-lg flex items-center justify-center">
