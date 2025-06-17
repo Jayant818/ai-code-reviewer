@@ -50,7 +50,7 @@ export class AuthController {
    res.cookie(ACCESS_TOKEN_COOKIE_NAME, response.accessToken,
       this.authService.generateCookieOptions({
       domain: this.configService.get<string>('DOMAIN_NAME'),
-      httpOnly: true,
+      httpOnly: false,
       expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
       path: '/',
       })
@@ -59,7 +59,7 @@ export class AuthController {
     res.cookie(REFRESH_TOKEN_COOKIE_NAME, response.refreshToken,
       this.authService.generateCookieOptions({
         domain: this.configService.get<string>('DOMAIN_NAME'),
-        httpOnly: true,
+        httpOnly: false,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         path: '/',
       })

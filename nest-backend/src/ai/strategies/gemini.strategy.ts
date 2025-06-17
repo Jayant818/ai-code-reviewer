@@ -1,6 +1,7 @@
 import { AppInjectable } from '@app/framework/src/decorators';
 import AIStrategy from '../strategy.interface';
 import {
+  fullReviewPrompt,
   githubReviewPrompt,
   summaryPrompt,
 } from '../constants';
@@ -59,7 +60,7 @@ export class GeminiStrategy implements AIStrategy {
   async getReview({ code }: { code: string }): Promise<any> {
     return await this.getResponseFromAI({
       content: code,
-      prompt: githubReviewPrompt,
+      prompt: fullReviewPrompt,
     });
   }
 

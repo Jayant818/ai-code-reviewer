@@ -1,19 +1,36 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { FaGithub, FaDownload, FaCheck, FaExternalLinkAlt } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaGithub, FaDownload, FaCheck, FaExternalLinkAlt, FaInfoCircle } from "react-icons/fa";
 
-export function GitHubAppInstall() {
+interface GitHubAppInstallProps {
+  onOpenModal?: () => void;
+}
+
+export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
   const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // Check if user has already installed the app
+    const hasInstalled = localStorage.getItem('githubAppInstalled') === 'true';
+    setIsInstalled(hasInstalled);
+  }, []);
 
   const handleInstallApp = () => {
     // Open GitHub App installation page
-    window.open('https://github.com/apps/code-sentinel-1', '_blank');
+    window.open('https://github.com/apps/bug-checker', '_blank');
   };
 
   const handleMarkInstalled = () => {
+    localStorage.setItem('githubAppInstalled', 'true');
     setIsInstalled(true);
+  };
+
+  const handleOpenModal = () => {
+    if (onOpenModal) {
+      onOpenModal();
+    }
   };
 
   return (
@@ -54,17 +71,25 @@ export function GitHubAppInstall() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
+                  onClick={handleOpenModal}
+                  className="flex items-center gap-2 premium-gradient text-white px-6 py-3 rounded-lg font-medium glow-effect hover:scale-105 transition-all"
+                >
+                  <FaInfoCircle className="w-4 h-4" />
+                  Setup Guide
+                </button>
+
+                <button
                   onClick={handleInstallApp}
-                  className="flex items-center gap-2 fire-gradient text-white px-6 py-3 rounded-lg font-medium hover:fire-glow transition-all"
+                  className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:glow-effect transition-all"
                 >
                   <FaDownload className="w-4 h-4" />
-                  Install GitHub App
+                  Install Directly
                   <FaExternalLinkAlt className="w-3 h-3" />
                 </button>
-                
+
                 <button
                   onClick={handleMarkInstalled}
-                  className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:fire-glow transition-all"
+                  className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:glow-effect transition-all"
                 >
                   <FaCheck className="w-4 h-4" />
                   I've Installed It
@@ -87,17 +112,20 @@ export function GitHubAppInstall() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => window.open('https://github.com/apps/code-sentinel-1', '_blank')}
-                  className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:fire-glow transition-all"
+                  onClick={() => window.open('https://github.com/apps/bug-checker', '_blank')}
+                  className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:glow-effect transition-all"
                 >
                   <FaGithub className="w-4 h-4" />
                   Manage App Settings
                   <FaExternalLinkAlt className="w-3 h-3" />
                 </button>
-                
+
                 <button
-                  onClick={() => setIsInstalled(false)}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3"
+                  onClick={() => {
+                    localStorage.removeItem('githubAppInstalled');
+                    setIsInstalled(false);
+                  }}
+                  className="text-sm text-foreground-muted hover:text-foreground transition-colors px-3"
                 >
                   Mark as not installed
                 </button>

@@ -2,7 +2,7 @@ import { MongooseDocument, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Mongoose } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
-import { ACCOUNT_TYPES } from "src/common/enums";
+import { ACCOUNT_TYPES, IPERMISSION_TYPE, PERMISSION_TYPES } from "src/common/enums";
 
 export const LLM = {
     GEMINI: 'gemini',
@@ -13,6 +13,74 @@ export const LLM = {
 export type ILLM = typeof LLM[keyof typeof LLM];
 
 export const LLM_VALUES = Object.values(LLM);
+
+@Schema({
+    id:false,
+})
+class Permission {
+  @Prop({
+      type: String,
+      enum:PERMISSION_TYPES,
+  })
+  checks: IPERMISSION_TYPE;
+
+  @Prop({
+    type: String,
+    enum:PERMISSION_TYPES,
+  })
+  contents: IPERMISSION_TYPE;
+
+  @Prop({
+    type: String,
+    enum:PERMISSION_TYPES,
+  })
+  metadata: IPERMISSION_TYPE;
+
+  @Prop({
+    type: String,
+    enum:PERMISSION_TYPES,
+  })
+  pull_requests: IPERMISSION_TYPE;
+}
+
+const PermissionSchema = SchemaFactory.createForClass(Permission);
+
+@Schema({
+    _id:false,
+})
+class Repository {
+  @Prop({
+    type: Number,
+    required:true,
+  })
+  id: number;
+
+  @Prop({
+    type: String,
+    required:true,
+  })
+  node_id: string;
+
+  @Prop({
+    type: String,
+    required:true,
+  })
+  name: string;
+
+  @Prop({
+    type: String,
+    required:true,
+  })
+  full_name: string;
+
+  @Prop({
+    type: Boolean,
+    required:true
+  })
+  private: boolean;
+}
+
+const RepositorySchema = SchemaFactory.createForClass(Repository);
 
 
 @Schema({
@@ -47,6 +115,23 @@ export class Organization {
         enum: LLM_VALUES,
     })
     LLM: ILLM;
+
+
+    @Prop({
+        default: [],
+    })
+    repoAccess: Repository[];
+
+    @Prop({
+        type: PermissionSchema,
+        default: {
+        checks: null,
+        contents: null,
+        metadata: null,
+        pull_requests: null,
+        }
+    })
+    permissions: Permission;
 
 }
 

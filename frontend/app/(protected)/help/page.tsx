@@ -14,10 +14,6 @@ const faqs = [
     answer: "Our AI reviews code for bugs, security vulnerabilities, performance issues, code quality, and best practices. It provides detailed feedback and suggestions for improvement."
   },
   {
-    question: "How do I connect my Stripe account?",
-    answer: "Visit your profile page and click on 'Connect Stripe' in the Payment Integration section. You'll be guided through the Stripe Connect flow."
-  },
-  {
     question: "Is my code data secure?",
     answer: "Yes! We only analyze pull requests in real-time and never store your code on our servers. Your data privacy and security are our top priorities."
   },

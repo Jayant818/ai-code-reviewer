@@ -19,13 +19,7 @@ export interface UserResponse {
  * Get current user data
  */
 export const getCurrentUser = async (): Promise<UserResponse> => {
-  const token = getAccessToken();
-
-  const response = await axios.get<UserResponse>("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get<UserResponse>("/user/me");
 
   return response.data;
 };
@@ -38,45 +32,7 @@ export const updateUserProfile = async (
 ): Promise<UserResponse> => {
   const token = getAccessToken();
 
-  const response = await axios.patch<UserResponse>("/user/profile", data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
-};
-
-/**
- * Connect Stripe account
- */
-export const connectStripeAccount = async (): Promise<{ url: string }> => {
-  const token = getAccessToken();
-
-  const response = await axios.post<{ url: string }>(
-    "/user/stripe/connect",
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return response.data;
-};
-
-/**
- * Disconnect Stripe account
- */
-export const disconnectStripeAccount = async (): Promise<UserResponse> => {
-  const token = getAccessToken();
-
-  const response = await axios.delete<UserResponse>("/user/stripe/disconnect", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.patch<UserResponse>("/user/profile", data);
 
   return response.data;
 };
@@ -85,13 +41,7 @@ export const disconnectStripeAccount = async (): Promise<UserResponse> => {
  * Get user dashboard stats
  */
 export const getDashboardStats = async () => {
-  const token = getAccessToken();
-
-  const response = await axios.get("/user/dashboard/stats", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get("/user/dashboard/stats");
 
   return response.data;
 };
@@ -100,13 +50,7 @@ export const getDashboardStats = async () => {
  * Get user recent activity
  */
 export const getRecentActivity = async () => {
-  const token = getAccessToken();
-
-  const response = await axios.get("/user/dashboard/activity", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await axios.get("/user/dashboard/activity");
 
   return response.data;
 };

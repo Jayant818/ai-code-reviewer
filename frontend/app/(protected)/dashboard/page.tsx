@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { UserProfile } from "@/features/dashboard/components/user-profile";
-import { GitHubAppInstall } from "@/features/dashboard/components/github-app-install";
 import { DashboardStats } from "@/features/dashboard/components/dashboard-stats";
 import { RecentActivity } from "@/features/dashboard/components/recent-activity";
 import { QuickActions } from "@/features/dashboard/components/quick-actions";
 import { SubscriptionStatus } from "@/features/dashboard/components/subscription-status";
+import { GitHubAppInstallModal } from "@/src/components/modals/github-app-install-modal";
+import { useGitHubAppModal } from "@/src/hooks/useGitHubAppModal";
+import { ToastContainer, useToast } from "@/src/components/ui/toast";
+import { useAuth } from "@/lib/hooks";
 
 interface UserData {
   username: string;
@@ -19,24 +22,24 @@ interface UserData {
 }
 
 export default function Dashboard() {
+  const { isAuthenticated, session, status, } = useAuth();
+  console.log("isAuthenticated", isAuthenticated);
+  console.log("session", session);
+  console.log("status", status);
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // GitHub App Modal
+  const { isModalOpen, shouldShowModal, closeModal, markAsInstalled, } = useGitHubAppModal();
+
+  // Toast notifications
+  const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
+
   useEffect(() => {
-    // Extract tokens from URL parameters
-    const token = searchParams.get('token');
-    const refreshToken = searchParams.get('refreshToken');
-
-    if (token && refreshToken) {
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('refreshToken', refreshToken);
-
-      // Clean up URL by removing query parameters
-      router.replace('/dashboard');
-    }
+    
 
     // Always load user data for demo purposes
     setUserData({
@@ -82,6 +85,23 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* GitHub App Install Modal */}
+      {shouldShowModal && (
+        <GitHubAppInstallModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onInstalled={markAsInstalled}
+          onShowToast={(type, title, message) => {
+            if (type === 'success') showSuccess(title, message);
+            else if (type === 'error') showError(title, message);
+            else showInfo(title, message);
+          }}
+        />
+      )}
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl floating"></div>
@@ -124,7 +144,7 @@ export default function Dashboard() {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             {/* GitHub App Installation */}
-            <GitHubAppInstall />
+            {/* <GitHubAppInstall onOpenModal={openModal} /> */}
 
             {/* Dashboard Stats */}
             <DashboardStats />

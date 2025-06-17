@@ -207,7 +207,9 @@ const Page = () => {
               <div className="h-[calc(100%-5rem)] overflow-auto p-6">
                 {isReviewLoading ? (
                   <div className="flex flex-col items-center justify-center h-full">
-                    <div className="premium-gradient w-16 h-16 rounded-2xl animate-spin glow-effect mb-6"></div>
+                    {/* <div className="w-16 h-16 rounded-2xl animate-spin glow-effect mb-6"> */}
+                      <Triangle/>
+                    {/* </div> */}
                     <p className="text-foreground-muted text-lg">Analyzing your code...</p>
                     <p className="text-foreground-subtle text-sm mt-2">This may take a few seconds</p>
                   </div>

@@ -66,34 +66,6 @@ export function UserProfile({ userData }: UserProfileProps) {
           </div>
           <div className="w-3 h-3 bg-success rounded-full glow-effect"></div>
         </motion.div>
-
-        {/* Stripe Connection */}
-        <motion.div
-          className="flex items-center justify-between p-5 glass-card rounded-xl card-hover"
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-              <FaStripe className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-lg">Stripe</p>
-              <p className="text-sm text-foreground-muted">
-                {userData.stripeAccountId ? 'Connected' : 'Not connected'}
-              </p>
-            </div>
-          </div>
-          {userData.stripeAccountId ? (
-            <div className="w-3 h-3 bg-success rounded-full glow-effect"></div>
-          ) : (
-            <Link
-              href="/profile"
-              className="text-sm text-gradient hover:underline font-semibold"
-            >
-              Connect
-            </Link>
-          )}
-        </motion.div>
       </div>
 
       {/* Profile Actions */}

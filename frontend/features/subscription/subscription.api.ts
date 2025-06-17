@@ -28,13 +28,7 @@ export const createSubscription = async (
 
   const response = await axios.post<SubscriptionResponse>(
     "/organization/subscription",
-    data,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
+    data
   );
 
   return response.data;
@@ -48,12 +42,7 @@ export const getCurrentSubscription =
     const token = getAccessToken();
 
     const response = await axios.get<SubscriptionResponse>(
-      "/organization/subscription",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      "/organization/subscription"
     );
 
     return response.data;
@@ -66,12 +55,7 @@ export const cancelSubscription = async (): Promise<SubscriptionResponse> => {
   const token = getAccessToken();
 
   const response = await axios.delete<SubscriptionResponse>(
-    "/org/subscription",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    "/org/subscription"
   );
 
   return response.data;

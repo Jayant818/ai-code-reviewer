@@ -447,6 +447,17 @@ body {
   color: var(--primary-foreground);
 }
 
+/* Modal Backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Prevent body scroll when modal is open */
+.modal-open {
+  overflow: hidden;
+}
+
 /* Code Editor Styling */
 .editor-container {
   background: transparent !important;

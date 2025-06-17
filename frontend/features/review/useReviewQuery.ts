@@ -1,7 +1,7 @@
-import { reviewAPI } from "@/src/api-functions";
 import { IErrorResponse } from "@/types/error.types";
 import { IReview, IReviewResponse } from "@/features/review/api.types";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import { getReview } from "./review.api";
 
 export const reviewKeys = {
   getReview: ["get-review"],
@@ -25,7 +25,7 @@ export const useGetReviewMutation = ({
     IReview,
     unknown
   >({
-    mutationFn: ({ code, provider }) => reviewAPI.getReview({ code, provider }),
+    mutationFn: ({ code, provider }) => getReview({ code, provider }),
     mutationKey: reviewKeys.getReview,
     ...customConfig,
   });

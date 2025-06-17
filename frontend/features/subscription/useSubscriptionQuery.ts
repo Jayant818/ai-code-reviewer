@@ -1,6 +1,8 @@
-import { subscriptionAPI } from "@/src/api-functions";
 import { IErrorResponse } from "@/types/error.types";
 import {
+  cancelSubscription,
+  createSubscription,
+  getCurrentSubscription,
   SubscriptionRequest,
   SubscriptionResponse,
 } from "@/features/subscription/subscription.api";
@@ -25,7 +27,7 @@ export const useCurrentSubscription = (
 ) => {
   return useQuery<SubscriptionResponse, IErrorResponse>({
     queryKey: subscriptionKeys.current(),
-    queryFn: subscriptionAPI.getCurrentSubscription,
+    queryFn: getCurrentSubscription,
     staleTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   });
@@ -45,7 +47,7 @@ export const useSubscriptionMutation = (
 
   return useMutation<SubscriptionResponse, IErrorResponse, SubscriptionRequest>(
     {
-      mutationFn: subscriptionAPI.createSubscription,
+      mutationFn: createSubscription,
       onSuccess: (data) => {
         // Update the current subscription cache
         queryClient.setQueryData(subscriptionKeys.current(), data);
@@ -66,7 +68,7 @@ export const useCancelSubscription = (
   const queryClient = useQueryClient();
 
   return useMutation<SubscriptionResponse, IErrorResponse, void>({
-    mutationFn: subscriptionAPI.cancelSubscription,
+    mutationFn: cancelSubscription,
     onSuccess: (data) => {
       // Update the current subscription cache
       queryClient.setQueryData(subscriptionKeys.current(), data);

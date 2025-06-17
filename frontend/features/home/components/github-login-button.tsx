@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
-import { cn } from "@/src/lib/utils";
 
 interface GitHubLoginButtonProps {
   className?: string;
