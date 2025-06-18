@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaGithub, FaTimes, FaCheck, FaExternalLinkAlt, FaShieldAlt, FaRocket, FaBolt } from "react-icons/fa";
 
@@ -20,7 +20,7 @@ export function GitHubAppInstallModal({ isOpen, onClose, onInstalled, onShowToas
     setInstallStep(2);
     
     // Open GitHub App installation page
-    window.open('https://github.com/apps/bug-checker', '_blank');
+    window.open('https://github.com/apps/code-sentinel-1/', '_blank');
     
     // Simulate installation process
     setTimeout(() => {

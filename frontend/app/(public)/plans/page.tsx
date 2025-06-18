@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { FaCheck, FaRocket, FaCrown, FaInfinity, FaShieldAlt, FaHeadset, FaBolt } from "react-icons/fa";
 import { useSubscriptionMutation } from "@/features/subscription/useSubscriptionQuery";
+import { useRouter } from "next/navigation";
 
 interface PlanFeature {
   text: string;
@@ -71,21 +72,12 @@ export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
   
   const { mutate: subscribe, isPending: isSubscribing } = useSubscriptionMutation({
-    customConfig: {
-      onSuccess: (data) => {
-        console.log('Subscription successful:', data);
-        // Handle successful subscription (redirect, show success message, etc.)
-      },
-      onError: (error) => {
-        console.error('Subscription failed:', error);
-        // Handle subscription error
-      },
-    }
   });
 
   const handleSelectPlan = (planId: 'free' | 'pro') => {
     setSelectedPlan(planId);
     subscribe({ type: planId });
+    // router.push('/dashboard');
   };
 
   return (

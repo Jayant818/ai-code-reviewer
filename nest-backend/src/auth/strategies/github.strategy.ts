@@ -22,6 +22,7 @@ export class GithubStrategy extends PassportStrategy(Strategy){
 
     async validate(accessToken:string,refreshToken:string,profile:any,done:Function) {
 
+        // above received accessToken & refreshToken are from the github we don't use that we will create our own.
         const primaryEmail = profile.emails && profile.emails.length > 0 
                     ? profile.emails[0].value 
             : null;

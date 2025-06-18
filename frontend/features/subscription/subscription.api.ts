@@ -24,8 +24,6 @@ export interface SubscriptionResponse {
 export const createSubscription = async (
   data: SubscriptionRequest
 ): Promise<SubscriptionResponse> => {
-  const token = getAccessToken();
-
   const response = await axios.post<SubscriptionResponse>(
     "/organization/subscription",
     data
@@ -39,8 +37,6 @@ export const createSubscription = async (
  */
 export const getCurrentSubscription =
   async (): Promise<SubscriptionResponse> => {
-    const token = getAccessToken();
-
     const response = await axios.get<SubscriptionResponse>(
       "/organization/subscription"
     );
@@ -52,8 +48,6 @@ export const getCurrentSubscription =
  * Cancel subscription
  */
 export const cancelSubscription = async (): Promise<SubscriptionResponse> => {
-  const token = getAccessToken();
-
   const response = await axios.delete<SubscriptionResponse>(
     "/org/subscription"
   );

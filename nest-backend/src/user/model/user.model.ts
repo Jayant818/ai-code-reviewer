@@ -69,9 +69,6 @@ export class User {
   })
   avatar: string;
 
-  @Prop({ default: null })
-  stripeAccountId: string;
-
   @Prop({
     type: MongooseTypes.ObjectId,
     ref: COLLECTION_NAMES.Organization.organization,

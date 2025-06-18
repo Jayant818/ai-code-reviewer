@@ -66,8 +66,8 @@ export class AuthService {
         return {id:user._id}
     }
 
-    async login(userId: number, orgId: number) {
-        const { accessToken, refreshToken } = await this.generateToken(userId, orgId);
+    async login(userId: number, orgId: number,username:string) {
+        const { accessToken, refreshToken } = await this.generateToken(userId, orgId,username);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 
@@ -87,8 +87,8 @@ export class AuthService {
         }
     }
 
-    async generateToken(userId: number,orgId:number) {
-        const payload:JWT_PAYLOAD = {sub:userId,org:orgId}
+    async generateToken(userId: number,orgId:number,username:string) {
+        const payload:JWT_PAYLOAD = {sub:userId,org:orgId,username}
         
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload),
@@ -104,9 +104,9 @@ export class AuthService {
         }
     }
 
-    async refreshToken(userId: number, orgId: number) {
+    async refreshToken(userId: number, orgId: number,username:string) {
         // whenever we are refershing the access token also change the access token this is called Token Rotation/
-        const { accessToken, refreshToken } = await this.generateToken(userId, orgId);
+        const { accessToken, refreshToken } = await this.generateToken(userId, orgId,username);
 
         const hashedRefreshToken = await argon.hash(refreshToken);
 

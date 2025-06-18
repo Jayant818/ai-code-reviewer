@@ -1,5 +1,6 @@
 import axios from "../../lib/axios/axiosInstance";
 import { getAccessToken } from "../../lib/auth";
+import { ILoggedInUser } from "./api.types";
 
 export interface UserData {
   username: string;
@@ -18,8 +19,8 @@ export interface UserResponse {
 /**
  * Get current user data
  */
-export const getCurrentUser = async (): Promise<UserResponse> => {
-  const response = await axios.get<UserResponse>("/user/me");
+export const getCurrentUser = async (): Promise<ILoggedInUser> => {
+  const response = await axios.get<ILoggedInUser>("/user/current");
 
   return response.data;
 };

@@ -1,38 +1,49 @@
-import { userAPI } from "@/src/api-functions";
 import { IErrorResponse } from "@/types/error.types";
-import { UserData, UserResponse } from "@/features/user/user.api";
+import {
+  getCurrentUser,
+  UserData,
+  UserResponse,
+} from "@/features/user/user.api";
 import {
   useQuery,
   useMutation,
   useQueryClient,
-  UseQueryOptions,
   UseMutationOptions,
+  UseQueryOptions,
 } from "@tanstack/react-query";
+import { ILoggedInUser } from "./api.types";
 
 export const userKeys = {
   all: ["user"] as const,
-  current: () => [...userKeys.all, "current"] as const,
+  getCurrentUserDetails: () => ["current-user-details"] as const,
   stats: () => [...userKeys.all, "stats"] as const,
   activity: () => [...userKeys.all, "activity"] as const,
 };
 
-/**
- * Hook to get current user data
- */
-export const useCurrentUser = (
-  options?: UseQueryOptions<UserResponse, IErrorResponse>
+export const useGetCurrentUserDetailQuery = (
+  customConfig?: UseQueryOptions<ILoggedInUser, IErrorResponse>
 ) => {
-  return useQuery<UserResponse, IErrorResponse>({
-    queryKey: userKeys.current(),
-    queryFn: userAPI.getCurrentUser,
+  return useQuery<ILoggedInUser, IErrorResponse>({
+    queryKey: userKeys.getCurrentUserDetails(),
+    queryFn: () => getCurrentUser(),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    ...options,
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    retry: (failureCount, error) => {
+      // Don't retry on authentication errors
+      if (error?.status === 401 || error?.status === 403) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: true, // Will be overridden by component
+    ...customConfig,
   });
 };
 
-/**
- * Hook to update user profile
- */
 export const useUpdateUserProfile = (
   options?: UseMutationOptions<UserResponse, IErrorResponse, Partial<UserData>>
 ) => {
@@ -40,38 +51,6 @@ export const useUpdateUserProfile = (
 
   return useMutation<UserResponse, IErrorResponse, Partial<UserData>>({
     mutationFn: userAPI.updateUserProfile,
-    onSuccess: (data) => {
-      // Update the current user cache
-      queryClient.setQueryData(userKeys.current(), data);
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: userKeys.all });
-    },
-    ...options,
-  });
-};
-
-/**
- * Hook to connect Stripe account
- */
-export const useConnectStripe = (
-  options?: UseMutationOptions<{ url: string }, IErrorResponse, void>
-) => {
-  return useMutation<{ url: string }, IErrorResponse, void>({
-    mutationFn: userAPI.connectStripeAccount,
-    ...options,
-  });
-};
-
-/**
- * Hook to disconnect Stripe account
- */
-export const useDisconnectStripe = (
-  options?: UseMutationOptions<UserResponse, IErrorResponse, void>
-) => {
-  const queryClient = useQueryClient();
-
-  return useMutation<UserResponse, IErrorResponse, void>({
-    mutationFn: userAPI.disconnectStripeAccount,
     onSuccess: (data) => {
       // Update the current user cache
       queryClient.setQueryData(userKeys.current(), data);

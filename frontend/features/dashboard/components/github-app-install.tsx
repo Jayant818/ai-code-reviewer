@@ -19,7 +19,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
 
   const handleInstallApp = () => {
     // Open GitHub App installation page
-    window.open('https://github.com/apps/bug-checker', '_blank');
+    window.open('https://github.com/apps/code-sentinel-1/', '_blank');
   };
 
   const handleMarkInstalled = () => {
@@ -112,7 +112,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => window.open('https://github.com/apps/bug-checker', '_blank')}
+                  onClick={() => window.open('https://github.com/apps/code-sentinel-1/', '_blank')}
                   className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:glow-effect transition-all"
                 >
                   <FaGithub className="w-4 h-4" />

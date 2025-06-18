@@ -10,4 +10,19 @@ export class UserService {
     constructor(
         private readonly userRepository: UserRepository,
     ) { }
+
+    async getUser(userId: MongooseTypes.ObjectId) {
+        return this.userRepository.findOne({
+            filter: {
+                _id: userId
+            },
+            select: [
+                "username",
+                "email",
+                "githubId",
+                "avatar",
+                "orgId",
+            ]
+        })
+    }
 }

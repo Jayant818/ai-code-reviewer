@@ -19,13 +19,13 @@ export class AuthController {
   @Post("login")
   async login(@Req() req) {
     // also attach the JWT 
-    return this.authService.login(req.user.id,req.user.org);
+    return this.authService.login(req.user.id,req.user.org,req.user.username);
   }
 
   @Get("refreshToken")
   @UseGuards(RefreshJwtAuthGuard)
   async refreshToken(@Req() req) { 
-    return this.authService.refreshToken(req.user.id,req.user.org);
+    return this.authService.refreshToken(req.user.id,req.user.org,req.user.username);
   }
 
   @Public()
@@ -41,7 +41,7 @@ export class AuthController {
     // and we can get the user data from the request
 
     // Now create JWT Access Token & Refresh token and send it to the client 
-    const response = await this.authService.login(req.user._id,req.user.org);
+    const response = await this.authService.login(req.user._id,req.user.org,req.user.username);
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL')?.trim();
 
@@ -65,7 +65,8 @@ export class AuthController {
       })
     );
 
-    const redirectUrl = `${frontendUrl}/${redirectPath}`;
+    // const redirectUrl = `${frontendUrl}/${redirectPath}`;
+      const redirectUrl = 'http://localhost:3000/auth/callback/github';
     res.redirect(redirectUrl);
   }
 
