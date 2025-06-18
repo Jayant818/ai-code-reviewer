@@ -9,6 +9,7 @@ import { OrgSubscriptionService } from './subscriptions/org-subscription.service
 import { OrganizationTrialsSchema } from './trials/org-trials.model';
 import { OrganizationSubscriptionSchema } from './subscriptions/org-subscription.model';
 import { orgSubscriptionLogsSchema } from './logs/org-subscription-logs.model';
+import { UserModule } from 'src/user/user.module';
 
 
 const OrganizationModules = [
@@ -31,7 +32,7 @@ const OrganizationModules = [
 ]
 
 @Module({
-  imports:[MongooseModule.forFeature(OrganizationModules)],
+  imports:[MongooseModule.forFeature(OrganizationModules),UserModule],
   controllers: [OrganizationController],
   providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService],
   exports:[OrganizationService,OrganizationRepository]

@@ -7,6 +7,7 @@ import { BILLING_PERIOD, PLAN } from "./org-subscription.model";
 import { ClientSession } from "mongoose";
 import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-logs.model";
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
+import { UserRepository } from "src/user/user.repository";
 
 @AppInjectable()
 export class OrgSubscriptionService { 
@@ -14,6 +15,7 @@ export class OrgSubscriptionService {
         @InjectConnection()
         private readonly MongooseConnection: MongooseConnection,
         private readonly OrganizationRepository: OrganizationRepository,
+        private readonly UserRepository: UserRepository,
     ) { }
 
     private async startFreeTrial({
@@ -33,10 +35,11 @@ export class OrgSubscriptionService {
                 start: new Date(),
                 expiresAt: new Date(new Date().setDate(new Date().getDate() + 15)), // 15 days from now
                 paymentMethod: 'free',
-                session: session,
+                session,
             })
+
     
-            const subscriptionLog = this.OrganizationRepository.createSubscriptionLog({
+            const subscriptionLog =  this.OrganizationRepository.createSubscriptionLog({
                 data: {
                     orgId: org,
                     subscriptionId: subscription._id,
@@ -51,13 +54,13 @@ export class OrgSubscriptionService {
                 },
                 session
             })
-
             await Promise.all([
                 subscriptionLog, availedTrial
-            ])
+            ]);
+
         }
         catch (e) {
-            throw new Error("Failed to create Free Trial");
+            throw new Error("Failed to create Free Trial",);
         }
 
     }
@@ -262,6 +265,17 @@ export class OrgSubscriptionService {
 
         try {
             await session.startTransaction();
+            if (!org) {
+                const UserDoc = await this.UserRepository.findOne({
+                    filter: { _id: user },
+                    select: ["orgId"],
+                    session
+                })
+
+
+                org = UserDoc.orgId;
+            }
+
             const orgDoc = await this.OrganizationRepository.findOne({
                 filter: { _id: org },
                 session,
@@ -290,15 +304,19 @@ export class OrgSubscriptionService {
                     if (availedTrial) {
                         throw new ForbiddenException("Organization Already Has A Trial");
                     }
-                    return this.startFreeTrial({
+                    await this.startFreeTrial({
                         org,
                         session,
                     });
+                    break;
                 case PLAN.PAID:
                     return this.startPaidSubscription(org);
+                    break;
                 default:
                     throw new NotFoundException("Invalid Plan");
-            }            
+                    break;
+            }   
+            await session.commitTransaction();
         } catch (e: any) {
             await session.abortTransaction();
         } finally {

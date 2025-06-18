@@ -1,5 +1,4 @@
 import axios from "../../lib/axios/axiosInstance";
-import { getAccessToken } from "../../lib/auth";
 
 export interface SubscriptionRequest {
   type: "free" | "pro";
@@ -48,9 +47,8 @@ export const getCurrentSubscription =
  * Cancel subscription
  */
 export const cancelSubscription = async (): Promise<SubscriptionResponse> => {
-  const response = await axios.delete<SubscriptionResponse>(
-    "/org/subscription"
-  );
+  const response =
+    await axios.delete<SubscriptionResponse>("/org/subscription");
 
   return response.data;
 };

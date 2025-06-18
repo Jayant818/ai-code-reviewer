@@ -15,14 +15,12 @@ export class OrganizationController {
   @Post("/subscription")
   async createSubscription(
     @Req() req,
-    @Body() { plan }: createOrganizationDTO
+    @Body() { type }: createOrganizationDTO
   ) {
-    console.log("user", req.user);
-    console.log("aa gaye oye",req)
-    // return this.orgSubscriptionService.createSubscription({
-    //   plan,
-    //   user: new MongooseTypes.ObjectId('684ea2ff08a65e10244d18dd'),
-    //   org: new MongooseTypes.ObjectId('684ea39a08a65e10244d18e1'),
-    // });
+    return this.orgSubscriptionService.createSubscription({
+      plan:type,
+      user: new MongooseTypes.ObjectId(req.user.id),
+      org: req.user.org ? new MongooseTypes.ObjectId(req.user.org) : null,
+    });
   }
 }

@@ -13,5 +13,5 @@ export class CreateSubscriptionDto {
 // Keep the old DTO for backward compatibility
 export class createOrganizationDTO {
     @IsIn(['trial', 'paid', 'inactive'])
-    plan: string;
+    type: string;
 }

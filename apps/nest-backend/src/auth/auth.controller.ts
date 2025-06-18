@@ -22,7 +22,7 @@ export class AuthController {
     return this.authService.login(req.user.id,req.user.org,req.user.username);
   }
 
-  @Get("refreshToken")
+  @Post("refreshToken")
   @UseGuards(RefreshJwtAuthGuard)
   async refreshToken(@Req() req) { 
     return this.authService.refreshToken(req.user.id,req.user.org,req.user.username);
@@ -51,7 +51,7 @@ export class AuthController {
       this.authService.generateCookieOptions({
       domain: this.configService.get<string>('DOMAIN_NAME'),
       httpOnly: false,
-      expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
+      expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1hr
       path: '/',
       })
     );
@@ -65,8 +65,7 @@ export class AuthController {
       })
     );
 
-    // const redirectUrl = `${frontendUrl}/${redirectPath}`;
-      const redirectUrl = 'http://localhost:3000/auth/callback/github';
+    const redirectUrl = `http://localhost:3000/api/auth/github/callback?accessToken=${response.accessToken}&refreshToken=${response.refreshToken}&userId=${req.user.id}&name=${req.user.username}`;
     res.redirect(redirectUrl);
   }
 

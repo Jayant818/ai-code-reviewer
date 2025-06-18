@@ -1,23 +1,22 @@
 import axios from "axios";
-import { getAccessTokenFromCookie } from "../cookies";
+import { decrypt, getSession } from "../session";
+import { refreshToken } from "../auth";
 
 const instance = axios.create({
   baseURL: "http://localhost:3001",
-  withCredentials: true, // sends cookies automatically
+  withCredentials: true,
 });
 
 // Add request interceptor to add token to every request
 instance.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Try to get token from cookie directly
-    const token = getAccessTokenFromCookie();
-
+    const session = await getSession();
     // If token exists, add it to the Authorization header
-    if (token) {
+    if (session?.accessToken) {
+      const token = session.accessToken;
       config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers.Authorization = `Bearer`;
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -29,18 +28,14 @@ instance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    const session = await getSession();
     // If error is 401 and we haven't tried to refresh token yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && session?.refreshToken) {
       originalRequest._retry = true;
 
       try {
         // Call refresh token endpoint
-        await axios.get("http://localhost:3001/auth/refreshToken", {
-          withCredentials: true,
-        });
-
-        // Get the new token from cookie
-        const newToken = getAccessTokenFromCookie();
+        const newToken = await refreshToken(session?.refreshToken);
 
         // Update the Authorization header with the new token
         if (newToken) {

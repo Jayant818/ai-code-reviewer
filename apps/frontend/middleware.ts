@@ -1,28 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_TOKENS } from "./lib/auth";
+import { cookies } from "next/headers";
+import { decrypt } from "./lib/session";
 
 const publicRoutes = ["/", "/plans", "/try", "/auth/callback/github"];
 
-export default function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   const isPublicRoute = publicRoutes.includes(path);
 
-  // check for authentication cookie
-  const accessToken = req.cookies.get(AUTH_TOKENS.ACCESS_TOKEN)?.value;
+  const cookieStore = await cookies();
 
-  const isAuthenticated = !!accessToken;
+  const cookie = cookieStore.get("session")?.value;
+
+  const session = await decrypt(cookie);
 
   // redirected to home
-  if (!isPublicRoute && !isAuthenticated) {
+  if (!isPublicRoute && !session?.user?.id) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (isAuthenticated && isPublicRoute && path !== "/") {
+  if (session && session?.user.id && isPublicRoute && path !== "/") {
     return NextResponse.next();
   }
 
-  if (path === "/" && isAuthenticated) {
+  if (path === "/" && session) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

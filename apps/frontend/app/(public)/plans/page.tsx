@@ -12,7 +12,7 @@ interface PlanFeature {
 }
 
 interface Plan {
-  id: 'free' | 'pro';
+  id: 'trial' | 'pro';
   name: string;
   price: string;
   period: string;
@@ -26,7 +26,7 @@ interface Plan {
 
 const plans: Plan[] = [
   {
-    id: 'free',
+    id: 'trial',
     name: 'Free Trial',
     price: '$0',
     period: '/month',

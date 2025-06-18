@@ -17,16 +17,15 @@ export class JwtStrategy extends PassportStrategy(Strategy,"refresh-jwt") {
         private readonly authService: AuthService,
     ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: ExtractJwt.fromBodyField('refresh'),
             secretOrKey: configService.get<string>('REFRESH_TOKEN_SECRET'),
             ignoreExpiration: false,
             passReqToCallback:true
         })
     }
     
-    // authorization : Bearer skjffdfdgh
     validate(req:Request,payload: JWT_PAYLOAD) {
-        const refreshToken = req.get('authorization').replace('Bearer', '').trim();
+        const refreshToken = req.body.refresh;
         const userId = payload.sub;
         const orgId = payload.org;
         const username = payload.username;

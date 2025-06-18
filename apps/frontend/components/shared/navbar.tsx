@@ -1,22 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
 import { useAuth } from "@/lib/hooks";
+import SignInButton from "../ui/SignInButton";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const segment = useSelectedLayoutSegment();
-  const { isAuthenticated, logout } = useAuth();
 
 
-  const navLinks = isAuthenticated
-    ? [
-      // { href: "/dashboard", label: "Dashboard", segment: "dashboard", target:"_parent" },
-      { href: "/profile", label: "Profile", segment: "profile", target:"_parent" }
-    ]
-    : [
+  const navLinks = 
+   [
       { href: "/try", label: "Experience Demo", segment: "try", target:"_blank" },
       { href: "/plans", label: "Plans", segment: "plans", target:"_parent" }
     ];
@@ -56,23 +52,7 @@ export function Navbar() {
             </Link>
           ))}
 
-            <div className="flex items-center gap-4">
-          {isAuthenticated ? (
-            <button
-              onClick={logout}
-              className="px-4 py-2 rounded-lg  hover:bg-accent transition-colors"
-            >
-              Sign Out
-            </button>
-          ) : (
-            <Link
-              href="http://localhost:3001/auth/github/login"
-              className="fire-gradient text-white px-4 py-2 rounded-lg font-medium"
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
+          {/* <SignInButton/> */}
         </div>
 
         {/* Mobile menu button */}
@@ -111,23 +91,7 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-             <div className="flex items-center gap-4">
-        {isAuthenticated ? (
-          <button
-            onClick={logout}
-            className="px-4 py-2 rounded-lg border border-border hover:bg-accent transition-colors"
-          >
-            Sign Out
-          </button>
-        ) : (
-          <Link
-            href="http://localhost:3001/auth/github/login"
-            className="fire-gradient text-white px-4 py-2 rounded-lg font-medium"
-          >
-            Sign In
-          </Link>
-        )}
-      </div>
+            {/* <SignInButton/> */}
           </div>
         </div>
       )}

@@ -434,16 +434,18 @@ export class GithubService {
       // sha  - Commit ID , Its basically a hash
       const headSha = prDetails.head.sha;
 
-      // reviewRecord = await this.reviewsRepository.createReview({
-      //   orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
-      //   repositoryName: repoFullName,
-      //   pullRequestNumber: prNumber,
-      //   pullRequestTitle: prDetails.title,
-      //   pullRequestUrl: prDetails.html_url,
-      //   commitSha: headSha,
-      //   author: prDetails.user.login,
-      //   aiProvider: LLM.GEMINI, // Default provider, could be made configurable
-      // });
+      reviewRecord = await this.reviewsRepository.createReview({
+        orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
+        repositoryName: repoFullName,
+        pullRequestNumber: prNumber,
+        pullRequestTitle: prDetails.title,
+        pullRequestUrl: prDetails.html_url,
+        commitSha: headSha,
+        author: prDetails.user.login,
+        aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
+        reviewRequestedAt:new Date(),
+
+      });
 
       // when we create a PR or push a commit some checks need to be performed
       // Like Code Liniting  , Test Casees

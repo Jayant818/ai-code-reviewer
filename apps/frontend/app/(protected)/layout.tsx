@@ -1,30 +1,15 @@
-"use client";
 import { Navbar } from "@/components/shared"
-import { useAuth } from "@/lib/hooks"
+import { getSession } from "@/lib/session";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-export default function NavbarLayout  ({
+export default async function NavbarLayout  ({
     children
 }: {
     children: React.ReactNode
   }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-        console.log("Not authenticated");
-        router.push("/");
-      }
-  }, [isAuthenticated, isLoading, router])
+  const session = await getSession();
+  const isAuthenticated = session?.user?.id;
   
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="fire-gradient w-8 h-8 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
    if (!isAuthenticated) {
     return (

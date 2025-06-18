@@ -11,7 +11,6 @@ import { SubscriptionStatus } from "@/features/dashboard/components/subscription
 import { GitHubAppInstallModal } from "@/src/components/modals/github-app-install-modal";
 import { useGitHubAppModal } from "@/src/hooks/useGitHubAppModal";
 import { ToastContainer, useToast } from "@/src/components/ui/toast";
-import { useAuth } from "@/lib/hooks";
 
 interface UserData {
   username: string;
@@ -22,11 +21,6 @@ interface UserData {
 }
 
 export default function Dashboard() {
-  const { isAuthenticated, session, status, } = useAuth();
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("session", session);
-  console.log("status", status);
-
   const searchParams = useSearchParams();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
