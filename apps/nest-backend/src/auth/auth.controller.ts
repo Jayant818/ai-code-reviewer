@@ -22,6 +22,7 @@ export class AuthController {
     return this.authService.login(req.user.id,req.user.org,req.user.username);
   }
 
+  @Public()
   @Post("refreshToken")
   @UseGuards(RefreshJwtAuthGuard)
   async refreshToken(@Req() req) { 

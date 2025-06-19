@@ -1,9 +1,9 @@
-import { getSession } from '@/lib/session'
+import { useSession } from '@/lib/hooks';
 import Link from 'next/link';
 import React from 'react'
 
-const SignInButton = async () => {
-    const session = await getSession();
+const SignInButton = () => {
+    const { session } = useSession(); 
     return (
       <>
         {
@@ -23,7 +23,7 @@ const SignInButton = async () => {
                         href="/api/auth/logout"
                         className="fire-gradient text-white px-4 py-2 rounded-lg font-medium"
                     >
-                    Log In
+                    Log Out
                     </Link>         
                 </>    
         }

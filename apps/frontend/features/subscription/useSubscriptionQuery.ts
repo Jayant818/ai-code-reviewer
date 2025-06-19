@@ -47,7 +47,7 @@ export const useSubscriptionMutation = (
 
   return useMutation<SubscriptionResponse, IErrorResponse, SubscriptionRequest>(
     {
-      mutationFn: createSubscription,
+      mutationFn: (data: SubscriptionRequest) => createSubscription(data),
       onSuccess: (data) => {
         // Update the current subscription cache
         queryClient.setQueryData(subscriptionKeys.current(), data);

@@ -3,19 +3,30 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useAuth } from "@/lib/hooks";
 import SignInButton from "../ui/SignInButton";
+import { useSession } from "@/lib/hooks";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const segment = useSelectedLayoutSegment();
 
-
+  const { session } = useSession();
+  console.log("session", session);
   const navLinks = 
-   [
+    
+      session ? 
+      [{
+        href:"/profile",label: "Profile",segment:"profile",target:"_parent"  
+      }, {
+        href: "/dashboard", label: "User Dashboard", segment: "dashboard", target:"_blank", 
+        },
       { href: "/try", label: "Experience Demo", segment: "try", target:"_blank" },
       { href: "/plans", label: "Plans", segment: "plans", target:"_parent" }
-    ];
+      ]
+      :
+      [{ href: "/try", label: "Experience Demo", segment: "try", target:"_blank" },
+      { href: "/plans", label: "Plans", segment: "plans", target:"_parent" }]
+    
 
   return (
     <header className="sticky top-0 z-50 w-full  h-fit">
@@ -52,7 +63,7 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* <SignInButton/> */}
+          <SignInButton/>
         </div>
 
         {/* Mobile menu button */}
@@ -91,7 +102,7 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            {/* <SignInButton/> */}
+            <SignInButton/>
           </div>
         </div>
       )}

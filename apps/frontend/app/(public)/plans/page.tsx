@@ -75,8 +75,10 @@ export default function PlansPage() {
   });
 
   const handleSelectPlan = (planId: 'free' | 'pro') => {
+    console.log("Clicked");
     setSelectedPlan(planId);
     subscribe({ type: planId });
+    console.log("Subscription");
     // router.push('/dashboard');
   };
 

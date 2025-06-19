@@ -24,7 +24,8 @@ export class JwtStrategy extends PassportStrategy(Strategy,"refresh-jwt") {
         })
     }
     
-    validate(req:Request,payload: JWT_PAYLOAD) {
+    validate(req: Request, payload: JWT_PAYLOAD) {
+        console.log("Called bhai");
         const refreshToken = req.body.refresh;
         const userId = payload.sub;
         const orgId = payload.org;
