@@ -69,6 +69,7 @@ const plans: Plan[] = [
 ];
 
 export default function PlansPage() {
+  const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
   
   const { mutate: subscribe, isPending: isSubscribing } = useSubscriptionMutation({
@@ -76,10 +77,10 @@ export default function PlansPage() {
 
   const handleSelectPlan = (planId: 'free' | 'pro') => {
     console.log("Clicked");
-    setSelectedPlan(planId);
+  setSelectedPlan(planId);
     subscribe({ type: planId });
-    console.log("Subscription");
-    // router.push('/dashboard');
+    // console.log("Subscription");
+    router.push('/dashboard');
   };
 
   return (

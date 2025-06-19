@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { UserProfile } from "@/features/dashboard/components/user-profile";
@@ -11,20 +10,11 @@ import { SubscriptionStatus } from "@/features/dashboard/components/subscription
 import { GitHubAppInstallModal } from "@/src/components/modals/github-app-install-modal";
 import { useGitHubAppModal } from "@/src/hooks/useGitHubAppModal";
 import { ToastContainer, useToast } from "@/src/components/ui/toast";
-
-interface UserData {
-  username: string;
-  email: string;
-  githubId: number;
-  avatar: string;
-  stripeAccountId: string | null;
-}
+import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
+import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
 
 export default function Dashboard() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // GitHub App Modal
   const { isModalOpen, shouldShowModal, closeModal, markAsInstalled, } = useGitHubAppModal();
@@ -32,22 +22,17 @@ export default function Dashboard() {
   // Toast notifications
   const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
 
-  useEffect(() => {
-    
 
-    // Always load user data for demo purposes
-    setUserData({
-      username: 'Jayant818',
-      email: 'yadavjayant2003+1@gmail.com',
-      githubId: 85480558,
-      avatar: 'https://avatars.githubusercontent.com/u/85480558?v=4',
-      stripeAccountId: null,
-    });
+  const { data: userData, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
 
-    setIsLoading(false);
-  }, [searchParams, router]);
+const { data: orgIntegration, isLoading: isOrgIntegrationLoading, error: orgIntegrationError } = useGetOrgIntegrationQuery({
+  orgId: userData?.orgId?.toString() || "", 
+  customConfig: {
+    enabled: !isUserLoading && !!userData?.orgId, // Only run if userData.orgId exists
+  },
+});
 
-  if (isLoading) {
+  if (isUserLoading && isOrgIntegrationLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="premium-gradient w-12 h-12 rounded-2xl animate-spin glow-effect"></div>
@@ -80,7 +65,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* GitHub App Install Modal */}
-      {shouldShowModal && (
+      {shouldShowModal && !orgIntegration && (
         <GitHubAppInstallModal
           isOpen={isModalOpen}
           onClose={closeModal}

@@ -10,7 +10,6 @@ interface UserData {
   email: string;
   githubId: number;
   avatar: string;
-  stripeAccountId: string | null;
 }
 
 interface UserProfileProps {
