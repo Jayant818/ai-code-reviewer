@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrganizationDto } from './DTO/create-organization.dto';
-import { UpdateOrganizationDto } from './DTO/update-organization.dto';
+import { MongooseTypes } from '@app/types';
+import { OrganizationRepository } from './organization.repository';
+import { AppInjectable } from '@app/framework';
 
-@Injectable()
+@AppInjectable()
 export class OrganizationService {
-  create(createOrganizationDto: CreateOrganizationDto) {
-    return 'This action adds a new organization';
+
+  constructor(private readonly OrganizationRepository: OrganizationRepository) {
   }
 
-  findAll() {
-    return `This action returns all organization`;
+  async getOrganizationModel(orgId: MongooseTypes.ObjectId) { 
+    const orgDoc = await this.OrganizationRepository.findOne({ 
+      filter: { _id: orgId },
+      select: [
+        "LLM",
+      ]
+      })
+    return orgDoc;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} organization`;
-  }
+  async getOrganzationSubscription(orgId:MongooseTypes.ObjectId) {
+    const subscriptionDoc = await this.OrganizationRepository.findSubscription({
+      filter: { orgId },
+      select: [
+        "plan",
+        "billingPeriod",
+        "expiresAt",
+        "orgId",
+      ]
+    })
 
-  update(id: number, updateOrganizationDto: UpdateOrganizationDto) {
-    return `This action updates a #${id} organization`;
-  }
+    if (Date.now() >= subscriptionDoc.expiresAt.getTime()) {
+      throw new Error("Organization Subscription Expired");
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} organization`;
+  //   status: "active" | "inactive" | "expired";
+  //   reviewsRemaining: number;
   }
 }

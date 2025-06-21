@@ -1,5 +1,4 @@
 import axios from "../../lib/axios/axiosInstance";
-import { getAccessToken } from "../../lib/auth";
 import { ILoggedInUser } from "./api.types";
 
 export interface UserData {

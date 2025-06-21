@@ -1,22 +1,18 @@
 "use client";
 
+import { ILoggedInUser } from "@/features/user/api.types";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaGithub, FaStripe, FaCog } from "react-icons/fa";
 
-interface UserData {
-  username: string;
-  email: string;
-  githubId: number;
-  avatar: string;
+
+interface IUserProfile {
+  userData: ILoggedInUser;
+  className?: string;
 }
 
-interface UserProfileProps {
-  userData: UserData;
-}
-
-export function UserProfile({ userData }: UserProfileProps) {
+export function UserProfile({ userData }: IUserProfile) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}

@@ -1,7 +1,7 @@
 import { AUTH_TOKENS } from "@/lib/constants";
 import { createSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   console.log("request url", req.url);
@@ -15,14 +15,22 @@ export async function GET(req: NextRequest) {
   if (!accessToken || !refreshToken || !userId || !name)
     throw new Error("Github OAuth Failed");
 
-  await createSession({
-    accessToken,
-    refreshToken,
-    user: {
-      id: userId,
-      name,
-    },
-  });
+  try {
+    await createSession({
+      accessToken,
+      refreshToken,
+      user: {
+        id: userId,
+        name,
+      },
+    });
 
-  redirect("/");
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  } catch (e) {
+    console.error("Error", e);
+    return NextResponse.json(
+      { error: "Authentication Failed" },
+      { status: 500 }
+    );
+  }
 }

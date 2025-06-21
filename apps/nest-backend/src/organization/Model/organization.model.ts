@@ -1,8 +1,7 @@
 import { MongooseDocument, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Mongoose } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
-import { ACCOUNT_TYPES, IPERMISSION_TYPE, PERMISSION_TYPES } from "src/common/enums";
+import {  IPERMISSION_TYPE, PERMISSION_TYPES } from "src/common/enums";
 
 export const LLM = {
     GEMINI: 'gemini',
@@ -132,6 +131,12 @@ export class Organization {
         }
     })
     permissions: Permission;
+    
+    @Prop({
+      type: Number,
+      required: true,
+    })
+    reviewsLeft: number;
 
 }
 

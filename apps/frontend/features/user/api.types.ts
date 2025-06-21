@@ -4,5 +4,5 @@ export type ILoggedInUser = {
   email: string;
   githubId: number;
   avatar: string;
-  orgId: number;
+  orgId: string;
 };

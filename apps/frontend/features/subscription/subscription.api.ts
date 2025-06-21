@@ -1,4 +1,5 @@
 import axios from "../../lib/axios/axiosInstance";
+import { ISubscriptionResponse } from "./api.types";
 
 export interface SubscriptionRequest {
   type: "free" | "pro";
@@ -31,24 +32,12 @@ export const createSubscription = async (
   return response.data;
 };
 
-/**
- * Get current subscription status
- */
-export const getCurrentSubscription =
-  async (): Promise<SubscriptionResponse> => {
-    const response = await axios.get<SubscriptionResponse>(
-      "/organization/subscription"
-    );
-
-    return response.data;
-  };
-
-/**
- * Cancel subscription
- */
-export const cancelSubscription = async (): Promise<SubscriptionResponse> => {
-  const response =
-    await axios.delete<SubscriptionResponse>("/org/subscription");
+export const getOrgSubscription = async (
+  orgId: string
+): Promise<ISubscriptionResponse> => {
+  const response = await axios.get<ISubscriptionResponse>(
+    `/organization/subscription?orgId=${orgId}`
+  );
 
   return response.data;
 };

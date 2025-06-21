@@ -6,7 +6,7 @@ import { FaCrown, FaRocket, FaArrowUp, FaCalendarAlt } from "react-icons/fa";
 import { useCurrentSubscription } from "@/features/subscription/useSubscriptionQuery";
 
 export function SubscriptionStatus() {
-  const { data: subscription, isLoading, error } = useCurrentSubscription();
+  const { data: subscription, isLoading, } = useCurrentSubscription();
 
   if (isLoading) {
     return (
