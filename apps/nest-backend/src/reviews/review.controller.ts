@@ -8,24 +8,17 @@ import { ReviewsService } from "./review.service";
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Get('recent')
-  async getRecentReviews(
-    @Req() req,
-    @Query('limit') limit: number = 10
-  ) {
-    return this.reviewsService.getRecentReviews(
-      req.iser.orgId,
-      limit
-    );
+  @Get('analytics')
+  async getReviewsAnalytics(@Req() req) {
+    return this.reviewsService.getReviewsAnalytics({
+      orgId: req.user.orgId ?  new MongooseTypes.ObjectId(req.user.orgId) : null,
+    });
   }
 
-  // @Get('stats')
-  // async getReviewStats(
-  //   @Req() req,
-  // ) {
-  //   return this.reviewsService.getReviewStats(
-  //     req.user.orgId,
-
-  //   );
-  // }
+  @Get('recent')
+  async getRecentReview(@Req() req) { 
+    return this.reviewsService.getRecentReviews({
+      orgId: req.user.orgId ?  new MongooseTypes.ObjectId(req.user.orgId): null,
+    })
+  }
 }

@@ -4,21 +4,19 @@ import { IErrorResponse } from "@/types/error.types";
 import { IOrgIntegrationResponse } from "./integration.types";
 
 const integrationKeys = {
-  getOrgIntegration: (orgId: string) => ["orgIntegration", orgId],
+  getOrgIntegration: ["orgIntegration"],
 };
 
 export const useGetOrgIntegrationQuery = ({
-  orgId,
   customConfig,
 }: {
-  orgId: string;
   customConfig?: Partial<
     UseQueryOptions<IOrgIntegrationResponse, IErrorResponse>
   >;
-}) => {
+}={}) => {
   const response = useQuery<IOrgIntegrationResponse, IErrorResponse>({
-    queryKey: integrationKeys.getOrgIntegration(orgId),
-    queryFn: () => getIntegration(orgId),
+    queryKey: integrationKeys.getOrgIntegration,
+    queryFn: getIntegration,
     ...customConfig,
   });
   return response;

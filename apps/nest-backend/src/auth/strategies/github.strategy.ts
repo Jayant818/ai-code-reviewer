@@ -21,13 +21,12 @@ export class GithubStrategy extends PassportStrategy(Strategy){
     }
 
     async validate(accessToken:string,refreshToken:string,profile:any,done:Function) {
-
         // above received accessToken & refreshToken are from the github we don't use that we will create our own.
         const primaryEmail = profile.emails && profile.emails.length > 0 
                     ? profile.emails[0].value 
             : null;
         
-        const user = await this.authService.validateGithubUser({
+        const res = await this.authService.validateGithubUser({
             githubId: profile.id,
             username: profile.username,
             email: primaryEmail ,
@@ -36,6 +35,8 @@ export class GithubStrategy extends PassportStrategy(Strategy){
             authProvider: AUTH_PROVIDER.GITHUB,
         });
 
+        const user = res.user;
+        user.orgId = res.org._id;
         done(null, user);
     }
 }

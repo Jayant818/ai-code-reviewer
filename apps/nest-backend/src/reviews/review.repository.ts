@@ -10,7 +10,11 @@ export class ReviewsRepository {
   constructor(
     @InjectModel(COLLECTION_NAMES.Reviews.Review)
     private readonly reviewModel: MongooseModel<ReviewDocument>
-  ) {}
+  ) { }
+  
+  async aggregate(pipeline: PipelineStage[]) { 
+    return this.reviewModel.aggregate(pipeline);
+  }
 
   async createReview(data: Partial<Review>, session?: ClientSession): Promise<ReviewDocument> {
     const review = new this.reviewModel(data);
@@ -70,19 +74,6 @@ export class ReviewsRepository {
         updateData,
         { new: true }
       )
-      .session(session || null)
-      .exec();
-  }
-
-  async getRecentReviews(
-    orgId: MongooseTypes.ObjectId,
-    limit: number = 10,
-    session?: ClientSession
-  ): Promise<ReviewDocument[]> {
-    return this.reviewModel
-      .find({ orgId })
-      .sort({ createdAt: -1 })
-      .limit(limit)
       .session(session || null)
       .exec();
   }

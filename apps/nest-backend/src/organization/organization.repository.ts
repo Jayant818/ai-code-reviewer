@@ -4,7 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
 import { OrganizationTrials, OrganizationTrialsDocument } from "./trials/org-trials.model";
 import { Organization, OrganizationDocument } from "./Model/organization.model";
-import { ClientSession } from "mongoose";
+import { ClientSession, PipelineStage } from "mongoose";
 import { IBILLING_PERIOD, IPLAN, OrganizationSubscription, OrganizationSubscriptionDocument } from "./subscriptions/org-subscription.model";
 import { orgSubscriptionLogs, orgSubscriptionLogsDocument } from "./logs/org-subscription-logs.model";
 
@@ -28,6 +28,10 @@ export class OrganizationRepository{
         const org = new this.organizationModel(data);
         await org.save({session});
         return org;
+    }
+
+    aggregateOrgModel(pipeline: PipelineStage[]) {
+        return this.organizationModel.aggregate(pipeline);
     }
 
     async createSubscription({

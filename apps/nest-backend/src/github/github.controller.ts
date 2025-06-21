@@ -1,4 +1,4 @@
-import { Body, Post, Headers, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Body, Post, Headers, HttpCode, HttpStatus, Get, Res } from '@nestjs/common';
 import { GithubService } from './github.service';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
@@ -52,9 +52,7 @@ export class GithubController {
 
   private async handleInstallationEvent(payload: InstallationEventDTO) {
     if (payload.action === INSTALLATION_EVENTS.CREATED) { 
-
       await this.githubService.createIntegration(payload);
- 
     }
   }
 

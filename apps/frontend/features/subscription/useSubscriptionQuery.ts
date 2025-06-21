@@ -1,11 +1,8 @@
 import { IErrorResponse } from "@/types/error.types";
 import {
-  cancelSubscription,
   createSubscription,
-  getCurrentSubscription,
   getOrgSubscription,
   SubscriptionRequest,
-  SubscriptionResponse,
 } from "@/features/subscription/subscription.api";
 import {
   useQuery,
@@ -18,7 +15,7 @@ import { ISubscriptionResponse } from "./api.types";
 
 export const subscriptionKeys = {
   all: ["subscription"],
-  current: (orgId: string | null) => ["current", orgId],
+  current: ["current"],
 };
 
 export const useGetOrgSubscriptionQuery = ({
@@ -32,7 +29,7 @@ export const useGetOrgSubscriptionQuery = ({
   >;
 }) => {
   const response = useQuery<ISubscriptionResponse, IErrorResponse>({
-    queryKey: subscriptionKeys.current(orgId),
+    queryKey: subscriptionKeys.current,
     queryFn: () => {
       if (!orgId) {
         throw new Error("Organization ID is required");
@@ -45,25 +42,16 @@ export const useGetOrgSubscriptionQuery = ({
   return response;
 };
 
-export const useSubscriptionMutation = (
-  options?: UseMutationOptions<
-    SubscriptionResponse,
-    IErrorResponse,
-    SubscriptionRequest
-  >
-) => {
-  const queryClient = useQueryClient();
+export const useSubscriptionMutation = ({
+  customConfig,
+}: {
+  customConfig?: UseMutationOptions<any, IErrorResponse, SubscriptionRequest>;
+}) => {
+  const response = useMutation<any, IErrorResponse, SubscriptionRequest>({
+    mutationKey: subscriptionKeys.current,
+    mutationFn: (data: SubscriptionRequest) => createSubscription(data),
+    ...customConfig,
+  });
 
-  return useMutation<SubscriptionResponse, IErrorResponse, SubscriptionRequest>(
-    {
-      mutationFn: (data: SubscriptionRequest) => createSubscription(data),
-      onSuccess: (data) => {
-        // Update the current subscription cache
-        queryClient.setQueryData(subscriptionKeys.current(), data);
-        // Invalidate related queries
-        queryClient.invalidateQueries({ queryKey: subscriptionKeys.all });
-      },
-      ...options,
-    }
-  );
+  return response;
 };

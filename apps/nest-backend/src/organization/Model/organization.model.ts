@@ -113,7 +113,7 @@ export class Organization {
         default: LLM.GEMINI,
         enum: LLM_VALUES,
     })
-    LLM: ILLM;
+    Model: ILLM;
 
 
     @Prop({

@@ -2,26 +2,18 @@
 import ConnectGithubCard from "@/components/card/ConnectGithubCard";
 import ErrorWrapper from "@/components/shared/ErrorWrapper";
 import Spinner from "@/components/shared/Spinner";
-import { useGetOrgSubscriptionQuery } from "@/features/subscription/useSubscriptionQuery";
-import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
+import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
 import { PropsWithChildren } from "react";
 
 const DashboardLayout = ({ children }: PropsWithChildren) => {
-    const { data: user, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
+    const { data: integrationData, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery();
     
-    const { subscription: userSubscription } = useGetOrgSubscriptionQuery({
-        orgId: user?.orgId ?? "" , 
-        customConfig: {
-            enabled: !!user?.orgId,
-        }
-    });
+    const orgExists = !!integrationData;
 
-    const orgExists = user?.orgId !== null;
-
-    if (isUserLoading) {
+    if (isOrgIntegrationLoading) {
         return <div className="flex items-center justify-center mt-20">
             <Spinner/>
-            </div>
+        </div>
     }
 
     return <>
@@ -32,7 +24,6 @@ const DashboardLayout = ({ children }: PropsWithChildren) => {
                 </ErrorWrapper>
                 :
                 <div className="pt-10">
-                    {/* {JSON.stringify(user)} */}
                     <ConnectGithubCard/>
                 </div>
         }

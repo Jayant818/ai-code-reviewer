@@ -15,8 +15,11 @@ export const COLLECTION_NAMES = {
         availedTrials: 'Organization: Availed Trials',
     },
     Reviews: {
-        Review :'Review'
-     }
+        Review :'Review',
+    },
+    Plans: {
+        Plans:'Plans',
+    }
 }
 
 // I am making an AI Code Reviewer Tool

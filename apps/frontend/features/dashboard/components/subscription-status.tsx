@@ -1,12 +1,21 @@
 "use client";
 
+import { useGetOrgSubscriptionQuery } from "@/features/subscription/useSubscriptionQuery";
+import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { use } from "react";
 import { FaCrown, FaRocket, FaArrowUp, FaCalendarAlt } from "react-icons/fa";
-import { useCurrentSubscription } from "@/features/subscription/useSubscriptionQuery";
 
 export function SubscriptionStatus() {
-  const { data: subscription, isLoading, } = useCurrentSubscription();
+  const { data: currentUser } = useGetCurrentUserDetailQuery();
+
+  const { data: subscription, isLoading, } = useGetOrgSubscriptionQuery({
+    orgId:currentUser?.orgId ?? "",
+    customConfig: {
+      enabled: !!currentUser?.orgId,
+    }
+  });
 
   if (isLoading) {
     return (

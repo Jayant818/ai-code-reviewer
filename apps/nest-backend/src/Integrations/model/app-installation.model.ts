@@ -38,13 +38,6 @@ export class Integration{
     })
     integratedBy: number;
 
-
-    @Prop({
-        required: true,
-        type: String,
-        enum:ACCOUNT_TYPES
-    })
-    type: IACCOUNT_TYPES;
 }
 
 export const INTEGRATION_MODEL = Integration.name;

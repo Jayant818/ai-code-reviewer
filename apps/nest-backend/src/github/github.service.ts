@@ -379,8 +379,6 @@ export class GithubService {
       integratedBy: payload.installation.account.id,
     });
   
-    console.log('Integration', payload);
-
     const user = await this.userRepository.findOne({
       filter: {
         githubId: payload.installation.account.id,
@@ -407,6 +405,8 @@ export class GithubService {
         }
       )
     }
+
+    return org._id;
   }
 
   async reviewPullRequest(

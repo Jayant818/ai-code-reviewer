@@ -1,12 +1,22 @@
 import { IErrorResponse } from "@/types/error.types";
 import { IReview, IReviewResponse } from "@/features/review/api.types";
-import { useMutation, UseMutationOptions } from "@tanstack/react-query";
-import { getReview } from "./review.api";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import {
+  getRecentReviews,
+  getReview,
+  getReviewHistory,
+  getReviewsAnalytics,
+} from "./review.api";
 
 export const reviewKeys = {
   getReview: ["get-review"],
-  // Dynamic key
-  getReviewForUser: (userId: string) => [...reviewKeys.getReview, userId],
+  getReviewAnalytics: ["get-review-analytics"],
+  getReviewHistory: ["get-review-history"],
 };
 
 export const useGetReviewMutation = ({
@@ -31,4 +41,31 @@ export const useGetReviewMutation = ({
   });
 
   return mutation;
+};
+
+export const useGetReviewAnalyticsQuery = ({
+  customConfig,
+}: {
+  customConfig?: UseQueryOptions<any, IErrorResponse>;
+}) => {
+  const response = useQuery<any, IErrorResponse>({
+    queryKey: reviewKeys.getReviewAnalytics,
+    queryFn: getReviewsAnalytics,
+    ...customConfig,
+  });
+
+  return response;
+};
+
+export const useGetRecentReviewQuery = ({
+  customConfig,
+}: {
+  customConfig?: UseQueryOptions<any, IErrorResponse>;
+}) => {
+  const response = useQuery<any, IErrorResponse>({
+    queryKey: reviewKeys.getReviewHistory,
+    queryFn: getRecentReviews,
+    ...customConfig,
+  });
+  return response;
 };

@@ -80,7 +80,6 @@ export default function PlansPage() {
   setSelectedPlan(planId);
     subscribe({ type: planId });
     // console.log("Subscription");
-    router.push('/dashboard');
   };
 
   return (

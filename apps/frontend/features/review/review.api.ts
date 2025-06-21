@@ -12,3 +12,13 @@ export const getReview = async ({
 
   return response.data;
 };
+
+export const getReviewsAnalytics = async () => {
+  const response = await axios.get("/reviews/analytics");
+
+  return response.data;
+};
+
+export const getRecentReviews = async () => {
+  const response = await axios.get("/reviews/recent");
+};

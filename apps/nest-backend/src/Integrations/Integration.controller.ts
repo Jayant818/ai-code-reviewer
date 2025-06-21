@@ -8,14 +8,14 @@ import { getIntegrationDTO } from "./DTO/get-integration.dto";
 @AppController("/integration")
 export class IntegrationController{
     constructor(
-        private readonly integrationRepository: IntegrationRepository,
+        private readonly integrationService: IntegrationService
     ){}
     @Get()
-    async getIntegration(@Query() {orgId} : getIntegrationDTO) {
-        return this.integrationRepository.findOne({
-            filter: {
-                orgId: new MongooseTypes.ObjectId()
-            }
+    async getIntegration(@Req() req) {
+        const orgId = req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null;
+
+        return this.integrationService.getIntegrationDetails({
+            orgId
         })
     }
 }

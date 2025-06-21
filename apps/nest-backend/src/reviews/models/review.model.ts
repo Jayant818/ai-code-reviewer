@@ -104,6 +104,7 @@ export class Review {
     info: number;
   };
 
+
   @Prop({ type: Object, default: {} })
   metadata: Record<string, any>;
 

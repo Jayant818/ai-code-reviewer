@@ -14,7 +14,8 @@ export class OrganizationController {
   ) { }
   
   @Get('/subscription')
-  async getOrganizationSubscription(@Query() {orgId} :GetOrgSubscriptionDTO) { 
+  async getOrganizationSubscription(@Query() { orgId }: GetOrgSubscriptionDTO) { 
+    console.log("aaya", orgId);
     return this.organizationService.getOrganzationSubscription(orgId);
   }
 

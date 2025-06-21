@@ -17,38 +17,23 @@ export default function DashboardWrapper() {
   const { data: userData, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
 
   const { data: orgIntegration, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery({
-    orgId: userData?.orgId?.toString() || "", 
     customConfig: {
       enabled: !isUserLoading && !!userData?.orgId,
     },
   });
 
-  if (isUserLoading || isOrgIntegrationLoading) {
+  // const { subscription: userSubscription } = useGetOrgSubscriptionQuery({
+  //     orgId: user?.orgId ?? "" , 
+  //     customConfig: {
+  //         enabled: !!user?.orgId,
+  //     }
+  // });
+
+
+  if (isUserLoading ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="premium-gradient w-12 h-12 rounded-2xl animate-spin glow-effect"></div>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <motion.div
-          className="text-center glass-card p-12 rounded-2xl border-gradient"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-4xl font-bold mb-4 text-gradient">Authentication Required</h1>
-          <p className="text-foreground-muted mb-8 text-lg">Please sign in to access your dashboard.</p>
-          <button
-            onClick={() => router.push('/')}
-            className="premium-gradient text-white px-8 py-4 rounded-xl font-semibold glow-effect hover:scale-105 transition-transform duration-300"
-          >
-            Go to Home
-          </button>
-        </motion.div>
       </div>
     );
   }

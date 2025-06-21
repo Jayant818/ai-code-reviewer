@@ -10,6 +10,7 @@ import * as argon from "argon2";
 import { UserRepository } from 'src/user/user.repository';
 import { OrganizationRepository } from 'src/organization/organization.repository';
 import { CookieOptions } from 'express';
+import { LLM } from 'src/organization/Model/organization.model';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly userRepository: UserRepository,
-        private readonly orgRepository: OrganizationRepository,
+        private readonly organizationRepository: OrganizationRepository,
 
         @InjectConnection()
         private readonly mongooseConnection: MongooseConnection,
@@ -159,21 +160,41 @@ export class AuthService {
         const session = await this.mongooseConnection.startSession();
         try {
             session.startTransaction();
-            let user = await this.userModel.findByGithubId(userData.githubId,session)
+            let user = await this.userModel.findByGithubId(userData.githubId, session)
+            let org = await this.organizationRepository.findOne({
+                filter: {
+                    githubId: userData.githubId
+                },
+                session,
+            });
+            
 
             if (!user) {
                 user = await this.userRepository.createUser({
                     githubId: userData.githubId,
                     username: userData.username,
-                    email: userData.email, 
+                    email: userData.email,
                     avatar: userData.avatar,
                     password: userData.password,
                     authProvider: userData.authProvider,
                 }, session);
             }
+            if (!org) {
+                org = await this.organizationRepository.createOrganization({
+                    name: userData.username,
+                    githubId: userData.githubId,
+                    seatsLeft: 0,
+                    Model: LLM.GEMINI,
+                    reviewsLeft: 0,
+                    
+                }, session);
+            }
 
             await session.commitTransaction();
-            return user
+            return {
+                user: user,
+                org: org
+            }
         } catch (error) {
             await session.abortTransaction();
             console.error('GitHub validation error:', error);

@@ -1,16 +1,9 @@
 import { MongooseDocument, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
+import { IPLAN, PLAN, PLAN_VALUES } from "src/plans/Model/plans.model";
 
-export const PLAN = {
-    TRIAL: 'trial',
-    PAID: 'paid',
-    INACTIVE:'inactive'
-} as const;
 
-export type IPLAN = typeof PLAN[keyof typeof PLAN];
-
-export const PLAN_VALUES = Object.values(PLAN);
 
 export const BILLING_PERIOD = {
     YEARLY: 'yearly',

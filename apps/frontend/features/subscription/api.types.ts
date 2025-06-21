@@ -1,7 +1,14 @@
 export interface ISubscriptionResponse {
-  orgId: number;
-  plan: "trial" | "pro";
+  _id: number;
+  name: "trial" | "pro";
+  model: string;
+  githubId:number,
   expiresAt: Date;
   status: "active" | "inactive" | "expired";
-  reviewsRemaining: number;
+  reviewsLeft: number;
+  subscription: {
+    plan: "trial" | "pro";
+    billingPeriod: "monthly" | "yearly";
+    expiresAt: Date;
+  }
 }
