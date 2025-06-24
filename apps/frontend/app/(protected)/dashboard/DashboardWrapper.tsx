@@ -1,7 +1,5 @@
 "use client";
 
-
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { UserProfile } from "@/features/dashboard/components/user-profile";
 import { DashboardStats } from "@/features/dashboard/components/dashboard-stats";
@@ -10,9 +8,10 @@ import { QuickActions } from "@/features/dashboard/components/quick-actions";
 import { SubscriptionStatus } from "@/features/dashboard/components/subscription-status";
 import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
 import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
+import { useGetRecentReviewQuery, useGetReviewsAnalyticsQuery } from "@/features/review/useReviewQuery";
+import { useGetOrgSubscriptionQuery } from "@/features/subscription/useSubscriptionQuery";
 
 export default function DashboardWrapper() {
-  const router = useRouter();
 
   const { data: userData, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
 
@@ -22,14 +21,12 @@ export default function DashboardWrapper() {
     },
   });
 
-  // const { subscription: userSubscription } = useGetOrgSubscriptionQuery({
-  //     orgId: user?.orgId ?? "" , 
-  //     customConfig: {
-  //         enabled: !!user?.orgId,
-  //     }
-  // });
+  const { data: subscriptionData, isLoading: isSubscriptionLoading } = useGetOrgSubscriptionQuery();
 
-
+  const { data: reviewsAnalytics, isLoading: isReviewsAnalyticsLoading } = useGetReviewsAnalyticsQuery()
+  
+  const {data:recentReviews, isLoading: isRecentReviewsLoading} = useGetRecentReviewQuery()
+  
   if (isUserLoading ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -60,7 +57,7 @@ export default function DashboardWrapper() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Welcome back, <span className="text-gradient">{userData.username}</span>! ⚡
+            Welcome back, <span className="text-gradient">{userData?.username}</span>! ⚡
           </motion.h1>
           <motion.p
             className="text-xl text-foreground-muted max-w-2xl"
@@ -82,10 +79,10 @@ export default function DashboardWrapper() {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             {/* Dashboard Stats */}
-            <DashboardStats />
+            <DashboardStats loading={isReviewsAnalyticsLoading} reviewsAnalytics={reviewsAnalytics} />
 
             {/* Recent Activity */}
-            <RecentActivity />
+            <RecentActivity isLoading={isRecentReviewsLoading} recentReviews={recentReviews} />
           </motion.div>
 
           {/* Right Column */}
@@ -96,10 +93,10 @@ export default function DashboardWrapper() {
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             {/* User Profile */}
-            <UserProfile userData={userData} />
+            <UserProfile userData={userData} isConnected={!!orgIntegration} />
 
             {/* Subscription Status */}
-            <SubscriptionStatus />
+            <SubscriptionStatus isSubscriptionLoading={isSubscriptionLoading} subscriptionData={subscriptionData} />
 
             {/* Quick Actions */}
             <QuickActions />

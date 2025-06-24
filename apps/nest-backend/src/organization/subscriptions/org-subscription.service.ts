@@ -3,11 +3,12 @@ import { MongooseConnection, MongooseTypes } from "@app/types";
 import { InjectConnection } from "@nestjs/mongoose";
 import { OrganizationRepository } from "../organization.repository";
 import { ForbiddenException, NotFoundException, BadRequestException } from "@nestjs/common";
-import { BILLING_PERIOD, PLAN } from "./org-subscription.model";
+import { BILLING_PERIOD } from "./org-subscription.model";
 import { ClientSession } from "mongoose";
 import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-logs.model";
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
 import { UserRepository } from "src/user/user.repository";
+import { PLAN } from "src/plans/Model/plans.model";
 
 @AppInjectable()
 export class OrgSubscriptionService { 
@@ -54,8 +55,16 @@ export class OrgSubscriptionService {
                 },
                 session
             })
+
+            const organization = this.OrganizationRepository.updateOrganization({
+                filter: { _id: org },
+                update: {
+                    reviewsLeft: 10,
+                },
+                session,
+            })
             await Promise.all([
-                subscriptionLog, availedTrial
+                subscriptionLog, availedTrial, organization
             ]);
 
         }

@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { FaCheck, FaRocket, FaCrown, FaInfinity, FaShieldAlt, FaHeadset, FaBolt } from "react-icons/fa";
-import { useSubscriptionMutation } from "@/features/subscription/useSubscriptionQuery";
+import { subscriptionKeys, useSubscriptionMutation } from "@/features/subscription/useSubscriptionQuery";
 import { useRouter } from "next/navigation";
+import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
+import { FRONTEND_URL, GITHUB_APP } from "@/lib/constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PlanFeature {
   text: string;
@@ -70,16 +73,36 @@ const plans: Plan[] = [
 
 export default function PlansPage() {
   const router = useRouter();
+  const {
+    data: orgIntegration,
+  } = useGetOrgIntegrationQuery();
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
   
   const { mutate: subscribe, isPending: isSubscribing } = useSubscriptionMutation({
+    customConfig: {
+      onSuccess: async(data) => {
+        await queryClient.invalidateQueries({
+          queryKey: [subscriptionKeys.current]
+        })
+        // router.push('/dashboard');
+      },
+      onError: (error) => {
+        console.error('Subscription error:', error);
+      }
+    }
   });
 
-  const handleSelectPlan = (planId: 'free' | 'pro') => {
-    console.log("Clicked");
-  setSelectedPlan(planId);
+  const queryClient = useQueryClient();
+
+  const handleSelectPlan = async(planId: 'free' | 'pro') => {
+    if (!orgIntegration) {
+      // early return 
+      window.location.href = GITHUB_APP!;
+      return;
+    }  
+    setSelectedPlan(planId);
     subscribe({ type: planId });
-    // console.log("Subscription");
+
   };
 
   return (

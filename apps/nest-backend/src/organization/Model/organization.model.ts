@@ -135,6 +135,7 @@ export class Organization {
     @Prop({
       type: Number,
       required: true,
+      default: 0,
     })
     reviewsLeft: number;
 
@@ -144,4 +145,3 @@ export const OrganizationSchema = SchemaFactory.createForClass(Organization);
 
 export type OrganizationDocument = Organization & MongooseDocument;
 
-OrganizationSchema.index({ name: 1 }, { unique: true });

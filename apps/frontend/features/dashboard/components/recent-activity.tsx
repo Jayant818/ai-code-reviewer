@@ -77,7 +77,8 @@ const getStatusBg = (status: string) => {
   }
 };
 
-export function RecentActivity() {
+export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolean; recentReviews: any[] }) {
+  console.log(JSON.stringify(recentReviews));
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

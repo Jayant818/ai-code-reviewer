@@ -180,7 +180,6 @@ export class ReviewsService {
         }
       },
     ]
-
     return await this.reviewsRepository.aggregate(recentReviewPipeline);
   }
 }

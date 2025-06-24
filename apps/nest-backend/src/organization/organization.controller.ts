@@ -14,9 +14,10 @@ export class OrganizationController {
   ) { }
   
   @Get('/subscription')
-  async getOrganizationSubscription(@Query() { orgId }: GetOrgSubscriptionDTO) { 
-    console.log("aaya", orgId);
-    return this.organizationService.getOrganzationSubscription(orgId);
+  async getOrganizationSubscription(@Req() req) { 
+    return this.organizationService.getOrganzationSubscription({
+      orgId: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
+    });
   }
 
   @Post("/subscription")
@@ -28,7 +29,7 @@ export class OrganizationController {
     return this.orgSubscriptionService.createSubscription({
       plan:type,
       user: new MongooseTypes.ObjectId(req.user.id),
-      org: req.user.org ? new MongooseTypes.ObjectId(req.user.org) : null,
+      org: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
     });
   }
 }

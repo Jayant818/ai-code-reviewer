@@ -32,11 +32,9 @@ export const createSubscription = async (
   return response.data;
 };
 
-export const getOrgSubscription = async (
-  orgId: string
-): Promise<ISubscriptionResponse> => {
+export const getOrgSubscription = async (): Promise<ISubscriptionResponse> => {
   const response = await axios.get<ISubscriptionResponse>(
-    `/organization/subscription?orgId=${orgId}`
+    `/organization/subscription`
   );
 
   return response.data;

@@ -365,17 +365,23 @@ export class GithubService {
   // --------- Main Function ---------
 
   async createIntegration(payload: InstallationEventDTO) {
-    const org = await this.orgRepository.createOrganization({
-      name: payload.installation.account.login,
-      githubId: payload.installation.account.id,
-      seatsLeft: 0,
-    });
+    let org = await this.orgRepository.findOne({
+      filter: {
+        githubId: payload.installation.account.id,
+      },        
+    })
+    if (!org) {
+      org = await this.orgRepository.createOrganization({
+        name: payload.installation.account.login,
+        githubId: payload.installation.account.id,
+        seatsLeft: 0,
+      });
+    }
 
     await this.integrationRepository.createIntegration({
       installationId: payload.installation.id,
       orgId: org._id,
       integrationTypes: 'Github_APP',
-      type: payload.installation.account.type,
       integratedBy: payload.installation.account.id,
     });
   

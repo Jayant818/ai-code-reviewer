@@ -21,4 +21,5 @@ export const getReviewsAnalytics = async () => {
 
 export const getRecentReviews = async () => {
   const response = await axios.get("/reviews/recent");
+  return response.data;
 };

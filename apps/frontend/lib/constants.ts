@@ -9,3 +9,5 @@ export const AUTH_TOKENS = {
   USER_ID: "userId",
   NAME: "name",
 } as const;
+
+export const GITHUB_APP = process.env.NEXT_PUBLIC_GITHUB_APP;

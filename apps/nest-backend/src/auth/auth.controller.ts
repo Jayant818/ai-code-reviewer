@@ -42,7 +42,8 @@ export class AuthController {
     // and we can get the user data from the request
 
     // Now create JWT Access Token & Refresh token and send it to the client 
-    const response = await this.authService.login(req.user._id,req.user.org,req.user.username);
+    console.log("Rq.user", req.user);
+    const response = await this.authService.login(req.user._id,req.user.orgId,req.user.username);
 
     const frontendUrl = this.configService.get<string>('FRONTEND_URL')?.trim();
 

@@ -1,23 +1,18 @@
 "use client";
 
-import { useGetOrgSubscriptionQuery } from "@/features/subscription/useSubscriptionQuery";
-import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
+import { ISubscriptionResponse } from "@/features/subscription/api.types";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { use } from "react";
 import { FaCrown, FaRocket, FaArrowUp, FaCalendarAlt } from "react-icons/fa";
 
-export function SubscriptionStatus() {
-  const { data: currentUser } = useGetCurrentUserDetailQuery();
-
-  const { data: subscription, isLoading, } = useGetOrgSubscriptionQuery({
-    orgId:currentUser?.orgId ?? "",
-    customConfig: {
-      enabled: !!currentUser?.orgId,
-    }
-  });
-
-  if (isLoading) {
+export function SubscriptionStatus({
+  subscriptionData,
+  isSubscriptionLoading,
+}: {
+    subscriptionData: ISubscriptionResponse;
+    isSubscriptionLoading: boolean;
+}) {
+  if (isSubscriptionLoading) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -34,8 +29,38 @@ export function SubscriptionStatus() {
     );
   }
 
+  if (!subscriptionData && !isSubscriptionLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+        className="glass-card rounded-2xl p-8 border-gradient card-hover text-center"
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-2">
+            <FaRocket className="w-7 h-7 text-foreground-muted" />
+          </div>
+          <h3 className="text-2xl font-bold text-gradient mb-2">
+            No Subscription Found
+          </h3>
+          <p className="text-foreground-muted mb-6">
+            You don&apos;t have an active subscription yet. Start your free trial or upgrade to Pro to unlock all features.
+          </p>
+          <Link
+            href="/plans"
+            className="premium-gradient text-white px-6 py-4 rounded-xl font-semibold glow-effect hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+          >
+            <FaCrown className="w-4 h-4" />
+            View Plans
+          </Link>
+        </div>
+      </motion.div>
+    );
+  }
+
   // Default to free plan if no subscription data or error
-  const currentPlan = subscription?.data?.type || 'free';
+  const currentPlan = subscriptionData?.subscription?.plan;
   const isProPlan = currentPlan === 'pro';
 
   return (
@@ -77,18 +102,18 @@ export function SubscriptionStatus() {
           <span className={`font-semibold ${
             isProPlan ? 'text-success' : 'text-warning'
           }`}>
-            {subscription?.data?.status || 'Active'}
+            {subscriptionData?.status }
           </span>
         </div>
         
-        {subscription?.data?.endDate && (
+        {subscriptionData?.subscription?.expiresAt && (
           <div className="flex items-center justify-between p-4 glass-card rounded-xl">
             <span className="text-foreground-muted flex items-center gap-2">
               <FaCalendarAlt className="w-4 h-4" />
               Next Billing
             </span>
             <span className="font-semibold">
-              {new Date(subscription.data.endDate).toLocaleDateString()}
+              {new Date(subscriptionData?.subscription?.expiresAt).toLocaleDateString()}
             </span>
           </div>
         )}

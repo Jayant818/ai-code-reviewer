@@ -10,17 +10,18 @@ export class OrganizationService {
   constructor(private readonly OrganizationRepository: OrganizationRepository) {
   }
 
-  async getOrganizationModel(orgId: MongooseTypes.ObjectId) { 
-    const orgDoc = await this.OrganizationRepository.findOne({ 
+  async getOrganizationModel(orgId: MongooseTypes.ObjectId) {
+    const orgDoc = await this.OrganizationRepository.findOne({
       filter: { _id: orgId },
       select: [
         "Model",
       ]
-      })
+    })
     return orgDoc;
   }
 
-  async getOrganzationSubscription(orgId:MongooseTypes.ObjectId) {
+  async getOrganzationSubscription({ orgId }: { orgId: MongooseTypes.ObjectId }) {
+    console.log("OrId", orgId);
    const orgSubscriptionPipeline: PipelineStage[] = [
   {
     $match: {
@@ -76,6 +77,7 @@ export class OrganizationService {
 ];
 
 
-    return await this.OrganizationRepository.aggregateOrgModel(orgSubscriptionPipeline);
+  const result = await this.OrganizationRepository.aggregateOrgModel(orgSubscriptionPipeline);
+  return result[0];
   }
 }

@@ -19,23 +19,16 @@ export const subscriptionKeys = {
 };
 
 export const useGetOrgSubscriptionQuery = ({
-  orgId,
   customConfig,
 }: {
-  orgId: string | null;
   customConfig?: Omit<
     UseQueryOptions<ISubscriptionResponse, IErrorResponse>,
     "queryKey"
   >;
-}) => {
+} = {}) => {
   const response = useQuery<ISubscriptionResponse, IErrorResponse>({
     queryKey: subscriptionKeys.current,
-    queryFn: () => {
-      if (!orgId) {
-        throw new Error("Organization ID is required");
-      }
-      return getOrgSubscription(orgId);
-    },
+    queryFn: getOrgSubscription,
     ...customConfig,
   });
 

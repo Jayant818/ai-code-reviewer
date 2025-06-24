@@ -43,11 +43,11 @@ export const useGetReviewMutation = ({
   return mutation;
 };
 
-export const useGetReviewAnalyticsQuery = ({
+export const useGetReviewsAnalyticsQuery = ({
   customConfig,
 }: {
   customConfig?: UseQueryOptions<any, IErrorResponse>;
-}) => {
+} = {}) => {
   const response = useQuery<any, IErrorResponse>({
     queryKey: reviewKeys.getReviewAnalytics,
     queryFn: getReviewsAnalytics,
@@ -61,7 +61,7 @@ export const useGetRecentReviewQuery = ({
   customConfig,
 }: {
   customConfig?: UseQueryOptions<any, IErrorResponse>;
-}) => {
+} = {}) => {
   const response = useQuery<any, IErrorResponse>({
     queryKey: reviewKeys.getReviewHistory,
     queryFn: getRecentReviews,

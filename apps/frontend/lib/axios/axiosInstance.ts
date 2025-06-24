@@ -1,8 +1,7 @@
 import axios from "axios";
-import { decrypt, getSession } from "../session";
 import { refreshToken } from "../auth";
 import { FRONTEND_URL } from "../constants";
-import { deleteClientSession, getClientSession, useSession } from "../hooks";
+import { deleteClientSession, getClientSession } from "../hooks";
 
 const instance = axios.create({
   baseURL: "http://localhost:3001",

@@ -1,18 +1,17 @@
-"use client";
-
 import { ILoggedInUser } from "@/features/user/api.types";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { FaGithub, FaStripe, FaCog } from "react-icons/fa";
+import { FaGithub, FaCog } from "react-icons/fa";
 
 
 interface IUserProfile {
-  userData: ILoggedInUser;
+  userData: ILoggedInUser | undefined;
   className?: string;
+  isConnected?: boolean;
 }
 
-export function UserProfile({ userData }: IUserProfile) {
+export function UserProfile({ userData,isConnected=false }: IUserProfile) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -27,8 +26,8 @@ export function UserProfile({ userData }: IUserProfile) {
             transition={{ duration: 0.3 }}
           >
             <Image
-              src={userData.avatar}
-              alt={userData.username}
+              src={userData?.avatar}
+              alt={userData?.username}
               width={80}
               height={80}
               className="rounded-2xl ring-4 ring-primary/30 glow-effect"
@@ -39,8 +38,8 @@ export function UserProfile({ userData }: IUserProfile) {
           </div>
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gradient">{userData.username}</h3>
-          <p className="text-foreground-muted text-lg">{userData.email}</p>
+          <h3 className="text-2xl font-bold text-gradient">{userData?.username}</h3>
+          <p className="text-foreground-muted text-lg">{userData?.email}</p>
         </div>
       </div>
 
@@ -56,10 +55,16 @@ export function UserProfile({ userData }: IUserProfile) {
             </div>
             <div>
               <p className="font-bold text-lg">GitHub</p>
-              <p className="text-sm text-foreground-muted">ID: {userData.githubId}</p>
+              <p className="text-sm text-foreground-muted">ID: {userData?.githubId}</p>
             </div>
           </div>
-          <div className="w-3 h-3 bg-success rounded-full glow-effect"></div>
+          {
+            isConnected ? (
+              <span className="bg-green-500 w-3 h-3 rounded-full"></span>
+            ): (
+              <span className="text-warning text-sm">Not Connected</span>
+            )
+          }
         </motion.div>
       </div>
 

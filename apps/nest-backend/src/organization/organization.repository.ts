@@ -5,8 +5,9 @@ import { COLLECTION_NAMES } from "src/common/constants";
 import { OrganizationTrials, OrganizationTrialsDocument } from "./trials/org-trials.model";
 import { Organization, OrganizationDocument } from "./Model/organization.model";
 import { ClientSession, PipelineStage } from "mongoose";
-import { IBILLING_PERIOD, IPLAN, OrganizationSubscription, OrganizationSubscriptionDocument } from "./subscriptions/org-subscription.model";
+import { IBILLING_PERIOD, OrganizationSubscription, OrganizationSubscriptionDocument } from "./subscriptions/org-subscription.model";
 import { orgSubscriptionLogs, orgSubscriptionLogsDocument } from "./logs/org-subscription-logs.model";
+import { IPLAN } from "src/plans/Model/plans.model";
 
 @AppInjectable()
 export class OrganizationRepository{
@@ -29,6 +30,29 @@ export class OrganizationRepository{
         await org.save({session});
         return org;
     }
+
+    async updateOrganization<K extends keyof Organization>({
+        filter,
+        update,
+        session,
+      }: {
+        filter: Partial<Record<K, Organization[K]>>;
+        update: Partial<Organization>; 
+        session?: ClientSession;
+      }): Promise<Organization | null> {
+        const query = this.organizationModel.findOneAndUpdate(
+          filter,
+          { $set: update }, // only update specified fields
+          { new: true }     // return updated document
+        );
+      
+        if (session) {
+          query.session(session);
+        }
+      
+        return await query.lean<Organization>().exec();
+      }
+      
 
     aggregateOrgModel(pipeline: PipelineStage[]) {
         return this.organizationModel.aggregate(pipeline);

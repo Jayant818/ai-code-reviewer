@@ -18,7 +18,7 @@ export function Navbar() {
       [{
         href:"/profile",label: "Profile",segment:"profile",target:"_parent"  
       }, {
-        href: "/dashboard", label: "User Dashboard", segment: "dashboard", target:"_blank", 
+        href: "/dashboard", label: "User Dashboard", segment: "dashboard", target:"_parent" 
         },
       { href: "/try", label: "Experience Demo", segment: "try", target:"_blank" },
       { href: "/plans", label: "Plans", segment: "plans", target:"_parent" }

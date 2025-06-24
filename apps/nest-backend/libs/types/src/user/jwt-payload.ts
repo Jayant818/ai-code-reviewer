@@ -1,5 +1,5 @@
 export type JWT_PAYLOAD = {
     sub: number,
-    org: number,
+    orgId: number,
     username:string,
 }

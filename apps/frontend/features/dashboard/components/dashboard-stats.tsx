@@ -7,34 +7,60 @@ const stats = [
   {
     icon: FaCode,
     label: "Pull Requests Reviewed",
-    value: "24",
-    change: "+12%",
     changeType: "positive" as const,
   },
   {
     icon: FaBug,
     label: "Bugs Detected",
-    value: "18",
-    change: "-8%",
     changeType: "positive" as const,
   },
   {
     icon: FaCheckCircle,
     label: "Issues Resolved",
-    value: "15",
-    change: "+25%",
     changeType: "positive" as const,
   },
   {
     icon: FaClock,
     label: "Avg Review Time",
-    value: "2.3m",
-    change: "-15%",
     changeType: "positive" as const,
   },
 ];
 
-export function DashboardStats() {
+export function DashboardStats({
+  loading,
+  reviewsAnalytics,
+}: {
+  loading: boolean;
+  reviewsAnalytics: any;
+}) {
+  
+  const data = stats.map((stat) => {
+    return {
+      ...stat,
+      ...(reviewsAnalytics && reviewsAnalytics[stat.label]),
+    }
+  })
+  
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
+        className="glass-card rounded-2xl p-8 border-gradient"
+      >
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-24 bg-muted rounded-lg shimmer-effect"></div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -52,7 +78,7 @@ export function DashboardStats() {
       </motion.h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {data.map((stat, index) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -76,7 +102,7 @@ export function DashboardStats() {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1, duration: 0.4 }}
                 >
-                  {stat.value}
+                  {stat.value ?? 0}
                 </motion.p>
               </div>
             </div>
@@ -91,7 +117,7 @@ export function DashboardStats() {
                       : 'text-error bg-error/20'
                   }`}
                 >
-                  {stat.change}
+                  {stat.change ?? 0}
                 </span>
                 <span className="text-sm text-foreground-subtle">vs last month</span>
               </div>

@@ -23,6 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     
     validate(payload: JWT_PAYLOAD) {
-        return {id: payload.sub,org:payload.org};
+        return {id: payload.sub,orgId:payload.orgId};
     }
 }

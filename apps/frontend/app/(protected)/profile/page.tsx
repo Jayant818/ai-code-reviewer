@@ -1,40 +1,21 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaGithub, FaArrowLeft } from "react-icons/fa";
-import { useAuth } from "@/lib/hooks";
-
-interface UserData {
-  username: string;
-  email: string;
-  githubId: number;
-  avatar: string;
-}
+import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
+import Image from "next/image";
+import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
 
 export default function Profile() {
   const router = useRouter();
-  const { session, isAuthenticated } = useAuth();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: userData, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
+  const { data: orgIntegration, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery({
+    customConfig: {
+      enabled: !isUserLoading && !!userData?.orgId,
+    },
+  });
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-    // Load user data (in a real app, fetch from API)
-    setUserData({
-      username: 'Jayant818',
-      email: 'yadavjayant2003+1@gmail.com',
-      githubId: 85480558,
-      avatar: 'https://avatars.githubusercontent.com/u/85480558?v=4',
-    });
-    
-    setIsLoading(false);
-  }, [isAuthenticated]);
-
-  if (isLoading) {
+  if (isUserLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="fire-gradient w-8 h-8 rounded-full animate-spin"></div>
@@ -92,13 +73,13 @@ export default function Profile() {
             <h2 className="text-xl font-bold mb-6">Account Information</h2>
             
             <div className="flex items-center gap-6 mb-8">
-              {/* <Image
+              <Image
                 src={userData.avatar}
                 alt={userData.username}
                 width={80}
                 height={80}
                 className="rounded-full ring-2 ring-primary/20"
-              /> */}
+              />
               <div>
                 <h3 className="text-2xl font-bold">{userData.username}</h3>
                 <p className="text-muted-foreground">{userData.email}</p>
@@ -117,12 +98,18 @@ export default function Profile() {
                     <FaGithub className="w-6 h-6" />
                     <div>
                       <h3 className="font-semibold">GitHub Integration</h3>
-                      <p className="text-sm text-muted-foreground">Connected and active</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-green-400">Connected</span>
+                <div className="flex items-center gap-2">
+                  {
+                    isOrgIntegrationLoading ? (
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    ) : orgIntegration ? (
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    ) : (
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    )
+                  }
                   </div>
                 </div>
               </div>

@@ -24,6 +24,7 @@ const DashboardLayout = ({ children }: PropsWithChildren) => {
                 </ErrorWrapper>
                 :
                 <div className="pt-10">
+                    Data - {JSON.stringify(integrationData)}
                     <ConnectGithubCard/>
                 </div>
         }
