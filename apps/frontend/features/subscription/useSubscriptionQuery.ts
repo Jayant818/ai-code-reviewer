@@ -7,11 +7,14 @@ import {
 import {
   useQuery,
   useMutation,
-  useQueryClient,
   UseQueryOptions,
   UseMutationOptions,
 } from "@tanstack/react-query";
-import { ISubscriptionResponse } from "./api.types";
+import {
+  ICreateSubscriptionResponse,
+  ISubscriptionResponse,
+} from "./api.types";
+import { APIError, ValidationError } from "@/lib/errors";
 
 export const subscriptionKeys = {
   all: ["subscription"],
@@ -38,9 +41,17 @@ export const useGetOrgSubscriptionQuery = ({
 export const useSubscriptionMutation = ({
   customConfig,
 }: {
-  customConfig?: UseMutationOptions<any, IErrorResponse, SubscriptionRequest>;
+  customConfig?: UseMutationOptions<
+    ICreateSubscriptionResponse,
+    ValidationError | APIError,
+    SubscriptionRequest
+  >;
 }) => {
-  const response = useMutation<any, IErrorResponse, SubscriptionRequest>({
+  const response = useMutation<
+    ICreateSubscriptionResponse,
+    ValidationError | APIError,
+    SubscriptionRequest
+  >({
     mutationKey: subscriptionKeys.current,
     mutationFn: (data: SubscriptionRequest) => createSubscription(data),
     ...customConfig,

@@ -1,3 +1,4 @@
+"use client";
 import React, { PropsWithChildren } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import ErrorDisplay from './ErrorDisplay'

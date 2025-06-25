@@ -326,8 +326,9 @@ export class OrgSubscriptionService {
                     break;
             }   
             await session.commitTransaction();
-        } catch (e: any) {
+        } catch (error) {
             await session.abortTransaction();
+            throw error;
         } finally {
             await session.endSession();
         }

@@ -1,8 +1,8 @@
-export interface IReview {
-  code: string;
-  provider: "GEMINI" | "CLAUDE";
-}
+import { z } from "zod";
 
-export interface IReviewResponse {
-  review: string;
-}
+export const ReviewSchema = z.object({
+  code: z.string(),
+  provider: z.enum(["GEMINI", "CLAUDE"]),
+});
+
+export type IReview = z.infer<typeof ReviewSchema>;

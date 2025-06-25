@@ -1,17 +1,13 @@
 import { IErrorResponse } from "@/types/error.types";
-import { IReview, IReviewResponse } from "@/features/review/api.types";
+import { IReview } from "@/features/review/api.types";
 import {
   useMutation,
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import {
-  getRecentReviews,
-  getReview,
-  getReviewHistory,
-  getReviewsAnalytics,
-} from "./review.api";
+import { getRecentReviews, getReview, getReviewsAnalytics } from "./review.api";
+import { APIError, ValidationError } from "@/lib/errors";
 
 export const reviewKeys = {
   getReview: ["get-review"],
@@ -23,20 +19,19 @@ export const useGetReviewMutation = ({
   customConfig,
 }: {
   customConfig?: UseMutationOptions<
-    IReviewResponse,
-    IErrorResponse,
     IReview,
-    unknown
+    ValidationError | APIError,
+    IReview
   >;
 } = {}) => {
   const mutation = useMutation<
-    IReviewResponse,
-    IErrorResponse,
-    IReview,
-    unknown
+    IReview, // return data type
+    ValidationError | APIError, // error type
+    IReview //variable passed to mutationFn
   >({
     mutationFn: ({ code, provider }) => getReview({ code, provider }),
     mutationKey: reviewKeys.getReview,
+    throwOnError: true,
     ...customConfig,
   });
 

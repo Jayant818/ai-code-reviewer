@@ -25,11 +25,22 @@ export class OrganizationController {
     @Req() req,
     @Body() { type }: createOrganizationDTO
   ) {
-    console.log("Hit");
-    return this.orgSubscriptionService.createSubscription({
-      plan:type,
-      user: new MongooseTypes.ObjectId(req.user.id),
-      org: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
-    });
+    try {   
+      this.orgSubscriptionService.createSubscription({
+        plan:type,
+        user: new MongooseTypes.ObjectId(req.user.id),
+        org: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
+      });
+
+      return {
+        success: true,
+        message: "Subscription started",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.message || "Failed to start subscription",
+      };
+    }
   }
 }

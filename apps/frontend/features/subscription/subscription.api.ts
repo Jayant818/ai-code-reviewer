@@ -1,41 +1,69 @@
+import { APIError, ValidationError } from "@/lib/errors";
 import axios from "../../lib/axios/axiosInstance";
-import { ISubscriptionResponse } from "./api.types";
+import {
+  createSubscriptionResponseSchema,
+  ICreateSubscriptionResponse,
+  ISubscriptionResponse,
+  SubscriptionRequest,
+  SubscriptionRequestSchema,
+  SubscriptionSchema,
+} from "./api.types";
 
-export interface SubscriptionRequest {
-  type: "free" | "pro";
-}
-
-export interface SubscriptionResponse {
-  success: boolean;
-  data: {
-    subscriptionId: string;
-    type: "free" | "pro";
-    status: "active" | "pending" | "cancelled";
-    startDate: string;
-    endDate?: string;
-    paymentUrl?: string;
-  };
-  message?: string;
-}
-
-/**
- * Create or update subscription
- */
 export const createSubscription = async (
   data: SubscriptionRequest
-): Promise<SubscriptionResponse> => {
-  const response = await axios.post<SubscriptionResponse>(
-    "/organization/subscription",
-    data
-  );
+): Promise<ICreateSubscriptionResponse> => {
+  try {
+    const inputCheck = SubscriptionRequestSchema.safeParse(data);
 
-  return response.data;
+    if (!inputCheck.success) {
+      throw new ValidationError(
+        "Invalid subscription request",
+        inputCheck.error
+      );
+    }
+
+    const response = await axios.post("/organization/subscription", data);
+
+    const result = createSubscriptionResponseSchema.safeParse(response.data);
+
+    if (!result.success) {
+      throw new ValidationError("Invalid API response format", result.error);
+    }
+
+    if (!result.data.success) {
+      throw new APIError(
+        "Failed to create subscription",
+        500,
+        result.data.message
+      );
+    }
+
+    return result.data;
+  } catch (error) {
+    if (error instanceof ValidationError || error instanceof APIError) {
+      throw error;
+    }
+
+    throw new APIError("An unexpected error occurred", 500, error);
+  }
 };
 
 export const getOrgSubscription = async (): Promise<ISubscriptionResponse> => {
-  const response = await axios.get<ISubscriptionResponse>(
-    `/organization/subscription`
-  );
+  try {
+    const response = await axios.get(`/organization/subscription`);
 
-  return response.data;
+    const result = SubscriptionSchema.safeParse(response.data);
+
+    if (!result.success) {
+      throw new ValidationError("Invalid API response format", result.error);
+    }
+
+    return result.data;
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+
+    throw new APIError("An unexpected error occurred", 500, error);
+  }
 };

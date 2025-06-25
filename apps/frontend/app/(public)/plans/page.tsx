@@ -72,7 +72,6 @@ const plans: Plan[] = [
 ];
 
 export default function PlansPage() {
-  const router = useRouter();
   const {
     data: orgIntegration,
   } = useGetOrgIntegrationQuery();
@@ -84,7 +83,7 @@ export default function PlansPage() {
         await queryClient.invalidateQueries({
           queryKey: [subscriptionKeys.current]
         })
-        // router.push('/dashboard');
+        router.push('/dashboard');
       },
       onError: (error) => {
         console.error('Subscription error:', error);
