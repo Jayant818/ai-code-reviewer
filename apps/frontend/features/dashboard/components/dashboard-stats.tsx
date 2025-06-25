@@ -1,29 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaCode, FaBug, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaCode, FaBug, FaComment } from "react-icons/fa";
 
 const stats = [
   {
+    tag:"totalReviews",
     icon: FaCode,
     label: "Pull Requests Reviewed",
     changeType: "positive" as const,
   },
   {
+    tag:"totalBugs",
     icon: FaBug,
     label: "Bugs Detected",
     changeType: "positive" as const,
   },
   {
-    icon: FaCheckCircle,
-    label: "Issues Resolved",
+    tag:"totalComments",
+    icon: FaComment,
+    label: "Comments Added",
     changeType: "positive" as const,
   },
-  {
-    icon: FaClock,
-    label: "Avg Review Time",
-    changeType: "positive" as const,
-  },
+  // {
+  //   icon: FaCheckCircle,
+  //   label: "Issues Resolved",
+  //   changeType: "positive" as const,
+  // },
+  // {
+  //   icon: FaClock,
+  //   label: "Avg Review Time",
+  //   changeType: "positive" as const,
+  // },
 ];
 
 export function DashboardStats({
@@ -37,7 +45,7 @@ export function DashboardStats({
   const data = stats.map((stat) => {
     return {
       ...stat,
-      ...(reviewsAnalytics && reviewsAnalytics[stat.label]),
+      value: reviewsAnalytics ? reviewsAnalytics[stat?.tag] : 0,
     }
   })
   

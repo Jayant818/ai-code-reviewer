@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/shared"
+import ErrorWrapper from "@/components/shared/ErrorWrapper";
 import { getSession } from "@/lib/session";
-import { useRouter } from "next/navigation";
 export default async function NavbarLayout  ({
     children
 }: {
@@ -25,7 +25,9 @@ export default async function NavbarLayout  ({
   return (
     <main>
         <Navbar />
-        {children}  
+      <ErrorWrapper>
+          {children}  
+      </ErrorWrapper>
     </main>
   )
 }

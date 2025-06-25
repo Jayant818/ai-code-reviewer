@@ -21,6 +21,24 @@ export class ReviewsRepository {
     return review.save({ session });
   }
 
+  async updateReview<k extends keyof Review>({
+    filter,
+    update,
+    session,
+  }: {
+    filter: Partial<Record<k, Review[k]>>;
+    update: Partial<Review>;
+    session?: ClientSession;
+  }) {
+    const query = this.reviewModel.findOneAndUpdate(filter, { $set: update }, { new: true });
+
+    if (session) {
+      query.session(session);
+    }
+
+    return query.lean<Review>().exec();
+  }
+
   async findById(id: MongooseTypes.ObjectId, session?: ClientSession): Promise<ReviewDocument | null> {
     return this.reviewModel.findById(id).session(session || null).exec();
   }
@@ -37,21 +55,6 @@ export class ReviewsRepository {
         repositoryName,
         pullRequestNumber
       })
-      .session(session || null)
-      .exec();
-  }
-
-  async updateReviewStatus(
-    id: MongooseTypes.ObjectId,
-    status: REVIEW_STATUS,
-    session?: ClientSession
-  ): Promise<ReviewDocument | null> {
-    return this.reviewModel
-      .findByIdAndUpdate(
-        id,
-        { status },
-        { new: true }
-      )
       .session(session || null)
       .exec();
   }

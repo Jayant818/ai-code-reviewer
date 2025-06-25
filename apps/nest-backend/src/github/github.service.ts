@@ -11,6 +11,7 @@ import { ReviewsService } from 'src/reviews/review.service';
 import { ReviewsRepository } from 'src/reviews/review.repository';
 import { LLM } from 'src/organization/Model/organization.model';
 import { IntegrationService } from 'src/Integrations/Integration.service';
+import { REVIEW_STATUS } from 'src/reviews/models/review.model';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -450,7 +451,6 @@ export class GithubService {
         author: prDetails.user.login,
         aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
         reviewRequestedAt:new Date(),
-
       });
 
       // when we create a PR or push a commit some checks need to be performed
@@ -599,6 +599,16 @@ export class GithubService {
           summary: 'Review completed',
         },
       });
+
+      await this.reviewsRepository.updateReview({
+        filter: {
+          _id: reviewRecord._id
+        },
+        update: {
+          status: REVIEW_STATUS.COMPLETED,
+          reviewCompletedAt: new Date(),
+        } 
+      })
     } catch (e: any) {
       console.log('Error in reviewing PR:', e);
       if (octokit && check) {

@@ -5,6 +5,7 @@ import { FaGithub, FaArrowLeft } from "react-icons/fa";
 import { useGetCurrentUserDetailQuery } from "@/features/user/useUserQuery";
 import Image from "next/image";
 import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
+import Spinner from "@/components/shared/Spinner";
 
 export default function Profile() {
   const router = useRouter();
@@ -17,25 +18,7 @@ export default function Profile() {
 
   if (isUserLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="fire-gradient w-8 h-8 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Authentication Required</h1>
-          <button 
-            onClick={() => router.push('/')}
-            className="fire-gradient text-white px-6 py-3 rounded-lg font-medium"
-          >
-            Go to Home
-          </button>
-        </div>
-      </div>
+      <Spinner/>
     );
   }
 

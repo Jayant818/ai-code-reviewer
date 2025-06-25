@@ -1,9 +1,12 @@
 import React, { PropsWithChildren } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import ErrorDisplay from './ErrorDisplay'
 
 const ErrorWrapper = ({children}:PropsWithChildren) => {
   return (
-    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+    <ErrorBoundary fallbackRender={({ error }) => (
+      <ErrorDisplay error={error} />
+    )}>
         {children}
     </ErrorBoundary>
   )

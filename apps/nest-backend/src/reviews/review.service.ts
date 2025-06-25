@@ -13,12 +13,6 @@ export class ReviewsService {
     @InjectConnection() private readonly connection: MongooseConnection,
   ) { }
   
-  async startReview(reviewId: MongooseTypes.ObjectId) {
-    return this.reviewsRepository.updateReviewStatus(
-      reviewId,
-      REVIEW_STATUS.IN_PROGRESS
-    );
-  }
 
   async getReviewsAnalytics({
     orgId
@@ -73,7 +67,8 @@ export class ReviewsService {
       }
     ]
 
-    return await this.reviewsRepository.aggregate(reviewPipeline);
+    const result =  await this.reviewsRepository.aggregate(reviewPipeline);
+    return result.length > 0 ? result[0] : null;
   }
 
   async completeReview(
@@ -121,13 +116,6 @@ export class ReviewsService {
         issues: data.issues,
         issueCounts,
       }
-    );
-  }
-
-  async markReviewFailed(reviewId: MongooseTypes.ObjectId) {
-    return this.reviewsRepository.updateReviewStatus(
-      reviewId,
-      REVIEW_STATUS.FAILED
     );
   }
 

@@ -1,56 +1,23 @@
-import axios from "../../lib/axios/axiosInstance";
-import { ILoggedInUser } from "./api.types";
+import { APIError, ValidationError } from "@/lib/errors";
+import axios from "@/lib/axios/axiosInstance";
+import { IUser, UserSchema } from "./user.schema";
 
-export interface UserData {
-  username: string;
-  email: string;
-  githubId: number;
-  avatar: string;
-  stripeAccountId: string | null;
-}
+export const getCurrentUser = async (): Promise<IUser> => {
+  try {
+    const response = await axios.get("/user/current");
 
-export interface UserResponse {
-  success: boolean;
-  data: UserData;
-  message?: string;
-}
+    const result = UserSchema.safeParse(response.data);
 
-/**
- * Get current user data
- */
-export const getCurrentUser = async (): Promise<ILoggedInUser> => {
-  const response = await axios.get<ILoggedInUser>("/user/current");
+    if (!result.success) {
+      throw new ValidationError("Invalid API response format", result.error);
+    }
 
-  return response.data;
-};
+    return result.data;
+  } catch (error) {
+    if (error instanceof ValidationError || error instanceof APIError) {
+      throw error;
+    }
 
-/**
- * Update user profile
- */
-export const updateUserProfile = async (
-  data: Partial<UserData>
-): Promise<UserResponse> => {
-  const token = getAccessToken();
-
-  const response = await axios.patch<UserResponse>("/user/profile", data);
-
-  return response.data;
-};
-
-/**
- * Get user dashboard stats
- */
-export const getDashboardStats = async () => {
-  const response = await axios.get("/user/dashboard/stats");
-
-  return response.data;
-};
-
-/**
- * Get user recent activity
- */
-export const getRecentActivity = async () => {
-  const response = await axios.get("/user/dashboard/activity");
-
-  return response.data;
+    throw new APIError("An unexpected error occurred", 500, error);
+  }
 };
