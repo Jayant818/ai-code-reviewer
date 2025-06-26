@@ -1,5 +1,9 @@
 import { IErrorResponse } from "@/types/error.types";
-import { IReview } from "@/features/review/api.types";
+import {
+  IReview,
+  IReviewInput,
+  IReviewResponse,
+} from "@/features/review/api.types";
 import {
   useMutation,
   UseMutationOptions,
@@ -19,15 +23,15 @@ export const useGetReviewMutation = ({
   customConfig,
 }: {
   customConfig?: UseMutationOptions<
-    IReview,
+    IReviewResponse,
     ValidationError | APIError,
-    IReview
+    IReviewInput
   >;
 } = {}) => {
   const mutation = useMutation<
-    IReview, // return data type
+    IReviewResponse, // return data type
     ValidationError | APIError, // error type
-    IReview //variable passed to mutationFn
+    IReviewInput //variable passed to mutationFn
   >({
     mutationFn: ({ code, provider }) => getReview({ code, provider }),
     mutationKey: reviewKeys.getReview,
@@ -46,6 +50,7 @@ export const useGetReviewsAnalyticsQuery = ({
   const response = useQuery<any, IErrorResponse>({
     queryKey: reviewKeys.getReviewAnalytics,
     queryFn: getReviewsAnalytics,
+    throwOnError: true,
     ...customConfig,
   });
 
@@ -60,6 +65,7 @@ export const useGetRecentReviewQuery = ({
   const response = useQuery<any, IErrorResponse>({
     queryKey: reviewKeys.getReviewHistory,
     queryFn: getRecentReviews,
+    throwOnError: true,
     ...customConfig,
   });
   return response;

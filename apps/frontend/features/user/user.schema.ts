@@ -5,7 +5,7 @@ export const UserSchema = z.object({
   username: z.string(),
   email: z.string(),
   avatar: z.string().nullable().optional(),
-  orgId: z.string(),
+  orgId: z.string().nullable(),
   githubId: z.number(),
 });
 

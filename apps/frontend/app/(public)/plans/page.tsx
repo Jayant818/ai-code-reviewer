@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaCheck, FaRocket, FaCrown, FaInfinity, FaShieldAlt, FaHeadset, FaBolt } from "react-icons/fa";
+import { FaCheck, FaRocket, FaCrown,  FaShieldAlt, FaHeadset, FaBolt } from "react-icons/fa";
 import { subscriptionKeys, useSubscriptionMutation } from "@/features/subscription/useSubscriptionQuery";
 import { useRouter } from "next/navigation";
 import { useGetOrgIntegrationQuery } from "@/features/integration/useIntegrationQuery";
-import { FRONTEND_URL, GITHUB_APP } from "@/lib/constants";
+import {  GITHUB_APP } from "@/lib/constants";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface PlanFeature {
@@ -75,7 +75,8 @@ export default function PlansPage() {
   const {
     data: orgIntegration,
   } = useGetOrgIntegrationQuery();
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null);
+  const router = useRouter();
+  const [selectedPlan, setSelectedPlan] = useState<'trial' | 'pro' | null>(null);
   
   const { mutate: subscribe, isPending: isSubscribing } = useSubscriptionMutation({
     customConfig: {
@@ -93,7 +94,7 @@ export default function PlansPage() {
 
   const queryClient = useQueryClient();
 
-  const handleSelectPlan = async(planId: 'free' | 'pro') => {
+  const handleSelectPlan = async(planId: 'trial' | 'pro') => {
     if (!orgIntegration) {
       // early return 
       window.location.href = GITHUB_APP!;

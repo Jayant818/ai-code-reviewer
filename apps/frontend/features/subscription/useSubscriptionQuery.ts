@@ -32,6 +32,7 @@ export const useGetOrgSubscriptionQuery = ({
   const response = useQuery<ISubscriptionResponse, IErrorResponse>({
     queryKey: subscriptionKeys.current,
     queryFn: getOrgSubscription,
+    throwOnError: true,
     ...customConfig,
   });
 

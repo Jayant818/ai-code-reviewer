@@ -7,9 +7,12 @@ export const getCurrentUser = async (): Promise<IUser> => {
     const response = await axios.get("/user/current");
 
     const result = UserSchema.safeParse(response.data);
-
+    console.log(result);
     if (!result.success) {
-      throw new ValidationError("Invalid API response format", result.error);
+      throw new ValidationError(
+        "Invalid API response format in fetching user",
+        result.error
+      );
     }
 
     return result.data;

@@ -78,7 +78,7 @@ const getStatusBg = (status: string) => {
 };
 
 export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolean; recentReviews: any[] }) {
-  console.log(JSON.stringify(recentReviews));
+  // console.log(JSON.stringify(recentReviews));
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -94,7 +94,7 @@ export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolea
       </div>
       
       <div className="space-y-4">
-        {recentReviews.length === 0 ? (
+        {(recentReviews || []).length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             <p className="text-lg font-semibold mb-2">No recent activity found</p>
             <p className="text-sm">Your recent code reviews will appear here.</p>

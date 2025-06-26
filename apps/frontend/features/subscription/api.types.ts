@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const SubscriptionSchema = z.object({
-  _id: z.number(),
-  name: z.enum(["trial", "pro"]),
+  _id: z.string(),
+  name: z.string(),
   githubId: z.number(),
-  Model: z.string(),
+  Model: z.enum(["gemini", "claude"]),
   reviewsLeft: z.number(),
   status: z.enum(["active", "inactive", "expired"]),
   subscription: z
@@ -12,7 +12,7 @@ export const SubscriptionSchema = z.object({
       _id: z.string(),
       plan: z.enum(["trial", "pro"]),
       billingPeriod: z.enum(["monthly", "yearly"]),
-      expiresAt: z.date(),
+      expiresAt: z.string(), // should be a date string
     })
     .optional(),
 });
@@ -29,7 +29,7 @@ export type ICreateSubscriptionResponse = z.infer<
 >;
 
 export const SubscriptionRequestSchema = z.object({
-  type: z.enum(["free", "pro"]),
+  type: z.enum(["trial", "pro"]),
 });
 
 export type SubscriptionRequest = z.infer<typeof SubscriptionRequestSchema>;

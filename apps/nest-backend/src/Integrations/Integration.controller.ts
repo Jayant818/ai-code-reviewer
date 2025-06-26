@@ -1,9 +1,7 @@
 import { AppController } from "@app/framework";
 import { IntegrationService } from "./Integration.service";
-import { IntegrationRepository } from "./Integration.repository";
-import { Get, Query, Req } from "@nestjs/common";
+import { Get, Req } from "@nestjs/common";
 import { MongooseTypes } from "@app/types";
-import { getIntegrationDTO } from "./DTO/get-integration.dto";
 
 @AppController("/integration")
 export class IntegrationController{

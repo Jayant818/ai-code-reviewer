@@ -9,7 +9,7 @@ export function SubscriptionStatus({
   subscriptionData,
   isSubscriptionLoading,
 }: {
-    subscriptionData: ISubscriptionResponse;
+    subscriptionData: ISubscriptionResponse | undefined;
     isSubscriptionLoading: boolean;
 }) {
   if (isSubscriptionLoading) {
@@ -37,6 +37,7 @@ export function SubscriptionStatus({
         transition={{ duration: 0.6, delay: 0.1 }}
         className="glass-card rounded-2xl p-8 border-gradient card-hover text-center"
       >
+        {JSON.stringify(subscriptionData)}
         <div className="flex flex-col items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-2">
             <FaRocket className="w-7 h-7 text-foreground-muted" />

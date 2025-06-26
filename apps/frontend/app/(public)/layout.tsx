@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/shared"
+import ErrorWrapper from "@/components/shared/ErrorWrapper"
 export default function NavbarLayout  ({
     children
 }: {
@@ -7,7 +8,9 @@ export default function NavbarLayout  ({
   return (
     <main>
         <Navbar />
-        {children}  
+      <ErrorWrapper>
+      {children}  
+      </ErrorWrapper>
     </main>
   )
 }
