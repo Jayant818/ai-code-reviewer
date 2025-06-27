@@ -2,6 +2,7 @@ import {
   IReviewInput,
   IReviewResponse,
   RecentReviewsSchema,
+  ReviewAnalyticsSchema,
   ReviewInputSchema,
   ReviewResponseSchema,
 } from "./api.types";
@@ -47,10 +48,10 @@ export const getReviewsAnalytics = async () => {
   try {
     const response = await axios.get("/reviews/analytics");
 
-    const result = ReviewResponseSchema.safeParse(response.data);
+    const result = ReviewAnalyticsSchema.safeParse(response.data);
 
     if (!result.success) {
-      console.error("API response error:", result.error);
+      console.error("API response error in review analytics:", result);
       throw new ValidationError(
         "Invalid API response format in Review analytics",
         result.error
