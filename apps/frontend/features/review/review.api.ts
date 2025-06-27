@@ -1,6 +1,7 @@
 import {
   IReviewInput,
   IReviewResponse,
+  RecentReviewsSchema,
   ReviewInputSchema,
   ReviewResponseSchema,
 } from "./api.types";
@@ -43,28 +44,57 @@ export const getReview = async ({
 };
 
 export const getReviewsAnalytics = async () => {
-  try {    
+  try {
     const response = await axios.get("/reviews/analytics");
-  
-    return response.data;
+
+    const result = ReviewResponseSchema.safeParse(response.data);
+
+    if (!result.success) {
+      console.error("API response error:", result.error);
+      throw new ValidationError(
+        "Invalid API response format in Review analytics",
+        result.error
+      );
+    }
+
+    return result.data;
   } catch (error) {
     if (error instanceof ValidationError || error instanceof APIError) {
       throw error;
     }
 
-    throw new APIError("An unexpected error occurred while fetching analytics", 500, error);
+    throw new APIError(
+      "An unexpected error occurred while fetching analytics",
+      500,
+      error
+    );
   }
 };
 
 export const getRecentReviews = async () => {
   try {
     const response = await axios.get("/reviews/recent");
-    return response.data;
+
+    const result = RecentReviewsSchema.safeParse(response.data);
+
+    if (!result.success) {
+      console.error("API response error:", result.error);
+      throw new ValidationError(
+        "Invalid API response format in recent reviews",
+        result.error
+      );
+    }
+
+    return result.data;
   } catch (error) {
-    if(error instanceof ValidationError || error instanceof APIError) {
+    if (error instanceof ValidationError || error instanceof APIError) {
       throw error;
     }
 
-    throw new APIError("An unexpected error occurred while fetching recent reviews", 500, error);
+    throw new APIError(
+      "An unexpected error occurred while fetching recent reviews",
+      500,
+      error
+    );
   }
 };

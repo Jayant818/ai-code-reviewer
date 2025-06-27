@@ -1,6 +1,8 @@
 import { IErrorResponse } from "@/types/error.types";
 import {
+  IRecentReviews,
   IReview,
+  IReviewAnalyticsResponse,
   IReviewInput,
   IReviewResponse,
 } from "@/features/review/api.types";
@@ -45,9 +47,15 @@ export const useGetReviewMutation = ({
 export const useGetReviewsAnalyticsQuery = ({
   customConfig,
 }: {
-  customConfig?: UseQueryOptions<any, IErrorResponse>;
+  customConfig?: UseQueryOptions<
+    IReviewAnalyticsResponse,
+    APIError | ValidationError
+  >;
 } = {}) => {
-  const response = useQuery<any, IErrorResponse>({
+  const response = useQuery<
+    IReviewAnalyticsResponse,
+    APIError | ValidationError
+  >({
     queryKey: reviewKeys.getReviewAnalytics,
     queryFn: getReviewsAnalytics,
     throwOnError: true,
@@ -60,9 +68,9 @@ export const useGetReviewsAnalyticsQuery = ({
 export const useGetRecentReviewQuery = ({
   customConfig,
 }: {
-  customConfig?: UseQueryOptions<any, IErrorResponse>;
+  customConfig?: UseQueryOptions<IRecentReviews, APIError | ValidationError>;
 } = {}) => {
-  const response = useQuery<any, IErrorResponse>({
+  const response = useQuery<IRecentReviews, APIError | ValidationError>({
     queryKey: reviewKeys.getReviewHistory,
     queryFn: getRecentReviews,
     throwOnError: true,

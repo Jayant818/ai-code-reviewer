@@ -30,7 +30,9 @@
       "@app/config":["libs/config/src"],
       "@app/config/*":["libs/config/*"],
       "@app/types":["libs/types/src"],
-      "@app/types/*":["libs/types/*"]
+      "@app/types/*":["libs/types/*"],
+      "@app/redis":["libs/redis/src"],
+      "@app/redis/*":["libs/redis/*"],
     }
   }
 }

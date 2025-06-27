@@ -27,7 +27,11 @@ export const createSubscription = async (
     const result = createSubscriptionResponseSchema.safeParse(response.data);
 
     if (!result.success) {
-      throw new ValidationError("Invalid API response format in creating subscription", result.error);
+      console.error("API response error", result.error);
+      throw new ValidationError(
+        "Invalid API response format in creating subscription",
+        result.error
+      );
     }
 
     if (!result.data.success) {
@@ -55,6 +59,7 @@ export const getOrgSubscription = async (): Promise<ISubscriptionResponse> => {
     const result = SubscriptionSchema.safeParse(response.data);
 
     if (!result.success) {
+      console.error("API response error:", result.error);
       throw new ValidationError(
         "Invalid API response format in fetching subscription",
         result.error

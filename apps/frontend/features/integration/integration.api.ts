@@ -10,8 +10,8 @@ export const getIntegration = async () => {
       response.data || {}
     );
 
-    console.log(result);
     if (!result.success) {
+      console.error("API response error:", result.error);
       throw new ValidationError("Invalid API response format", result.error);
     }
 
