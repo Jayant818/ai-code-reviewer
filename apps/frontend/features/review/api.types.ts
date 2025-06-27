@@ -28,25 +28,23 @@ export const ReviewAnalyticsSchema = z.object({
 
 export type IReviewAnalyticsResponse = z.infer<typeof ReviewAnalyticsSchema>;
 
-export const RecentReview = z
-  .object({
-    _id: z.string(),
-    repositoryName: z.string(),
-    pullRequestTitle: z.string(),
-    pullRequestUrl: z.string(),
-    author: z.string(),
-    reviewRequestedAt: z.string(),
-    status: z.enum(["pending", "completed", "rejected"]),
-    aiProvider: z.enum(["gemini", "claude"]),
-    issueCounts: z.object({
-      critical: z.number(),
-      high: z.number(),
-      medium: z.number(),
-      low: z.number(),
-      info: z.number(),
-    }),
-  })
-  .optional();
+export const RecentReview = z.object({
+  _id: z.string(),
+  repositoryName: z.string(),
+  pullRequestTitle: z.string(),
+  pullRequestUrl: z.string(),
+  author: z.string(),
+  reviewRequestedAt: z.string(),
+  status: z.enum(["pending", "completed", "rejected"]),
+  aiProvider: z.enum(["gemini", "claude"]),
+  issueCounts: z.object({
+    critical: z.number(),
+    high: z.number(),
+    medium: z.number(),
+    low: z.number(),
+    info: z.number(),
+  }),
+});
 
 export const RecentReviewsSchema = z.array(RecentReview);
 

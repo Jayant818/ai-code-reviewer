@@ -1,4 +1,5 @@
 import { ILoggedInUser } from "@/features/user/api.types";
+import { IUser } from "@/features/user/user.schema";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,12 +7,12 @@ import { FaGithub, FaCog } from "react-icons/fa";
 
 
 interface IUserProfile {
-  userData: ILoggedInUser | undefined;
+  userData: IUser | undefined;
   className?: string;
   isConnected?: boolean;
 }
 
-export function UserProfile({ userData,isConnected=false }: IUserProfile) {
+export function UserProfile({ userData, isConnected = false }: IUserProfile) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}

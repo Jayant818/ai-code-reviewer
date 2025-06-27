@@ -35,6 +35,8 @@ export default function DashboardWrapper() {
     );
   }
 
+  const isConnected = orgIntegration && Object.keys(orgIntegration).length > 0;
+
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background Elements */}
@@ -93,7 +95,7 @@ export default function DashboardWrapper() {
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             {/* User Profile */}
-            <UserProfile userData={userData} isConnected={!!orgIntegration} />
+            <UserProfile userData={userData} isConnected={isConnected} />
 
             {/* Subscription Status */}
             <SubscriptionStatus isSubscriptionLoading={isSubscriptionLoading} subscriptionData={subscriptionData} />

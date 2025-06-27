@@ -51,6 +51,9 @@ export const getReviewsAnalytics = async () => {
     const result = ReviewAnalyticsSchema.safeParse(response.data);
 
     if (!result.success) {
+      console.log("Response in review Analytics", typeof response.data);
+      console.log("Response in review Analytics", response.data);
+
       console.error("API response error in review analytics:", result);
       throw new ValidationError(
         "Invalid API response format in Review analytics",

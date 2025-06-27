@@ -8,7 +8,8 @@ import { PropsWithChildren } from "react";
 const DashboardLayout = ({ children }: PropsWithChildren) => {
     const { data: integrationData, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery();
     
-    const orgExists = !!integrationData;
+    // const orgExists = integrationData && Object.keys(integrationData).length>0;
+    const integrationExists = true ;
 
     if (isOrgIntegrationLoading) {
         return <div className="flex items-center justify-center mt-20">
@@ -18,13 +19,12 @@ const DashboardLayout = ({ children }: PropsWithChildren) => {
 
     return <>
         {
-            orgExists ?
+            integrationExists ?
                 <ErrorWrapper>
                     {children}
                 </ErrorWrapper>
                 :
                 <div className="pt-10">
-                    Data - {JSON.stringify(integrationData)}
                     <ConnectGithubCard/>
                 </div>
         }

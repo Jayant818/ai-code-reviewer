@@ -10,15 +10,19 @@ export class ReviewsController {
 
   @Get('analytics')
   async getReviewsAnalytics(@Req() req) {
-    return this.reviewsService.getReviewsAnalytics({
+    const result =  await this.reviewsService.getReviewsAnalytics({
       orgId: req.user.orgId ?  new MongooseTypes.ObjectId(req.user.orgId) : null,
     });
+    
+    return result;
   }
 
   @Get('recent')
   async getRecentReview(@Req() req) { 
-    return this.reviewsService.getRecentReviews({
+    const result = await this.reviewsService.getRecentReviews({
       orgId: req.user.orgId ?  new MongooseTypes.ObjectId(req.user.orgId): null,
     })
+
+    return result;
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { IRecentReviews } from "@/features/review/api.types";
 import { motion } from "framer-motion";
 import { FaGithub } from "react-icons/fa";
 
@@ -77,8 +78,7 @@ const getStatusBg = (status: string) => {
   }
 };
 
-export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolean; recentReviews: any[] }) {
-  // console.log(JSON.stringify(recentReviews));
+export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolean; recentReviews: IRecentReviews | undefined }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

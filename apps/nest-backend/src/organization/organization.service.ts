@@ -21,7 +21,6 @@ export class OrganizationService {
   }
 
   async getOrganzationSubscription({ orgId }: { orgId: MongooseTypes.ObjectId }) {
-    console.log("OrId", orgId);
    const orgSubscriptionPipeline: PipelineStage[] = [
   {
     $match: {
@@ -78,6 +77,7 @@ export class OrganizationService {
 
 
   const result = await this.OrganizationRepository.aggregateOrgModel(orgSubscriptionPipeline);
+  
   return result[0];
   }
 }

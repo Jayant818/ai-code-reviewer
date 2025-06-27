@@ -21,7 +21,7 @@ export class ReviewsService {
   }) {
     
     if (!orgId) {
-      throw new UnauthorizedException("Organization ID is required");
+      throw new UnauthorizedException("Organization Not Found");
     }
     
     const reviewPipeline: PipelineStage[] = [
@@ -67,8 +67,24 @@ export class ReviewsService {
       }
     ]
 
-    const result =  await this.reviewsRepository.aggregate(reviewPipeline);
-    return result.length > 0 ? result[0] : null;
+    const result = await this.reviewsRepository.aggregate(reviewPipeline);
+
+    if (result.length === 0) {
+      return {
+        totalReviews: 0,
+        totalComments: 0,
+        totalBugs: 0,
+        breakdown: {
+          critical: 0,
+          high: 0,
+          medium: 0,
+          low: 0,
+          info: 0,
+        }
+      };
+    }
+
+    return result[0];
   }
 
   async completeReview(

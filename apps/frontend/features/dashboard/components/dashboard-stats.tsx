@@ -1,23 +1,29 @@
 "use client";
 
+import { IReviewAnalyticsResponse } from "@/features/review/api.types";
 import { motion } from "framer-motion";
 import { FaCode, FaBug, FaComment } from "react-icons/fa";
 
+enum TAGS {
+  TOTAL_REVIEWS = "totalReviews",
+  TOTAL_BUGS = "totalBugs",
+  TOTAL_COMMENTS = "totalComments",
+}
 const stats = [
   {
-    tag:"totalReviews",
+    tag:TAGS.TOTAL_REVIEWS,
     icon: FaCode,
     label: "Pull Requests Reviewed",
     changeType: "positive" as const,
   },
   {
-    tag:"totalBugs",
+    tag:TAGS.TOTAL_BUGS,
     icon: FaBug,
     label: "Bugs Detected",
     changeType: "positive" as const,
   },
   {
-    tag:"totalComments",
+    tag:TAGS.TOTAL_COMMENTS,
     icon: FaComment,
     label: "Comments Added",
     changeType: "positive" as const,
@@ -39,13 +45,13 @@ export function DashboardStats({
   reviewsAnalytics,
 }: {
   loading: boolean;
-  reviewsAnalytics: any;
+  reviewsAnalytics: IReviewAnalyticsResponse | undefined;
 }) {
   
   const data = stats.map((stat) => {
     return {
       ...stat,
-      value: reviewsAnalytics ? reviewsAnalytics[stat?.tag] : 0,
+      value: reviewsAnalytics && reviewsAnalytics[stat?.tag], 
     }
   })
   
@@ -115,7 +121,7 @@ export function DashboardStats({
               </div>
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <p className="text-lg font-semibold">{stat.label}</p>
               <div className="flex items-center gap-2">
                 <span
@@ -129,7 +135,7 @@ export function DashboardStats({
                 </span>
                 <span className="text-sm text-foreground-subtle">vs last month</span>
               </div>
-            </div>
+            </div> */}
           </motion.div>
         ))}
       </div>
