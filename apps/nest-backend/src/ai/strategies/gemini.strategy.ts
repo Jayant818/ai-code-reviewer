@@ -51,6 +51,7 @@ export class GeminiStrategy implements AIStrategy {
       return parsed;
     } catch (error) {
       console.error('Error generating content:', error);
+      console.log('Raw response:', raw);
       throw new Error('Failed to generate content from AI');
     }
   }
