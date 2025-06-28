@@ -40,7 +40,19 @@ export class GeminiStrategy implements AIStrategy {
         systemInstruction: prompt,
       },
     });
-    return response.text;
+
+    let raw = response.text;
+
+    // Sanitize the response: Remove Markdown code blocks if any
+    raw = raw.replace(/^```(?:json|javascript)?\s*/i, '').replace(/```$/, '').trim();
+
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed;
+    } catch (error) {
+      console.error('Error generating content:', error);
+      throw new Error('Failed to generate content from AI');
+    }
   }
 
   async getPRReview({
