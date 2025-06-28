@@ -118,4 +118,3 @@ export type ReviewDocument = Review & MongooseDocument;
 ReviewSchema.index({ orgId: 1, createdAt: -1 });
 ReviewSchema.index({ orgId: 1, repositoryName: 1, createdAt: -1 });
 ReviewSchema.index({ orgId: 1, status: 1 });
-ReviewSchema.index({ pullRequestUrl: 1 }, { unique: true });
