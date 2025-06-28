@@ -87,20 +87,27 @@ export class GithubService {
     octokit,
     owner,
     repo,
-    pull_number,
+    base_sha,
+    head_sha,
   }: {
     octokit: Octokit;
     owner: string;
     repo: string;
-    pull_number: number;
+    base_sha: string;
+    head_sha: string;
   }) {
-    const { data } = await octokit.pulls.listFiles({
+    const comparison = await octokit.repos.compareCommits({
       owner,
       repo,
-      pull_number,
+      base: base_sha,
+      head: head_sha,
     });
 
-    return data;
+    const files = comparison.data.files.filter(
+      (file) => file !== null && file.status !== 'removed' && this.allowedFile(file.filename),
+    );
+
+    return files;
   }
 
   private allowedFile(filename: string) {
@@ -399,6 +406,8 @@ export class GithubService {
 
       // sha  - Commit ID , Its basically a hash
       const headSha = prDetails.head.sha;
+      const baseSha = prDetails.base.sha;
+
 
       reviewRecord = await this.reviewsRepository.createReview({
         orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
@@ -433,13 +442,9 @@ export class GithubService {
         octokit,
         owner,
         repo,
-        pull_number: prNumber,
+        base_sha: baseSha,
+        head_sha: headSha,
       });
-
-      // // Filtering null values of file
-      const filteredFiles = files.filter(
-        (file) => file !== null && file.status !== 'removed' && this.allowedFile(file.filename),
-      );
 
       // if the PR is opened for 1st time then add a summary
       // if (action === PULL_REQUEST_ACTIONS.OPENED) {
@@ -456,7 +461,7 @@ export class GithubService {
       //   });
       // }
 
-      const reviewPromise = filteredFiles.map((file) =>
+      const reviewPromise = files.map((file) =>
         this.reviewFile({
           content: file.patch,
           filename: file.filename,
