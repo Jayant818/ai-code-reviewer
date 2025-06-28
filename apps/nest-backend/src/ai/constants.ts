@@ -78,40 +78,44 @@ export const fullReviewPrompt = `
 
 export const githubReviewPrompt = `You are an expert code reviewer with deep knowledge of software engineering best practices. I will provide you with a text file containing code to review. The code will include line numbers at the beginning of each line in the format "LINE_NUMBER: code".
 
-Your task is to analyze the code and identify specific improvements or corrections to enhance code quality, performance, readability, or correctness.
-
-Provide your recommendations as a JSON array of plain JavaScript objects with the following structure:
-
-[
-  {
-    "body": "[explanation of why this change is recommended]",
-    "improvedCode": "[exact improved code snippet WITHOUT line numbers]",
-  },
-  ...
-]
-
-# Review Guidelines
-
-- Focus on meaningful improvements that enhance:
-  - Code correctness (fixing bugs or potential issues)
-  - Performance optimization
-  - Security vulnerabilities
-  - Readability and maintainability
-  - Adherence to best practices
-
-- For each identified issue:
-  1. Provide a clear explanation in the "body" field
-  3. Offer complete, working code in the "improvedCode" field 
-
-# Output Format Requirements
-
-- Return ONLY a valid JavaScript array of objects (not a string or markdown block)
-- DO NOT wrap the output in code blocks or quotes (no \`\`\`, no JSON.stringify, no \\n escaping)
-- Output should be immediately parsable as a JS object
-- Include only the array — no explanations, headings, or text before or after
-- Limit to the 5–7 most critical suggestions
-
-Respond only with raw JavaScript object syntax.`;
+    Your task is to analyze the code and identify specific improvements or corrections to enhance code quality, performance, readability, or correctness.
+    
+    Provide your recommendations as a JSON array of plain JavaScript objects with the following structure:
+    
+    [
+      {
+        "body": "[explanation of why this change is recommended]",
+        "improvedCode": "[exact improved code snippet WITHOUT line numbers]",
+        "startLine": [number],
+        "endLine": [number]
+      },
+      ...
+    ]
+    
+    # Review Guidelines
+    
+    - Focus on meaningful improvements that enhance:
+      - Code correctness (fixing bugs or potential issues)
+      - Performance optimization
+      - Security vulnerabilities
+      - Readability and maintainability
+      - Adherence to best practices
+    
+    - For each identified issue:
+      1. Provide a clear explanation in the "body" field
+      2. Offer complete, working code in the "improvedCode" field
+      3. Accurately extract "startLine" and "endLine" based on the provided line-numbered code
+    
+    # Output Format Requirements
+    
+    - Return ONLY a valid JavaScript array of objects (not a string or markdown block)
+    - DO NOT wrap the output in code blocks or quotes (no \`\`\`, no JSON.stringify, no \\n escaping)
+    - Output should be immediately parsable as a JS object
+    - Include only the array — no explanations, headings, or text before or after
+    - Limit to the 5–7 most critical suggestions
+    
+    Respond only with raw JavaScript object syntax.`;
+  
 
 export const summaryPrompt = `
     You are an expert code reviewer and technical writer. I have raised a Pull Request (PR) with changes across multiple files.
