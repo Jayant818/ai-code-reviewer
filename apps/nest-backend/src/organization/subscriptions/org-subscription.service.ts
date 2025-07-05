@@ -8,7 +8,7 @@ import { ClientSession } from "mongoose";
 import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-logs.model";
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
 import { UserRepository } from "src/user/user.repository";
-import { PLAN } from "src/plans/Model/plans.model";
+import { PLAN } from "src/organization/Model/pricing-plan.model";
 
 @AppInjectable()
 export class OrgSubscriptionService { 
@@ -59,7 +59,9 @@ export class OrgSubscriptionService {
             const organization = this.OrganizationRepository.updateOrganization({
                 filter: { _id: org },
                 update: {
-                    reviewsLeft: 10,
+                    $set: {
+                        reviewsLeft: 10,
+                    }
                 },
                 session,
             })
@@ -88,7 +90,7 @@ export class OrgSubscriptionService {
     }) {
         try {
             // Map frontend types to backend plans
-            const plan = type === SubscriptionType.FREE ? PLAN.TRIAL : PLAN.PAID;
+            const plan = type === SubscriptionType.FREE ? PLAN.TRIAL : PLAN.PRO;
 
             // Check existing subscription
             const existingSubscription = await this.OrganizationRepository.findSubscription({
@@ -299,7 +301,7 @@ export class OrgSubscriptionService {
                 session,
             })
 
-            if (subscription || subscription?.expiresAt > new Date()) {
+            if ((subscription ||  && subscription.plan==="trial") {
                 throw new ForbiddenException("Organization Already Has A Subscription");
             }
 
@@ -318,7 +320,7 @@ export class OrgSubscriptionService {
                         session,
                     });
                     break;
-                case PLAN.PAID:
+                case PLAN.PRO:
                     return this.startPaidSubscription(org);
                     break;
                 default:

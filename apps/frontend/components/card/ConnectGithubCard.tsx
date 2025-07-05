@@ -29,7 +29,7 @@ const ConnectGithubCard: React.FC<IConnectGithubCard> = ({ className = '', user 
         To get started, please install the GitHub App to enable integration with your repositories.
       </p>
       <a
-        href="https://github.com/apps/code-sentinel-1"
+        href="https://github.com/apps/vibe-lint"
         target="_blank"
         rel="noopener noreferrer"
         className="

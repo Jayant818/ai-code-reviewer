@@ -7,7 +7,7 @@ import { Organization, OrganizationDocument } from "./Model/organization.model";
 import { ClientSession, PipelineStage } from "mongoose";
 import { IBILLING_PERIOD, OrganizationSubscription, OrganizationSubscriptionDocument } from "./subscriptions/org-subscription.model";
 import { orgSubscriptionLogs, orgSubscriptionLogsDocument } from "./logs/org-subscription-logs.model";
-import { IPLAN } from "src/plans/Model/plans.model";
+import { IPLAN } from "src/organization/Model/pricing-plan.model";
 
 @AppInjectable()
 export class OrganizationRepository{
@@ -37,13 +37,12 @@ export class OrganizationRepository{
         session,
       }: {
         filter: Partial<Record<K, Organization[K]>>;
-        update: Partial<Organization>; 
+        update: Record<string,any>; 
         session?: ClientSession;
       }): Promise<Organization | null> {
         const query = this.organizationModel.findOneAndUpdate(
           filter,
-          { $set: update }, // only update specified fields
-          { new: true }     // return updated document
+          update 
         );
       
         if (session) {

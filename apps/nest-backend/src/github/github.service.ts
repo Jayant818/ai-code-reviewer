@@ -383,15 +383,39 @@ export class GithubService {
     installationId: number,
     action: PULL_REQUEST_ACTIONS,
   ) {
+
     let octokit : Octokit;
     let check : any;
     let reviewRecord : any;
+
+    octokit = await this.getOctoKit(installationId);
+
+    const [owner, repo] = repoFullName.split('/');
+
+
+    // Get User Org Subscription
+    const orgId = await this.integrationService.getOrgIdFromInstallationId(installationId);
+
+    const Subscription = await this.orgRepository.findOne({
+      filter: {
+        _id: orgId,
+      },
+      select: ['reviewsLeft'],
+    });
+
+    if (!Subscription || Subscription.reviewsLeft <= 0) {
+      console.log('No reviews left for this organization');
+      this.createInlineComment({
+        octokit,
+        owner,
+        repo,
+        prNumber,
+        reviewComment: 'You have no reviews left. Please upgrade your plan by visiting our website.'
+      })
+      return;
+    }
+
     try {
-      const [owner, repo] = repoFullName.split('/');
-
-      octokit = await this.getOctoKit(installationId);
-
-
       // Get PR Details to get the head SHA
         // file.sha - hash used to uniquely identify the file, so it can compare 2 file
       // if the file contentes are same they will have the same file.sha
@@ -410,7 +434,7 @@ export class GithubService {
 
 
       reviewRecord = await this.reviewsRepository.createReview({
-        orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
+        orgId,
         repositoryName: repoFullName,
         pullRequestNumber: prNumber,
         pullRequestTitle: prDetails.title,
@@ -534,6 +558,17 @@ export class GithubService {
           status: REVIEW_STATUS.COMPLETED,
           reviewCompletedAt: new Date(),
         } 
+      })
+
+      await this.orgRepository.updateOrganization({
+        filter: {
+          _id: orgId,
+        },
+        update: {
+          $inc: {
+            reviewsLeft: -1,
+          }
+        }
       })
 
     } catch (e: any) {
