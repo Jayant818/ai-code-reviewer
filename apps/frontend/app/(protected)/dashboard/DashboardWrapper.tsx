@@ -62,13 +62,36 @@ export default function DashboardWrapper() {
             Welcome back, <span className="text-gradient">{userData?.username}</span>! ⚡
           </motion.h1>
           <motion.p
-            className="text-xl text-foreground-muted max-w-2xl"
+            className="text-xl text-foreground-muted max-w-2xl mb-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             Manage your AI code reviews, monitor performance, and optimize your development workflow
           </motion.p>
+          
+          {/* Reviews Left Display */}
+          {subscriptionData?.reviewsLeft !== undefined && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${
+                subscriptionData.reviewsLeft < 2 
+                  ? "bg-red-500/10 border-red-500/20" 
+                  : "bg-primary/10 border-primary/20"
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full animate-pulse ${
+                subscriptionData.reviewsLeft < 2 ? "bg-red-500" : "bg-primary"
+              }`}></div>
+              <span className="text-sm font-medium">
+                Reviews Remaining: <span className={`font-bold ${
+                  subscriptionData.reviewsLeft < 2 ? "text-red-500" : "text-primary"
+                }`}>{subscriptionData.reviewsLeft}</span>
+              </span>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Main Grid */}

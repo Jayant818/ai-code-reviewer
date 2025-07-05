@@ -19,7 +19,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
 
   const handleInstallApp = () => {
     // Open GitHub App installation page
-    window.open('https://github.com/apps/code-sentinel-1/', '_blank');
+    window.open('https://github.com/apps/vibe-lint/', '_blank');
   };
 
   const handleMarkInstalled = () => {
@@ -53,7 +53,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
           {!isInstalled ? (
             <>
               <p className="text-muted-foreground mb-4">
-                Install the BugCatcher GitHub App to start receiving AI-powered code reviews 
+                Install the VibeLint GitHub App to start receiving AI-powered code reviews 
                 on your pull requests. The app will automatically analyze your code and provide 
                 intelligent feedback.
               </p>
@@ -99,7 +99,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
           ) : (
             <>
               <p className="text-muted-foreground mb-4">
-                Great! The BugCatcher GitHub App is now installed. You'll start receiving 
+                Great! The VibeLint GitHub App is now installed. You'll start receiving 
                 AI-powered code reviews on your pull requests automatically.
               </p>
               
@@ -112,7 +112,7 @@ export function GitHubAppInstall({ onOpenModal }: GitHubAppInstallProps) {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => window.open('https://github.com/apps/code-sentinel-1/', '_blank')}
+                  onClick={() => window.open('https://github.com/apps/vibe-lint/', '_blank')}
                   className="flex items-center gap-2 glass-card text-foreground px-6 py-3 rounded-lg font-medium hover:glow-effect transition-all"
                 >
                   <FaGithub className="w-4 h-4" />

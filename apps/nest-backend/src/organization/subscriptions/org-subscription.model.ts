@@ -1,7 +1,7 @@
 import { MongooseDocument, MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
-import { IPLAN, PLAN, PLAN_VALUES } from "src/plans/Model/plans.model";
+import { IPLAN, PLAN, PLAN_VALUES } from "src/organization/Model/pricing-plan.model";
 
 
 

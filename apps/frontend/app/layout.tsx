@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BugCatcher - AI-Powered Code Reviews",
+  title: "VibeLint - AI-Powered Code Reviews",
   description: "Transform your development workflow with intelligent code analysis. Catch bugs before they ship, improve code quality, and accelerate your team's velocity with AI that understands your codebase.",
 };
 

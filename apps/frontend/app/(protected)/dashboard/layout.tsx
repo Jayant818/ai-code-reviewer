@@ -8,8 +8,7 @@ import { PropsWithChildren } from "react";
 const DashboardLayout = ({ children }: PropsWithChildren) => {
     const { data: integrationData, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery();
     
-    // const orgExists = integrationData && Object.keys(integrationData).length>0;
-    const integrationExists = true ;
+    const integrationExists = integrationData && Object.keys(integrationData).length>0;
 
     if (isOrgIntegrationLoading) {
         return <div className="flex items-center justify-center mt-20">

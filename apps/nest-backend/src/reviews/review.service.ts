@@ -10,7 +10,6 @@ import { UnauthorizedException } from "@nestjs/common";
 export class ReviewsService {
   constructor(
     private readonly reviewsRepository: ReviewsRepository,
-    @InjectConnection() private readonly connection: MongooseConnection,
   ) { }
   
 

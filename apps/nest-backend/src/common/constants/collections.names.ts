@@ -1,4 +1,5 @@
 import { Review } from "src/reviews/models/review.model";
+import { transferableAbortController } from "util";
 
 export const COLLECTION_NAMES = {
     User: {
@@ -19,6 +20,10 @@ export const COLLECTION_NAMES = {
     },
     Plans: {
         Plans:'Plans',
+    },
+    Payments: {
+        order: 'Payments: Order',
+        transaction: 'Payments: Transaction',
     }
 }
 

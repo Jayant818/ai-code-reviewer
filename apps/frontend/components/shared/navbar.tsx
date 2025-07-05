@@ -38,10 +38,10 @@ export function Navbar() {
               <span className="text-xl">⚡</span>
             </div>
             <span className="lg:block text-lg font-bold hidden sm:inline-block text-gradient ">
-              BugCatcher
+              VibeLint
             </span>
           </div>
-          <span className="hidden lg:inline-block w-16 h-[2px] premium-gradient mx-auto rounded-full"></span>
+          <span className="hidden lg:inline-block w-16 h-[2px] premium-gradient mx-auto rounded-full ml-[3.7rem]"></span>
 
         </Link>
 

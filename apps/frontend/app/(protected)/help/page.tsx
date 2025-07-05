@@ -93,13 +93,13 @@ export default function Help() {
               
               <div className="space-y-4">
                 <a
-                  href="mailto:support@bugcatcher.dev"
+                  href="mailto:support@VibeLint.dev"
                   className="flex items-center gap-3 p-3 glass-card rounded-lg hover:fire-glow transition-all duration-300"
                 >
                   <FaEnvelope className="w-5 h-5 fire-accent" />
                   <div>
                     <p className="font-medium text-sm">Email Support</p>
-                    <p className="text-xs text-muted-foreground">support@bugcatcher.dev</p>
+                    <p className="text-xs text-muted-foreground">support@VibeLint.dev</p>
                   </div>
                 </a>
                 
@@ -131,7 +131,7 @@ export default function Help() {
                   Profile Settings
                 </Link>
                 <a 
-                  href="https://github.com/apps/code-sentinel-1" 
+                  href="https://github.com/apps/vibe-lint 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="block text-sm fire-accent hover:underline"
