@@ -2,6 +2,7 @@ import { MongooseTypes } from "@app/types";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { SchemaTypes } from "mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
+import { IPLAN_PERIOD, PLAN_PERIOD_VALUES } from "src/organization/Model/pricing-plan.model";
 
 export const ORDER_STATUS = {
     CREATED: "created",
@@ -83,6 +84,14 @@ export class Order{
         required: true,
     })
     paymentProvider: IPaymentProviders;
+
+    // Need to store it here cuz maybe we change our plan from plans collection
+    @Prop({
+        type: String,
+        enum: PLAN_PERIOD_VALUES,
+        required:true,
+    })
+    billingPeriod: IPLAN_PERIOD;
 
     // Linked to the successful transaction ID
     @Prop({

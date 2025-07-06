@@ -18,6 +18,11 @@ export const PLAN_PERIOD = {
     YEARLY: 'yearly'
 }
 
+export interface IPrice {
+    amount: number;
+    currency: string;
+  }
+
 export type IPLAN_PERIOD = typeof PLAN_PERIOD[keyof typeof PLAN_PERIOD]
 
 export const PLAN_PERIOD_VALUES = Object.values(PLAN_PERIOD);
@@ -46,10 +51,13 @@ export class Plans{
     name: IPLAN;
 
     @Prop({
-        type: Number,
+        type: {
+            amount: Number,
+            currency: String,
+        },
         required:true,
     })
-    price: number;
+    price: IPrice;
 
     @Prop({
         type: Number,
@@ -82,6 +90,6 @@ export class Plans{
     }[];
 }
 
-const PlanSchema = SchemaFactory.createForClass(Plans);
+export const PlanSchema = SchemaFactory.createForClass(Plans);
 
 export type PlanDocument = Plans & Document;

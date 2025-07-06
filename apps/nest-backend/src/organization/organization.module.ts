@@ -10,6 +10,8 @@ import { OrganizationTrialsSchema } from './trials/org-trials.model';
 import { OrganizationSubscriptionSchema } from './subscriptions/org-subscription.model';
 import { orgSubscriptionLogsSchema } from './logs/org-subscription-logs.model';
 import { UserModule } from 'src/user/user.module';
+import { PlanSchema } from './Model/pricing-plan.model';
+import { PaymentModule } from 'src/payments/payments.module';
 
 
 const OrganizationModules = [
@@ -27,12 +29,15 @@ const OrganizationModules = [
   }, {
     name: COLLECTION_NAMES.Organization.subscriptionLogs,
     schema:orgSubscriptionLogsSchema,
+  }, {
+    name: COLLECTION_NAMES.Plans.Plans,
+    schema: PlanSchema,
   }
 
 ]
 
 @Module({
-  imports:[MongooseModule.forFeature(OrganizationModules),UserModule],
+  imports:[MongooseModule.forFeature(OrganizationModules),UserModule,PaymentModule],
   controllers: [OrganizationController],
   providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService],
   exports:[OrganizationService,OrganizationRepository]

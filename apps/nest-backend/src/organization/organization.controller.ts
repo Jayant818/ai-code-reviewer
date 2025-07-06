@@ -21,14 +21,14 @@ export class OrganizationController {
   }
 
   @Post("/subscription")
-  async createSubscription(
+  async handleSubscriptionSelection(
     @Req() req,
     @Body() { type }: createOrganizationDTO
   ) {
     try {   
-      this.orgSubscriptionService.createSubscription({
+      this.orgSubscriptionService.handleSubscriptionSelection({
         plan:type,
-        user: new MongooseTypes.ObjectId(req.user.id),
+        userId: new MongooseTypes.ObjectId(req.user.id),
         org: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
       });
 

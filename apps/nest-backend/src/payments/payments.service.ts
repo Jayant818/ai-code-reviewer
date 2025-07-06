@@ -1,20 +1,70 @@
 import { AppInjectable } from "@app/framework";
 import { MongooseTypes } from "@app/types";
-import { IPLAN } from "src/organization/Model/pricing-plan.model";
+import { IPaymentProviders, ORDER_STATUS } from "./Model/order.model";
+import { TransactionRepository } from "./repositories/transaction.repository";
+import { TRANSACTION_STATUS, TRANSACTION_TYPES } from "./Model/transaction.model";
+import { OrderRepository } from "./repositories/order.repository";
+import { InternalServerErrorException } from "@nestjs/common";
+import { PaymentFactory } from "./payment.factory";
+import { IBuyer } from "./interfaces/payment-provider.interface";
 
 @AppInjectable()
 export class PaymentsService{
-    constructor() { }
+    constructor(
+        private readonly transactionRepository: TransactionRepository,
+        private readonly orderRepository: OrderRepository,
+        private readonly paymentFactory: PaymentFactory,
+    ) { }
     
-    async getPaymentUrl({
-        id,
+    async createPaymentUrl({
+        provider,
+        amount,
+        currency,
         orgId,
-        plan_name
+        redirectUrl,
+        orderId,
+        clientIp,
+        buyer,
     }: {
-        id: MongooseTypes.ObjectId;
+        provider: IPaymentProviders;
+        amount: number;
+        currency: string;
         orgId: MongooseTypes.ObjectId;
-        plan_name: IPLAN;
+        redirectUrl: string;
+        orderId: MongooseTypes.ObjectId;
+        clientIp?: string;
+        buyer: IBuyer;
     }) {
-        
+
+        // get the order details
+        const order = await this.orderRepository.findOne({
+            filter: {
+                _id: orderId,
+            }
+        })
+
+        if (!order) {
+            throw new InternalServerErrorException(`Order with id ${orderId} not found`);
+        }
+
+        if (order.successfulTransactionId) { 
+            throw new InternalServerErrorException(`Order is already paid`);
+        }
+
+        const strategy = this.paymentFactory.getStrategy(provider);
+
+        const paymentUrl = await strategy.createPaymentUrl({
+            amount: amount,
+            currency: currency,
+            orgId: orgId,
+            orderId: order._id,
+            clientIp: clientIp || null,
+            redirectUrl,
+            buyer,
+        });
+
+
     }
+
+    
 }

@@ -56,7 +56,7 @@ export class Transaction{
     // Keeping this at transaction level because it can be different for different transactions.
     // The link user got can be shared with team memebers/finance head.
     @Prop({
-        required: true,
+        required: false,
         type: String,
     })
     clientIp: string;

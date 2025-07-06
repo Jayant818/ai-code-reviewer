@@ -1,5 +1,5 @@
 import { AppInjectable } from "@app/framework";
-import { MongooseConnection, MongooseTypes } from "@app/types";
+import { MongooseConnection, MongooseModel, MongooseTypes } from "@app/types";
 import { InjectConnection } from "@nestjs/mongoose";
 import { OrganizationRepository } from "../organization.repository";
 import { ForbiddenException, NotFoundException, BadRequestException } from "@nestjs/common";
@@ -8,15 +8,23 @@ import { ClientSession } from "mongoose";
 import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-logs.model";
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
 import { UserRepository } from "src/user/user.repository";
-import { PLAN } from "src/organization/Model/pricing-plan.model";
+import { IPLAN, PLAN, PlanDocument } from "src/organization/Model/pricing-plan.model";
+import { TransactionRepository } from "src/payments/repositories/transaction.repository";
+import { OrderRepository } from "src/payments/repositories/order.repository";
+import { ORDER_STATUS, PAYMENT_PROVIDERS } from "src/payments/Model/order.model";
+import { PaymentsService } from "src/payments/payments.service";
 
 @AppInjectable()
-export class OrgSubscriptionService { 
+export class OrgSubscriptionService {
     constructor(
         @InjectConnection()
         private readonly MongooseConnection: MongooseConnection,
         private readonly OrganizationRepository: OrganizationRepository,
         private readonly UserRepository: UserRepository,
+        private readonly planModel: MongooseModel<PlanDocument>,
+        private readonly transactionRepository: TransactionRepository,
+        private readonly orderRepository: OrderRepository,
+        private readonly paymentService: PaymentsService,
     ) { }
 
     private async startFreeTrial({
@@ -25,7 +33,7 @@ export class OrgSubscriptionService {
     }: {
         org: MongooseTypes.ObjectId;
         session: ClientSession;
-    }) { 
+    }) {
         
         try {
             
@@ -40,7 +48,7 @@ export class OrgSubscriptionService {
             })
 
     
-            const subscriptionLog =  this.OrganizationRepository.createSubscriptionLog({
+            const subscriptionLog = this.OrganizationRepository.createSubscriptionLog({
                 data: {
                     orgId: org,
                     subscriptionId: subscription._id,
@@ -76,7 +84,54 @@ export class OrgSubscriptionService {
 
     }
 
-    private async startPaidSubscription(org: MongooseTypes.ObjectId) { }
+    private async createSubscriptionPaymentLink({ orgId, type, buyer, session }: {
+        orgId: MongooseTypes.ObjectId, type: IPLAN, buyer: {
+            name: string;
+            email: string;
+            contact?: string;
+    },session: ClientSession}) { 
+        try {
+            // Get the Pricing Plan 
+            const plan = await this.planModel.findOne({
+                filter: {
+                    name: type,
+                }
+            })
+
+            // Create an order 
+            const order = await this.orderRepository.createOrder({
+                orderData: {
+                    orderId: null,
+                    orgId,
+                    status: ORDER_STATUS.CREATED,
+                    amount: plan.price.amount,
+                    currency: plan.price.currency,
+                    plan: plan._id,
+                    billingPeriod: plan.period,
+                    // should come from frontend
+                    paymentProvider: PAYMENT_PROVIDERS.RAZORPAY,
+                    successfulTransactionId: null,
+                },
+                session
+            })
+
+            const subscriptionPaymentUrl = await this.paymentService.createPaymentUrl({
+                amount: plan.price.amount,
+                currency: plan.price.currency,
+                provider: PAYMENT_PROVIDERS.RAZORPAY,
+                orgId,
+                redirectUrl: `https://app.ai-code-reviewer.com/organization/${orgId}/subscription/success?orderId=${order._id}`,
+                orderId: order._id,
+                clientIp: null, // This should be passed from the frontend if needed
+                buyer,
+            })
+
+            return subscriptionPaymentUrl;
+            
+        } catch (error) {
+            throw new BadRequestException(`Failed to create payment link: ${error.message}`);
+        }
+    }
 
     // New method to handle frontend subscription requests
     async handleSubscription({
@@ -263,28 +318,28 @@ export class OrgSubscriptionService {
     }
 
 
-    async createSubscription({
+    async handleSubscriptionSelection({
         plan,
-        user,
+        userId,
         org,
     }: {
-        plan: string;
-        user: MongooseTypes.ObjectId;
+        plan: IPLAN;
+        userId: MongooseTypes.ObjectId;
         org: MongooseTypes.ObjectId;
     }) {
         const session = await this.MongooseConnection.startSession();
-
+        let user;
         try {
             await session.startTransaction();
+
+            user = await this.UserRepository.findOne({
+                filter: { _id: userId },
+                select: ["orgId"],
+                session
+            })
+
             if (!org) {
-                const UserDoc = await this.UserRepository.findOne({
-                    filter: { _id: user },
-                    select: ["orgId"],
-                    session
-                })
-
-
-                org = UserDoc.orgId;
+                org = user.orgId;
             }
 
             const orgDoc = await this.OrganizationRepository.findOne({
@@ -301,9 +356,10 @@ export class OrgSubscriptionService {
                 session,
             })
 
-            if ((subscription ||  && subscription.plan==="trial") {
+            if ((subscription &&  subscription.plan==="trial") || subscription?.expiresAt<= new Date()) {
                 throw new ForbiddenException("Organization Already Has A Subscription");
             }
+
 
             switch (plan) {
                 case PLAN.TRIAL:
@@ -319,10 +375,25 @@ export class OrgSubscriptionService {
                         org,
                         session,
                     });
-                    break;
+                    return {
+                        success: true,
+                        message:"Free Trial Started"
+                    }
                 case PLAN.PRO:
-                    return this.startPaidSubscription(org);
-                    break;
+                    const url = this.createSubscriptionPaymentLink({
+                        orgId: org,
+                        type: PLAN.PRO,
+                        buyer: {
+                            name: user.name,
+                            email: user.email,
+                            contact: user.contact || undefined, // Optional contact
+                        },
+                        session
+                    });
+                    return {
+                        success: true,
+                        url,
+                    }
                 default:
                     throw new NotFoundException("Invalid Plan");
                     break;
