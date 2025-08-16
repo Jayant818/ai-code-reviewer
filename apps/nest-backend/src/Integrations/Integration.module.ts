@@ -5,6 +5,7 @@ import { IntegrationService } from "./Integration.service";
 import { COLLECTION_NAMES } from "src/common/constants";
 import { IntegrationSchema } from "./model/app-installation.model";
 import { MongooseModule } from "@nestjs/mongoose";
+import { SlackService } from "./Slack/slack.service";
 
 const IntegrationModules = [
     {
@@ -18,7 +19,7 @@ const IntegrationModules = [
         MongooseModule.forFeature(IntegrationModules)
     ],
     controllers: [IntegrationController],
-    providers: [IntegrationRepository,IntegrationService],
+    providers: [IntegrationRepository,IntegrationService,SlackService],
     exports:[IntegrationRepository, IntegrationService]
 })
 export class IntegrationModule{ }

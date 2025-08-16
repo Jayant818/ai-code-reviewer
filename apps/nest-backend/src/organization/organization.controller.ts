@@ -26,16 +26,13 @@ export class OrganizationController {
     @Body() { type }: createOrganizationDTO
   ) {
     try {   
-      this.orgSubscriptionService.handleSubscriptionSelection({
+      const res = await this.orgSubscriptionService.handleSubscriptionSelection({
         plan:type,
         userId: new MongooseTypes.ObjectId(req.user.id),
         org: req.user.orgId ? new MongooseTypes.ObjectId(req.user.orgId) : null,
       });
 
-      return {
-        success: true,
-        message: "Subscription started",
-      };
+      return res;
     } catch (error) {
       return {
         success: false,

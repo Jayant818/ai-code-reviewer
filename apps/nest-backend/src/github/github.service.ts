@@ -13,6 +13,7 @@ import { LLM } from 'src/organization/Model/organization.model';
 import { IntegrationService } from 'src/Integrations/Integration.service';
 import { REVIEW_STATUS } from 'src/reviews/models/review.model';
 import { GITHUB_BATCH_SIZE } from 'src/common/constants';
+import { Integration_Types } from 'src/Integrations/model/app-installation.model';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -343,7 +344,7 @@ export class GithubService {
     await this.integrationRepository.createIntegration({
       installationId: payload.installation.id,
       orgId: org._id,
-      integrationTypes: 'Github_APP',
+      integrationTypes: Integration_Types.GITHUB_APP,
       integratedBy: payload.installation.account.id,
     });
   

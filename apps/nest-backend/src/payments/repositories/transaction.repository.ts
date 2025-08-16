@@ -13,6 +13,10 @@ export class TransactionRepository{
     ) {
     }
 
+    async startSession(): Promise<ClientSession> {
+        return this.transactionModel.db.startSession();
+    }
+
     async createTransaction({
         data,
         session
@@ -52,6 +56,10 @@ export class TransactionRepository{
         }
 
         return query.lean<Transaction>().exec();
+    }
+
+    async findByWebhookEventId(webhookEventId: string): Promise<Transaction | null> {
+        return this.transactionModel.findOne({ webhookEventId }).lean<Transaction>().exec();
     }
 
     async updateOne<k extends keyof Transaction>({

@@ -1,6 +1,6 @@
 import { AppInjectable } from "@app/framework";
 import { MongooseConnection, MongooseModel, MongooseTypes } from "@app/types";
-import { InjectConnection } from "@nestjs/mongoose";
+import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { OrganizationRepository } from "../organization.repository";
 import { ForbiddenException, NotFoundException, BadRequestException } from "@nestjs/common";
 import { BILLING_PERIOD } from "./org-subscription.model";
@@ -9,10 +9,11 @@ import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-lo
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
 import { UserRepository } from "src/user/user.repository";
 import { IPLAN, PLAN, PlanDocument } from "src/organization/Model/pricing-plan.model";
-import { TransactionRepository } from "src/payments/repositories/transaction.repository";
 import { OrderRepository } from "src/payments/repositories/order.repository";
 import { ORDER_STATUS, PAYMENT_PROVIDERS } from "src/payments/Model/order.model";
 import { PaymentsService } from "src/payments/payments.service";
+import { ConfigService } from "@nestjs/config";
+import { COLLECTION_NAMES } from "src/common/constants";
 
 @AppInjectable()
 export class OrgSubscriptionService {
@@ -21,10 +22,11 @@ export class OrgSubscriptionService {
         private readonly MongooseConnection: MongooseConnection,
         private readonly OrganizationRepository: OrganizationRepository,
         private readonly UserRepository: UserRepository,
+        @InjectModel(COLLECTION_NAMES.Plans.Plans)
         private readonly planModel: MongooseModel<PlanDocument>,
-        private readonly transactionRepository: TransactionRepository,
         private readonly orderRepository: OrderRepository,
         private readonly paymentService: PaymentsService,
+        private readonly configService: ConfigService,
     ) { }
 
     private async startFreeTrial({
@@ -77,6 +79,8 @@ export class OrgSubscriptionService {
                 subscriptionLog, availedTrial, organization
             ]);
 
+            console.log("Free Trial Created Successfully", subscription);
+
         }
         catch (e) {
             throw new Error("Failed to create Free Trial",);
@@ -85,18 +89,22 @@ export class OrgSubscriptionService {
     }
 
     private async createSubscriptionPaymentLink({ orgId, type, buyer, session }: {
-        orgId: MongooseTypes.ObjectId, type: IPLAN, buyer: {
+        orgId: MongooseTypes.ObjectId, type: IPLAN,
+        buyer: {
             name: string;
             email: string;
             contact?: string;
-    },session: ClientSession}) { 
+        },
+        session: ClientSession
+    }) {
         try {
-            // Get the Pricing Plan 
+            // Get the Pricing Plan
+            console.log("type", type);
             const plan = await this.planModel.findOne({
-                filter: {
-                    name: type,
-                }
-            })
+                name: PLAN.PRO,
+            });
+            
+            console.log("Plan", plan);
 
             // Create an order 
             const order = await this.orderRepository.createOrder({
@@ -112,7 +120,6 @@ export class OrgSubscriptionService {
                     paymentProvider: PAYMENT_PROVIDERS.RAZORPAY,
                     successfulTransactionId: null,
                 },
-                session
             })
 
             const subscriptionPaymentUrl = await this.paymentService.createPaymentUrl({
@@ -120,7 +127,7 @@ export class OrgSubscriptionService {
                 currency: plan.price.currency,
                 provider: PAYMENT_PROVIDERS.RAZORPAY,
                 orgId,
-                redirectUrl: `https://app.ai-code-reviewer.com/organization/${orgId}/subscription/success?orderId=${order._id}`,
+                redirectUrl: this.configService.get<string>('FRONTEND_URL')+ `/subscription/success?orgId=${orgId}`,
                 orderId: order._id,
                 clientIp: null, // This should be passed from the frontend if needed
                 buyer,
@@ -130,37 +137,6 @@ export class OrgSubscriptionService {
             
         } catch (error) {
             throw new BadRequestException(`Failed to create payment link: ${error.message}`);
-        }
-    }
-
-    // New method to handle frontend subscription requests
-    async handleSubscription({
-        type,
-        userId,
-        orgId,
-    }: {
-        type: SubscriptionType;
-        userId: MongooseTypes.ObjectId;
-        orgId: MongooseTypes.ObjectId;
-    }) {
-        try {
-            // Map frontend types to backend plans
-            const plan = type === SubscriptionType.FREE ? PLAN.TRIAL : PLAN.PRO;
-
-            // Check existing subscription
-            const existingSubscription = await this.OrganizationRepository.findSubscription({
-                filter: { orgId },
-            });
-
-            if (existingSubscription) {
-                // Update existing subscription
-                return this.updateSubscription(orgId, type);
-            }
-
-            // Create new subscription
-            return this.createNewSubscription(orgId, type);
-        } catch (error) {
-            throw new BadRequestException(`Failed to handle subscription: ${error.message}`);
         }
     }
 
@@ -249,60 +225,6 @@ export class OrgSubscriptionService {
         }
     }
 
-    private async createNewSubscription(orgId: MongooseTypes.ObjectId, type: SubscriptionType) {
-        const session = await this.MongooseConnection.startSession();
-
-        try {
-            let result;
-            await session.withTransaction(async () => {
-                if (type === SubscriptionType.FREE) {
-                    // Check if trial already used
-                    const availedTrial = await this.OrganizationRepository.findTrial({
-                        filter: { orgId },
-                        session,
-                    });
-
-                    if (availedTrial) {
-                        throw new ForbiddenException("Organization already used free trial");
-                    }
-
-                    await this.startFreeTrial({ org: orgId, session });
-                    result = {
-                        success: true,
-                        data: {
-                            subscriptionId: 'trial_' + orgId.toString(),
-                            type: 'free',
-                            status: 'active',
-                            startDate: new Date().toISOString(),
-                            endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-                        }
-                    };
-                } else {
-                    // Handle Pro subscription
-                    await this.startPaidSubscription(orgId);
-                    result = {
-                        success: true,
-                        data: {
-                            subscriptionId: 'pro_' + orgId.toString(),
-                            type: 'pro',
-                            status: 'active',
-                            startDate: new Date().toISOString(),
-                            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                            paymentUrl: 'https://stripe.com/payment-link'
-                        }
-                    };
-                }
-            });
-
-            return result;
-        } catch (error) {
-            await session.abortTransaction();
-            throw error;
-        } finally {
-            await session.endSession();
-        }
-    }
-
     private async updateSubscription(orgId: MongooseTypes.ObjectId, type: SubscriptionType) {
         // Handle subscription updates/upgrades
         return {
@@ -334,9 +256,11 @@ export class OrgSubscriptionService {
 
             user = await this.UserRepository.findOne({
                 filter: { _id: userId },
-                select: ["orgId"],
+                select: ["orgId","username","email"],
                 session
             })
+
+            console.log("User", user);
 
             if (!org) {
                 org = user.orgId;
@@ -356,10 +280,10 @@ export class OrgSubscriptionService {
                 session,
             })
 
-            if ((subscription &&  subscription.plan==="trial") || subscription?.expiresAt<= new Date()) {
-                throw new ForbiddenException("Organization Already Has A Subscription");
+            if (subscription && subscription.expiresAt > new Date()) {
+                throw new ForbiddenException("Organization Already Has An Active Subscription");
             }
-
+            console.log("Plan", plan);
 
             switch (plan) {
                 case PLAN.TRIAL:
@@ -375,30 +299,32 @@ export class OrgSubscriptionService {
                         org,
                         session,
                     });
+
+                    await session.commitTransaction();
+
                     return {
                         success: true,
                         message:"Free Trial Started"
                     }
                 case PLAN.PRO:
-                    const url = this.createSubscriptionPaymentLink({
+                    const data = await this.createSubscriptionPaymentLink({
                         orgId: org,
                         type: PLAN.PRO,
                         buyer: {
-                            name: user.name,
+                            name: user.username,
                             email: user.email,
                             contact: user.contact || undefined, // Optional contact
                         },
                         session
                     });
+                    await session.commitTransaction();
                     return {
                         success: true,
-                        url,
+                        ...data,
                     }
                 default:
                     throw new NotFoundException("Invalid Plan");
-                    break;
             }   
-            await session.commitTransaction();
         } catch (error) {
             await session.abortTransaction();
             throw error;

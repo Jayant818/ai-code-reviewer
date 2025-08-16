@@ -51,7 +51,7 @@ const plans: Plan[] = [
   {
     id: 'pro',
     name: 'Pro Plan',
-    price: '$29',
+    price: 'Rs 2000',
     period: '/month',
     description: 'Unlimited AI reviews with advanced features for professional teams',
     icon: FaCrown,
@@ -64,7 +64,6 @@ const plans: Plan[] = [
       { text: 'Advanced analytics & insights', included: true },
       { text: 'Priority support (24/7)', included: true },
       { text: 'Custom integrations', included: true },
-      { text: 'Team collaboration tools', included: true },
     ],
     buttonText: 'Upgrade to Pro',
     buttonVariant: 'primary',
@@ -84,7 +83,11 @@ export default function PlansPage() {
         await queryClient.invalidateQueries({
           queryKey: [subscriptionKeys.current]
         })
-        router.push('/dashboard');
+        if (data.url) {
+          router.push(data.url);
+        } else {
+          router.push("/dashboard")
+        }
       },
       onError: (error) => {
         console.error('Subscription error:', error);

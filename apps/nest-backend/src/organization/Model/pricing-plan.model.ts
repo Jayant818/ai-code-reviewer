@@ -45,8 +45,9 @@ export class Plans{
     _id: MongooseTypes.ObjectId;
 
     @Prop({
-        type: PLAN_VALUES,
-        required:true,
+        type: String,
+        enum: PLAN_VALUES,
+        required: true,
     })
     name: IPLAN;
 
@@ -66,7 +67,8 @@ export class Plans{
     reviewsGranted: number;
 
     @Prop({
-        type: PLAN_PERIOD_VALUES,
+        type: String,
+        enum: PLAN_PERIOD_VALUES,
         required: true,
     })
     period: IPLAN_PERIOD;

@@ -5,10 +5,6 @@ import { createKeyv } from "@keyv/redis";
 
 /*
 use - @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-*/
-
-
-/*
 CacheModule doesn;t expose any class to inject, but instead register their provider under some token name.
 */
 @Global()

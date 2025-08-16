@@ -21,7 +21,9 @@ export type ISubscriptionResponse = z.infer<typeof SubscriptionSchema>;
 
 export const createSubscriptionResponseSchema = z.object({
   success: z.boolean(),
-  message: z.string(),
+  message: z.string().optional(),
+  url: z.string().optional(),
+  transactionId:z.string().optional(),
 });
 
 export type ICreateSubscriptionResponse = z.infer<

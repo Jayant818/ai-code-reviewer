@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Post, Req, Res , UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Post, Query, Req, Res , UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './gaurds/local-auth/local-auth.guard';
 import { GithubAuthGuard } from './gaurds/github-auth/github-auth.guard';
@@ -6,12 +6,17 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './gaurds/refresh-jwt-auth/refresh-jwt-auth.guard';
 import { Public } from '@app/framework';
 import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from 'src/common/constants';
+import { slackCallbackQueryDTO } from './DTO/slack-callback-query.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
  
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -69,6 +74,23 @@ export class AuthController {
 
     const redirectUrl = `http://localhost:3000/api/auth/github/callback?accessToken=${response.accessToken}&refreshToken=${response.refreshToken}&userId=${req.user.id}&name=${req.user.username}`;
     res.redirect(redirectUrl);
+  }
+
+  @Public()
+  @Get('slack/callback')
+  async slackCallback(
+    @Req() req,
+    @Res() res,
+    @Query() {code,state,userId}: slackCallbackQueryDTO
+  ) {
+    if (!userId) {
+      throw new Error("Request Tempered");
+    }
+
+    const token = await this.cacheManager.get<string>(`slackToken-${userId}`);
+    if (!code || !state || !(state === token)) {
+      throw new Error("Invalid Slack OAuth Callback, Request Tempered");
+    }
   }
 
   @Get('logout')

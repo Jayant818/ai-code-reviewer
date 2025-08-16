@@ -41,18 +41,22 @@ export class GeminiStrategy implements AIStrategy {
       },
     });
 
+    if (!FullFileContent) {
+      return response.text;
+    }
+
     let raw = response.text;
 
     // Sanitize the response: Remove Markdown code blocks if any
     raw = raw.replace(/^```(?:json|javascript)?\s*/i, '').replace(/```$/, '').trim();
 
+    // Check if this is a JSON response (for PR reviews) or a string response (for general reviews)
     try {
       const parsed = JSON.parse(raw);
       return parsed;
     } catch (error) {
-      console.error('Error generating content:', error);
-      console.log('Raw response:', raw);
-      throw new Error('Failed to generate content from AI');
+      // If JSON parsing fails, return the raw string (for general reviews)
+      return raw;
     }
   }
 

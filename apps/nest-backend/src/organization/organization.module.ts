@@ -33,7 +33,6 @@ const OrganizationModules = [
     name: COLLECTION_NAMES.Plans.Plans,
     schema: PlanSchema,
   }
-
 ]
 
 @Module({

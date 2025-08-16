@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from '@app/common';
 import { OrganizationModule } from './organization/organization.module';
 import { ReviewModule } from './reviews/review.module';
+import { PaymentModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ReviewModule } from './reviews/review.module';
     AuthModule,
     OrganizationModule,
     ReviewModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],

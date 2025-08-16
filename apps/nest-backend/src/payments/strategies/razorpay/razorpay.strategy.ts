@@ -11,7 +11,9 @@ import { ConfigService } from "@nestjs/config";
 import { TransactionRepository } from "src/payments/repositories/transaction.repository";
 import { PAYMENT_PROVIDERS } from "src/payments/Model/order.model";
 import { TRANSACTION_STATUS, TRANSACTION_TYPES } from "src/payments/Model/transaction.model";
+import { AppInjectable } from "@app/framework";
 
+@AppInjectable()
 export class RazorPayPaymentStrategy extends RazorPayBaseApi implements IPaymentProvider {
     private readonly logger = new Logger(RazorPayPaymentStrategy.name);
 
@@ -43,7 +45,7 @@ export class RazorPayPaymentStrategy extends RazorPayBaseApi implements IPayment
                     conversionRate: null,
                     country: 'IN',
                     status: TRANSACTION_STATUS.CREATED,
-                    providerTransactionId: '',
+                    providerTransactionId: null,
                     type: TRANSACTION_TYPES.PAYMENT,
                     metaData: {
                         buyer,
@@ -51,6 +53,8 @@ export class RazorPayPaymentStrategy extends RazorPayBaseApi implements IPayment
                     }
                 }
             })
+
+            console.log("Transaction created", transaction);
     
             if (!transaction) {
                 throw new InternalServerErrorException(`Failed to create transaction for order ${orderId}`);
@@ -69,7 +73,7 @@ export class RazorPayPaymentStrategy extends RazorPayBaseApi implements IPayment
                 customer: {
                     name: buyer.name,
                     email: buyer.email,
-                    contact: buyer?.contact,
+                    contact: buyer?.contact ?? undefined, 
                 },
                 notify: {
                     sms: false,
@@ -79,7 +83,7 @@ export class RazorPayPaymentStrategy extends RazorPayBaseApi implements IPayment
                     transactionId: transaction._id.toString()
                 },
                 callback_url: redirectUrlObject.toString(),
-                callback_method: 'GET'
+                callback_method: 'get'
             };
 
             this.logger.log("Razorpay Payment Link Request Body", requestBody);

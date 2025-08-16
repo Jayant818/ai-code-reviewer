@@ -7,6 +7,7 @@ import { OrderRepository } from "./repositories/order.repository";
 import { InternalServerErrorException } from "@nestjs/common";
 import { PaymentFactory } from "./payment.factory";
 import { IBuyer } from "./interfaces/payment-provider.interface";
+import { RazorPayPaymentStrategy } from "./strategies/razorpay/razorpay.strategy";
 
 @AppInjectable()
 export class PaymentsService{
@@ -14,6 +15,7 @@ export class PaymentsService{
         private readonly transactionRepository: TransactionRepository,
         private readonly orderRepository: OrderRepository,
         private readonly paymentFactory: PaymentFactory,
+        private readonly razorPayStrategy: RazorPayPaymentStrategy,
     ) { }
     
     async createPaymentUrl({
@@ -35,34 +37,42 @@ export class PaymentsService{
         clientIp?: string;
         buyer: IBuyer;
     }) {
+        try {
+            // get the order details
+            const order = await this.orderRepository.findOne({
+                filter: {
+                    _id: orderId,
+                }
+            })
 
-        // get the order details
-        const order = await this.orderRepository.findOne({
-            filter: {
-                _id: orderId,
+            if (!order) {
+                throw new InternalServerErrorException(`Order with id ${orderId} not found`);
             }
-        })
 
-        if (!order) {
-            throw new InternalServerErrorException(`Order with id ${orderId} not found`);
+            if (order.successfulTransactionId) {
+                throw new InternalServerErrorException(`Order is already paid`);
+            }
+
+            console.log("Order", order);
+
+            const strategy = this.paymentFactory.getStrategy(provider);
+
+            const paymentUrl = await strategy.createPaymentUrl({
+                amount: amount,
+                currency: currency,
+                orgId: orgId,
+                orderId: order._id,
+                clientIp: clientIp || null,
+                redirectUrl,
+                buyer,
+            });
+
+            return paymentUrl;
+
+        } catch (e) {
+            console.error("Error creating payment url", e);
+            throw new InternalServerErrorException(`Failed to create payment url: ${e.message}`);
         }
-
-        if (order.successfulTransactionId) { 
-            throw new InternalServerErrorException(`Order is already paid`);
-        }
-
-        const strategy = this.paymentFactory.getStrategy(provider);
-
-        const paymentUrl = await strategy.createPaymentUrl({
-            amount: amount,
-            currency: currency,
-            orgId: orgId,
-            orderId: order._id,
-            clientIp: clientIp || null,
-            redirectUrl,
-            buyer,
-        });
-
 
     }
 

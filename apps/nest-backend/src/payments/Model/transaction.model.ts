@@ -47,10 +47,35 @@ export class Transaction{
     status: ITransactionStatus;
 
     @Prop({
-        required: true,
+        required: false,
         type: String,
+        nullable: true,
     })
     providerTransactionId: string;
+
+    // Idempotency fields
+    @Prop({
+        required: false,
+        type: String,
+        nullable: true,
+        unique: true,
+        sparse: true,
+    })
+    webhookEventId: string; // Razorpay event ID for idempotency
+
+    @Prop({
+        required: false,
+        type: Date,
+        nullable: true,
+    })
+    webhookProcessedAt: Date; // When webhook was processed
+
+    @Prop({
+        required: false,
+        type: Number,
+        nullable: true,
+    })
+    webhookAttemptCount: number; // Track webhook processing attempts
 
     // Important for fraud detection
     // Keeping this at transaction level because it can be different for different transactions.
@@ -58,6 +83,7 @@ export class Transaction{
     @Prop({
         required: false,
         type: String,
+        nullable: true,
     })
     clientIp: string;
 
@@ -119,5 +145,8 @@ export class Transaction{
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
+
+// Add index for idempotency
+TransactionSchema.index({ webhookEventId: 1 }, { unique: true, sparse: true });
 
 export type TransactionDocument = Transaction & Document;

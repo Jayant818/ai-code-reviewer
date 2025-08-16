@@ -33,7 +33,8 @@ export class Order{
 
     @Prop({
         type: String,
-        required:true,
+        required: false,
+        nullable:true,
     })
     orderId: string;
 
