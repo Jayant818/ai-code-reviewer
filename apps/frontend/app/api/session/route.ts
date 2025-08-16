@@ -7,15 +7,16 @@ const getSessionHandler = async (req: NextRequest) => {
   return NextResponse.json(session);
 };
 
-const createSessionHandler = async (req: NextRequest, res: NextResponse) => {
+const createSessionHandler = async (req: NextRequest) => {
   const payload: ISession = await req.json();
+  console.log("Creating session with payload:", payload);
 
   try {
     const data = await createSession(payload);
 
-    return NextResponse.json({ "message:": "success" });
+    return NextResponse.json({ message: "success", data });
   } catch (e) {
-    return NextResponse.json({ "message:": "failed", error: e });
+    return NextResponse.json({ message: "failed", error: e });
   }
 };
 

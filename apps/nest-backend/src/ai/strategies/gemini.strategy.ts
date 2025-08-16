@@ -40,7 +40,24 @@ export class GeminiStrategy implements AIStrategy {
         systemInstruction: prompt,
       },
     });
-    return response.text;
+
+    if (!FullFileContent) {
+      return response.text;
+    }
+
+    let raw = response.text;
+
+    // Sanitize the response: Remove Markdown code blocks if any
+    raw = raw.replace(/^```(?:json|javascript)?\s*/i, '').replace(/```$/, '').trim();
+
+    // Check if this is a JSON response (for PR reviews) or a string response (for general reviews)
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed;
+    } catch (error) {
+      // If JSON parsing fails, return the raw string (for general reviews)
+      return raw;
+    }
   }
 
   async getPRReview({

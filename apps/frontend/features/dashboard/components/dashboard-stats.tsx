@@ -52,6 +52,7 @@ export function DashboardStats({
     return {
       ...stat,
       value: reviewsAnalytics && reviewsAnalytics[stat?.tag], 
+      change:0,
     }
   })
   
@@ -121,7 +122,7 @@ export function DashboardStats({
               </div>
             </div>
 
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <p className="text-lg font-semibold">{stat.label}</p>
               <div className="flex items-center gap-2">
                 <span
@@ -135,7 +136,7 @@ export function DashboardStats({
                 </span>
                 <span className="text-sm text-foreground-subtle">vs last month</span>
               </div>
-            </div> */}
+            </div>
           </motion.div>
         ))}
       </div>

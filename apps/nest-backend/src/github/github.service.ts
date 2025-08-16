@@ -12,11 +12,20 @@ import { ReviewsRepository } from 'src/reviews/review.repository';
 import { LLM } from 'src/organization/Model/organization.model';
 import { IntegrationService } from 'src/Integrations/Integration.service';
 import { REVIEW_STATUS } from 'src/reviews/models/review.model';
+import { GITHUB_BATCH_SIZE } from 'src/common/constants';
+import { Integration_Types } from 'src/Integrations/model/app-installation.model';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
   REOPENED = 'reopened',
   SYNCHRONIZE = 'synchronize',
+}
+
+interface ReviewSuggestion {
+  body: string;
+  improvedCode: string;
+  startLine: number;
+  endLine:number;
 }
 
 interface File {
@@ -37,7 +46,8 @@ export class GithubService {
 
   ) {}
 
-  // Helper Functions
+  //  -------Helper Functions Start-------------------
+
   // Getting the octokit instance using GitHub App Authentication
   private async getOctoKit(installationId: number) {
     const appId = this.configService.get('BUG_CHECKER_APP_ID');
@@ -78,25 +88,27 @@ export class GithubService {
     octokit,
     owner,
     repo,
-    pull_number,
+    base_sha,
+    head_sha,
   }: {
     octokit: Octokit;
     owner: string;
     repo: string;
-    pull_number: number;
+    base_sha: string;
+    head_sha: string;
   }) {
-    const { data } = await octokit.pulls.listFiles({
+    const comparison = await octokit.repos.compareCommits({
       owner,
       repo,
-      pull_number,
+      base: base_sha,
+      head: head_sha,
     });
 
-    return data;
-  }
+    const files = comparison.data.files.filter(
+      (file) => file !== null && file.status !== 'removed' && this.allowedFile(file.filename),
+    );
 
-  private addLineNumbersToCode(code: string): string {
-    const lines = code.split('\n');
-    return lines.map((line, index) => `${index + 1}: ${line}`).join('\n');
+    return files;
   }
 
   private allowedFile(filename: string) {
@@ -117,6 +129,30 @@ export class GithubService {
     );
   }
 
+  private addLineNumbersToCode(code: string, startLine: number, endLine: number): string {
+    const lines = code.split("\n");
+    let currentLine = startLine;
+    const numberedLines: string[] = [];
+  
+    for (const line of lines) {
+      if (line.startsWith("-")) {
+        // Deleted line → keep without number
+        numberedLines.push(`    ${line}`);
+      } else {
+        // Added or unchanged line → add number
+        if (currentLine <= endLine) {
+          numberedLines.push(`${String(currentLine).padStart(4)} ${line}`);
+          currentLine++;
+        } else {
+          // If somehow we exceed endLine, just push line without number
+          numberedLines.push(`    ${line}`);
+        }
+      }
+    }
+  
+    return numberedLines.join("\n");
+  }
+
   private async reviewFile({
     content,
     filename,
@@ -132,20 +168,8 @@ export class GithubService {
     owner: string;
     headSha: string;
   }) {
-    console.log('Called');
     try {
-      // Skip files that don't need review
-      if (!this.allowedFile(filename)) {
-        console.log(`Skipping review for ${filename} - configuration file`);
-        return [];
-      }
-
-      // Parse the patch to get the changed code
-      if (!content || typeof content !== 'string') {
-        console.log(`No patch content for ${filename}`);
-        return [];
-      }
-      let fileContent = '';
+      let fileContentWithAllChanges = '';
 
       // Make a api call to get the fulll file Data
       const file = await octokit.repos.getContent({
@@ -161,55 +185,42 @@ export class GithubService {
 
       // Decode the file content from base64
       if (file.data && 'content' in file.data) {
-        fileContent = Buffer.from(file.data.content, 'base64').toString();
+        fileContentWithAllChanges = Buffer.from(file.data.content, 'base64').toString();
       }
-
-      // console.log('Content', content);
-      // console.log('file content', fileContent);
 
       // Extract code from the patch
       const hunks = content.split('@@');
+
       if (hunks.length <= 1) {
         console.log(`No valid hunks found in patch for ${filename}`);
         return [];
       }
 
-      // console.log('hunks', hunks);
-      // console.log('hunksLength', hunks.length);
-
       const reviews = [];
-      // let addedCode = '';
 
       // Process each hunk (skipping the first element which is empty)
       for (let i = 1; i < hunks.length; i += 2) {
+        // From i we get the hunk line and from i + 1 we get the code
         if (i + 1 >= hunks.length) {
           break;
         }
 
-        // console.log('Hunk Set', hunks[i], 'and', hunks[i + 1]);
-        // addedCode = '';
-        const [startLine, endLine] = hunks[i].split('+')[1].split(',');
+        const [startLine, spanLine] = hunks[i].split('+')[1].split(',');
+        const endLine = (parseInt(startLine, 10) + parseInt(spanLine, 10) - 1).toString();
 
-        const code = hunks[i + 1];
-
-        // console.log('Code', code);
+        const code = this.addLineNumbersToCode(hunks[i + 1], parseInt(startLine, 10), parseInt(endLine, 10));
 
         // Get AI review
         if (!code) {
-          // console.log(`No code found in hunk for ${filename}`);
-          // console.log('Line ', hunks[i]);
           console.log('Hunk', hunks[i + 1]);
           continue;
         }
+
         const { review } = await this.aiService.getPRReview({
           code,
           provider: 'GEMINI',
-          fileContent,
+          fileContent: fileContentWithAllChanges,
         });
-
-        // console.log(
-        //   `Received review: ${typeof review === 'string' ? review : 'Not a string'}...`,
-        // );
 
         if (review) {
           reviews.push({
@@ -219,8 +230,8 @@ export class GithubService {
             review,
           });
         }
+        await new Promise((r) => setTimeout(() => { r(null) }, 100));
       }
-
       return reviews;
     } catch (e: any) {
       console.log('Error in reviewing file:', e.message);
@@ -264,55 +275,6 @@ export class GithubService {
     });
 
     return summary;
-  }
-
-  private async getAllFileContent({
-    octokit,
-    owner,
-    repo,
-    files,
-    headSha,
-  }: {
-    octokit: Octokit;
-    owner: string;
-    repo: string;
-    files: any[];
-    headSha: string;
-  }) {
-    const fileContentPromises = files.map((file) => {
-      // Skip binary files
-      if (
-        file.status === 'removed' ||
-        file.binary ||
-        !this.allowedFile(file.filename)
-      ) {
-        return Promise.resolve(null);
-      }
-
-      return octokit.repos.getContent({
-        owner,
-        repo,
-        path: file.filename,
-        ref: headSha,
-      });
-    });
-
-    const fileContents = await Promise.all(fileContentPromises);
-
-    // Convert it from base64 to string
-    // we will get content in base64 encoded format lets decode it
-    const decodedContents = fileContents.map((file) => {
-      if (!file) return null;
-      if (file.data && 'content' in file.data) {
-        return {
-          filename: file.data.path,
-          content: Buffer.from(file.data.content, 'base64').toString(),
-        };
-      }
-      return null;
-    });
-
-    return decodedContents;
   }
 
   private async createReviewComment({
@@ -382,7 +344,7 @@ export class GithubService {
     await this.integrationRepository.createIntegration({
       installationId: payload.installation.id,
       orgId: org._id,
-      integrationTypes: 'Github_APP',
+      integrationTypes: Integration_Types.GITHUB_APP,
       integratedBy: payload.installation.account.id,
     });
   
@@ -422,15 +384,43 @@ export class GithubService {
     installationId: number,
     action: PULL_REQUEST_ACTIONS,
   ) {
-    let octokit;
-    let check;
-    let reviewRecord;
+
+    let octokit : Octokit;
+    let check : any;
+    let reviewRecord : any;
+
+    octokit = await this.getOctoKit(installationId);
+
+    const [owner, repo] = repoFullName.split('/');
+
+
+    // Get User Org Subscription
+    const orgId = await this.integrationService.getOrgIdFromInstallationId(installationId);
+
+    const Subscription = await this.orgRepository.findOne({
+      filter: {
+        _id: orgId,
+      },
+      select: ['reviewsLeft'],
+    });
+
+    if (!Subscription || Subscription.reviewsLeft <= 0) {
+      console.log('No reviews left for this organization');
+      this.createInlineComment({
+        octokit,
+        owner,
+        repo,
+        prNumber,
+        reviewComment: 'You have no reviews left. Please upgrade your plan by visiting our website.'
+      })
+      return;
+    }
+
     try {
-      octokit = await this.getOctoKit(installationId);
-
-      const [owner, repo] = repoFullName.split('/');
-
       // Get PR Details to get the head SHA
+        // file.sha - hash used to uniquely identify the file, so it can compare 2 file
+      // if the file contentes are same they will have the same file.sha
+        // to get the file content we need the sha of the commit that we want to review
       const prDetails = await this.getPullRequestDetails({
         octokit,
         owner,
@@ -438,11 +428,14 @@ export class GithubService {
         prNumber,
       });
 
+
       // sha  - Commit ID , Its basically a hash
       const headSha = prDetails.head.sha;
+      const baseSha = prDetails.base.sha;
+
 
       reviewRecord = await this.reviewsRepository.createReview({
-        orgId: await this.integrationService.getOrgIdFromInstallationId(installationId),
+        orgId,
         repositoryName: repoFullName,
         pullRequestNumber: prNumber,
         pullRequestTitle: prDetails.title,
@@ -469,36 +462,19 @@ export class GithubService {
         },
       });
 
-      // Getting all the files changes in the pr
+      // Getting changed details in patch
       const files = await this.getPullRequestFiles({
         octokit,
         owner,
         repo,
-        pull_number: prNumber,
+        base_sha: baseSha,
+        head_sha: headSha,
       });
-
-      console.log('Files', files);
-
-      // file.sha - hash used to uniquely identify the file, so it can compare 2 file
-      // if the file contentes are same they will have the same file.sha
-      // const allFileContent = await this.getAllFileContent({
-      //   octokit,
-      //   owner,
-      //   repo,
-      //   files,
-      //   // to get the file content we need the sha of the commit that we want to review
-      //   headSha,
-      // });
-
-      // // Filtering null values of file
-      // const filteredFileContent = allFileContent.filter(
-      //   (file) => file !== null,
-      // );
 
       // if the PR is opened for 1st time then add a summary
       // if (action === PULL_REQUEST_ACTIONS.OPENED) {
       //   const summary = await this.getPRSummary({
-      //     files: filteredFileContent,
+      //     files: filteredFiles,
       //   });
 
       //   await this.createInlineComment({
@@ -509,7 +485,6 @@ export class GithubService {
       //     reviewComment: summary,
       //   });
       // }
-      // console.log('Files', files);
 
       const reviewPromise = files.map((file) =>
         this.reviewFile({
@@ -522,62 +497,37 @@ export class GithubService {
         }),
       );
 
-      const fileReview = await Promise.all(reviewPromise);
+      const fileReviews = await Promise.all(reviewPromise);
 
-      const issueComment = fileReview.flatMap((file) => {
-        if (!file) return [];
+      // Use flatMap to flatten and filter out empty arrays
+      const flattenedReviews = fileReviews.flatMap((reviews) => reviews || []);
 
-        return file.map(async (review: any) => {
-          try {
-            // First, clean up the review text by removing code fences
-            const cleanedReview = review.review
-              .replace(/```(?:javascript|json)?\n?/g, '') // remove starting code fences
-              .replace(/```\s*$/g, ''); // remove ending code fences
+      console.log('File Review', flattenedReviews[0].review);
 
-            // Try to parse as JSON
-            let reviewData;
-            try {
-              // Use a regex-based approach to extract body and improvedCode
-              const bodyMatch = cleanedReview.match(/"body"\s*:\s*"([^"]+)"/);
-              const codeMatch = cleanedReview.match(
-                /"improvedCode"\s*:\s*"([^"]+)"/,
-              );
-
-              const body = bodyMatch
-                ? bodyMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-                : 'Code review suggestion';
-              const improvedCode = codeMatch
-                ? codeMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n')
-                : '';
-
-              reviewData = { body, improvedCode };
-            } catch (parseError) {
-              console.error('Failed to parse review JSON:', parseError);
-
-              // Fallback: Create a simple structure with the raw content
-              reviewData = {
-                body: 'Code review suggestion',
-                improvedCode: cleanedReview,
-              };
+      const issueComment = flattenedReviews.map((file) => {
+        return file.review.map(async (review: ReviewSuggestion) => {
+          console.log('Review', review);
+          try {            
+            if ((review?.startLine >= file.startLine) && review?.endLine <= file.endLine && review?.startLine <= file.endLine && review?.endLine >= file.startLine) { 
+              const remark = review.body;
+              const improvedCode = review.improvedCode;
+  
+              const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
+  
+              return this.createReviewComment({
+                octokit,
+                owner,
+                repo,
+                pull_number: prNumber,
+                body: finalReview,
+                commit_id: headSha,
+                path: file.filename,
+                line: review.endLine,
+                start_side: 'RIGHT',
+                start_line: review.startLine,
+              });
             }
 
-            const remark = reviewData.body;
-            const improvedCode = reviewData.improvedCode;
-
-            const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
-
-            return this.createReviewComment({
-              octokit,
-              owner,
-              repo,
-              pull_number: prNumber,
-              body: finalReview,
-              commit_id: headSha,
-              path: review.filename,
-              line: Number(review.endLine.trim()),
-              start_side: 'RIGHT',
-              start_line: Number(review.startLine.trim()),
-            });
           } catch (error) {
             console.error('Error processing review:', error);
             return Promise.resolve(); // Continue with other reviews
@@ -585,9 +535,10 @@ export class GithubService {
         });
       });
 
-      const data = await Promise.all(issueComment);
+      for (let i = 0; i < issueComment.length; i += GITHUB_BATCH_SIZE) {
+        await Promise.all(issueComment.slice(i, i + GITHUB_BATCH_SIZE));
+      }
 
-      console.log('Data', data);
       await octokit.checks.update({
         owner,
         repo,
@@ -609,6 +560,18 @@ export class GithubService {
           reviewCompletedAt: new Date(),
         } 
       })
+
+      await this.orgRepository.updateOrganization({
+        filter: {
+          _id: orgId,
+        },
+        update: {
+          $inc: {
+            reviewsLeft: -1,
+          }
+        }
+      })
+
     } catch (e: any) {
       console.log('Error in reviewing PR:', e);
       if (octokit && check) {

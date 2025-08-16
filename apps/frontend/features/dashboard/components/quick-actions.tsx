@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FaCode, FaCog, FaQuestionCircle, FaSignOutAlt, FaGithub } from "react-icons/fa";
+import { FaCode, FaCog, FaQuestionCircle, FaSignOutAlt, FaGithub, FaSlack } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { SlackIntegration } from "../../integration/components/slack-integration";
 
 const actions = [
   {
@@ -98,11 +99,20 @@ export function QuickActions() {
           </motion.div>
         ))}
         
+        {/* Slack Integration */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 + actions.length * 0.05 }}
+        >
+          <SlackIntegration />
+        </motion.div>
+        
         {/* Logout Button */}
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 + actions.length * 0.05 }}
+          transition={{ duration: 0.4, delay: 0.1 + (actions.length + 1) * 0.05 }}
           onClick={handleLogout}
           className="w-full flex items-center gap-3 p-3 glass-card rounded-lg hover:bg-red-500/10 hover:border-red-500/20 transition-all duration-300 group"
         >
