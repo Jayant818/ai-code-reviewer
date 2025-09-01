@@ -14,6 +14,8 @@ import { IntegrationService } from 'src/Integrations/Integration.service';
 import { REVIEW_STATUS } from 'src/reviews/models/review.model';
 import { GITHUB_BATCH_SIZE } from 'src/common/constants';
 import { Integration_Types } from 'src/Integrations/model/app-installation.model';
+import { Inject } from '@nestjs/common';
+import { IOrganizationRepository } from 'src/organization/interfaces/organization-repository.interface';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -36,10 +38,11 @@ interface File {
 @AppInjectable()
 export class GithubService {
   constructor(
+    @Inject(IOrganizationRepository)
+    private readonly organizationRepository: IOrganizationRepository,
     private readonly configService: ConfigService,
     private readonly aiService: AIService,
     private readonly integrationRepository: IntegrationRepository,
-    private readonly orgRepository: OrganizationRepository,
     private readonly userRepository: UserRepository,
     private readonly reviewsRepository: ReviewsRepository,
     private readonly integrationService: IntegrationService,

@@ -1,6 +1,5 @@
 import { AppController, Public } from "@app/framework";
 import {  Get, HttpStatus, Logger, Param, Post, Req, Res } from "@nestjs/common";
-import { PaymentsService } from "./payments.service";
 import { Request } from "express";
 import { PaymentHookService } from "./payment-hook.service";
 
@@ -8,7 +7,6 @@ import { PaymentHookService } from "./payment-hook.service";
 export class PaymentsController {
     private readonly logger = new Logger(PaymentsController.name);
     constructor(
-        private readonly paymentService: PaymentsService,
         private readonly paymentHookService: PaymentHookService,
     ) { }
 

@@ -1,14 +1,16 @@
 import {  AppInjectable } from "@app/framework";
-import { BadRequestException, InternalServerErrorException, Logger, NotImplementedException } from "@nestjs/common";
+import { BadRequestException, Inject, InternalServerErrorException, Logger, NotImplementedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as crypto from "crypto";
 import { RazorpayWebhookEvent, RazorpayWebhookPayload } from "./interfaces/razorpay.interface";
 import { MongooseTypes } from "@app/types";
 import { TransactionRepository } from "./repositories/transaction.repository";
-import { OrderRepository } from "./repositories/order.repository";
-import { ORDER_STATUS } from "./Model/order.model";
-import { Transaction, TRANSACTION_STATUS } from "./Model/transaction.model";
-import { ClientSession } from "mongoose";
+import { ORDER_STATUS, PAYMENT_PROVIDERS } from "./Model/order.model";
+import { TRANSACTION_STATUS } from "./Model/transaction.model";
+import { PlanDocument } from "src/organization/Model/pricing-plan.model";
+import { BILLING_PERIOD, IBILLING_PERIOD } from "src/organization/subscriptions/org-subscription.model";
+import { IOrderRepository } from "./interfaces/order-repository.interface";
+import { IOrganizationRepository } from "src/organization/interfaces/organization-repository.interface";
 
 @AppInjectable()
 export class PaymentHookService {
@@ -18,9 +20,12 @@ export class PaymentHookService {
     constructor(
         private readonly configService: ConfigService,
         private readonly transactionRepository: TransactionRepository,
-        private readonly orderRepository: OrderRepository,
-    ) { 
-        this.razorpayEventHandlerMap.set("payment_link.paid",this.handleRazorpayPaymentLinkPaid);
+        @Inject(IOrderRepository)
+        private readonly orderRepository: IOrderRepository,
+        @Inject(IOrganizationRepository)
+        private readonly OrganizationRepository: IOrganizationRepository,
+    ) {
+        this.razorpayEventHandlerMap.set("payment_link.paid", this.handleRazorpayPaymentLinkPaid.bind(this));
     }
 
     private async validateRazorpayWebookSecret({signature,rawbody}:{ signature: string ,rawbody:string}) {
@@ -74,9 +79,11 @@ export class PaymentHookService {
             throw new BadRequestException(`Transaction not found for payment link: ${paymentLinkId}`);
         }
 
+        console.log("payment Provider", transaction.paymentProvider);
+
         if (
             transaction.status !== 'created' ||
-            transaction.paymentProvider !== 'razorpay-connect'
+            transaction.paymentProvider !== PAYMENT_PROVIDERS.RAZORPAY
           ) {
             throw new BadRequestException({
               status: transaction.status,
@@ -89,7 +96,7 @@ export class PaymentHookService {
             filter: {
                 _id:transaction.order
             },
-            populate: ["successfulTransaction"]
+            populate: ["successfulTransactionId","plan"]
         });
 
         if (!vibeLintOrder) {
@@ -150,6 +157,73 @@ export class PaymentHookService {
                     if (!orderUpdateResult) {
                         throw new Error('Failed to update order status');
                     }
+
+                    // Updating the Subscription Details and also creating subscripton logs
+                    const planDetails = (vibeLintOrder.plan as unknown) as PlanDocument;
+                    let billingPeriod:IBILLING_PERIOD = planDetails.period  === BILLING_PERIOD.MONTHLY? BILLING_PERIOD.MONTHLY : BILLING_PERIOD.YEARLY;
+
+                    const startDate = new Date();
+                    const expiresAt = billingPeriod === BILLING_PERIOD.YEARLY ? new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getMonth()) :
+                        new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days for monthly billing
+                    
+                    // Get Current Suscription first
+                    let existingSubscription = await this.OrganizationRepository.findSubscription({
+                        filter: {
+                            orgId: vibeLintOrder.orgId,
+                        },
+                        session
+                    })
+
+                    if (existingSubscription && existingSubscription.expiresAt > new Date()) {
+                        // Update the existing subscription
+                        await this.OrganizationRepository.updateOrganization({
+                            filter: {
+                                _id: vibeLintOrder.orgId,
+                            },
+                            update: {
+                                plan: planDetails.name,
+                                billingPeriod,
+                                start: startDate,
+                                expiresAt,
+                                paymentMethod: PAYMENT_PROVIDERS.RAZORPAY,
+                            },
+                            session,
+                        })
+                    } else {
+                        // create a new subscription
+                        existingSubscription = await this.OrganizationRepository.createSubscription({
+                            orgId: vibeLintOrder.orgId,
+                            plan: planDetails.name,
+                            billingPeriod,
+                            start: startDate,
+                            expiresAt,
+                            paymentMethod: PAYMENT_PROVIDERS.RAZORPAY,
+                            session
+                        })
+                    }
+
+                    // Creating subscription Logs
+                    await this.OrganizationRepository.createSubscriptionLog({
+                        data: {
+                            orgId: vibeLintOrder.orgId,
+                            event: "PRO",
+                            subscriptionId: existingSubscription._id,
+                        },
+                        session
+                    })
+
+                    // set Organization Reviews Left 
+                    await this.OrganizationRepository.updateOrganization({
+                        filter: {
+                            _id: vibeLintOrder.orgId,
+                        },
+                        update: {
+                            reviewsLeft: planDetails.reviewsGranted,
+                        },
+                        session
+                    })
+
+
                 });
 
                 this.logger.log(`Successfully processed payment for transaction ${transaction._id}`);

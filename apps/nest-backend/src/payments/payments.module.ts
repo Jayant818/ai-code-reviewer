@@ -12,6 +12,10 @@ import { PaymentFactory } from "./payment.factory";
 import { RazorPayPaymentStrategy } from "./strategies/razorpay/razorpay.strategy";
 import { RazorPayBaseApi } from "./strategies/razorpay/razorpay-base.api";
 import { PaymentHookService } from "./payment-hook.service";
+import { OrganizationRepository } from "src/organization/organization.repository";
+import { OrganizationModule } from "src/organization/organization.module";
+import { IPaymentService } from "./interfaces/payment-service.interface";
+import { IOrderRepository } from "./interfaces/order-repository.interface";
 
 
 const PaymentModules = [
@@ -27,19 +31,25 @@ const PaymentModules = [
 @Module({
     imports: [
         MongooseModule.forFeature(PaymentModules),
-        ConfigModule
+        ConfigModule,
     ],
     providers: [
         PaymentsService,
         TransactionRepository, 
-        OrderRepository,
         PaymentFactory,
         RazorPayPaymentStrategy,
         RazorPayBaseApi,
+        OrderRepository,
         PaymentHookService,
+        {
+            provide: IPaymentService, useClass: PaymentsService
+        },
+        {
+            provide: IOrderRepository, useClass: OrderRepository
+        }
     ],
     controllers: [PaymentsController],
-    exports: [TransactionRepository, OrderRepository, PaymentsService, RazorPayPaymentStrategy]
+    exports: [IPaymentService,IOrderRepository,TransactionRepository, PaymentsService, RazorPayPaymentStrategy,OrderRepository]
 })
 export class PaymentModule{
 }

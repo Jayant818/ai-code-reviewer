@@ -4,9 +4,10 @@ import { ClientSession } from "mongoose";
 import { MongooseModel } from "@app/types";
 import { InjectModel } from "@nestjs/mongoose";
 import { COLLECTION_NAMES } from "src/common/constants";
+import { IOrderRepository } from "../interfaces/order-repository.interface";
 
 @AppInjectable()
-export class OrderRepository{
+export class OrderRepository implements IOrderRepository{
     constructor(
         @InjectModel(COLLECTION_NAMES.Payments.order)
         private readonly orderModel: MongooseModel<OrderDocument>

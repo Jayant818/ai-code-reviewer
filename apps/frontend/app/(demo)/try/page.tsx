@@ -10,7 +10,7 @@ import "prismjs/themes/prism-tomorrow.css";
 import Editor from "react-simple-code-editor";
 import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
-import { FaCode, FaRocket, FaLightbulb, FaShieldAlt, FaPlay } from "react-icons/fa";
+import { FaCode,  FaLightbulb, FaPlay } from "react-icons/fa";
 
 const DEFAULT_CODE = `import express from "express";
 import cors from "cors";
@@ -237,7 +237,7 @@ const Page = () => {
                         </div>
                         <h3 className="text-2xl font-bold mb-4 text-gradient">Ready for Analysis</h3>
                         <p className="text-foreground-muted mb-6">
-                          Click "Review Code" to get AI-powered insights about your code
+                          Click &quot;Review Code&quot; to get AI-powered insights about your code
                         </p>
                         <div className="grid grid-cols-1 gap-4 max-w-md mx-auto">
                           {[

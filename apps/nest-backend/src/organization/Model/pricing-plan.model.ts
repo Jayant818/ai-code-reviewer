@@ -13,7 +13,6 @@ export type IPLAN = typeof PLAN[keyof typeof PLAN];
 export const PLAN_VALUES = Object.values(PLAN);
 
 export const PLAN_PERIOD = {
-    WEEKLY: 'weekly',
     MONTHLY: 'monthly',
     YEARLY: 'yearly'
 }

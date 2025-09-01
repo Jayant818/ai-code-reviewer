@@ -1,5 +1,5 @@
 import { JWT_PAYLOAD, MongooseConnection, MongooseModel, MongooseTypes } from '@app/types';
-import { Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Req, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -8,9 +8,9 @@ import { CreateUserDTO } from 'src/user/DTO/create-user.dto';
 import { IUserModel } from 'src/user/model/user.model';
 import * as argon from "argon2";
 import { UserRepository } from 'src/user/user.repository';
-import { OrganizationRepository } from 'src/organization/organization.repository';
 import { CookieOptions } from 'express';
 import { LLM } from 'src/organization/Model/organization.model';
+import { IOrganizationRepository } from 'src/organization/interfaces/organization-repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,8 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly userRepository: UserRepository,
-        private readonly organizationRepository: OrganizationRepository,
+        @Inject(IOrganizationRepository)
+        private readonly organizationRepository: IOrganizationRepository,
 
         @InjectConnection()
         private readonly mongooseConnection: MongooseConnection,

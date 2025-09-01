@@ -33,12 +33,13 @@ const ErrorDisplay = ({
               Try Again
             </button>
           )} */}
-          <Link
+          <a
             href={"/"}
-            className="border border-gray-300 text-foreground px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            
+            className="border border-gray-300 text-foreground px-6 py-3 rounded-lg font-medium hover:bg-gray-900 transition-colors"
           >
             Go to Home
-          </Link>
+          </a>
         </div>
         
         {isValidationError && (

@@ -7,6 +7,7 @@ import { PropsWithChildren } from "react";
 
 const DashboardLayout = ({ children }: PropsWithChildren) => {
     const { data: integrationData, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery();
+    console.log("Integration Data:", integrationData);
     
     const integrationExists = integrationData && Object.keys(integrationData).length>0;
 

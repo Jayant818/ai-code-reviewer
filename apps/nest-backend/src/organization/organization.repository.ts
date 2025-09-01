@@ -8,9 +8,10 @@ import { ClientSession, PipelineStage } from "mongoose";
 import { IBILLING_PERIOD, OrganizationSubscription, OrganizationSubscriptionDocument } from "./subscriptions/org-subscription.model";
 import { orgSubscriptionLogs, orgSubscriptionLogsDocument } from "./logs/org-subscription-logs.model";
 import { IPLAN } from "src/organization/Model/pricing-plan.model";
+import { IOrganizationRepository } from "./interfaces/organization-repository.interface";
 
 @AppInjectable()
-export class OrganizationRepository{
+export class OrganizationRepository implements IOrganizationRepository{
     constructor(
         @InjectModel(COLLECTION_NAMES.Organization.organization)
         private readonly organizationModel: MongooseModel<OrganizationDocument>,
