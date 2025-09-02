@@ -2,7 +2,7 @@ import { ISession } from "@/lib/hooks/useSession/useSession.types";
 import { createSession, deleteSession, getSession } from "@/lib/session";
 import { NextRequest, NextResponse } from "next/server";
 
-const getSessionHandler = async (req: NextRequest) => {
+const getSessionHandler = async () => {
   const session = await getSession();
   return NextResponse.json(session);
 };
