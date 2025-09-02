@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 const GithubCallbackPage = () => {
     const router = useRouter();
-    const { data: session, status, update } = useSession();
+    const {  status, update } = useSession();
     const [isSigningIn, setIsSigningIn] = useState(false);
 
     useEffect(() => {
