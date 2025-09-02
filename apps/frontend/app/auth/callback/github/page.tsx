@@ -1,11 +1,14 @@
 "use client"
+
+export const dynamic = "force-dynamic"; 
+
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 const GithubCallbackPage = () => {
     const router = useRouter();
-    const { data: session, status, update } = useSession();
+    const {  status, update } = useSession();
     const [isSigningIn, setIsSigningIn] = useState(false);
 
     useEffect(() => {
@@ -46,7 +49,7 @@ const GithubCallbackPage = () => {
         };
 
         handleCallback();
-    }, [status, router, isSigningIn]);
+    }, [status, router, isSigningIn, update]);
 
     return (
         <div className="flex min-h-screen items-center justify-center">

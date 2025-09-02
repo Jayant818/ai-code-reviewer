@@ -27,8 +27,8 @@ export function UserProfile({ userData, isConnected = false }: IUserProfile) {
             transition={{ duration: 0.3 }}
           >
             <Image
-              src={userData?.avatar}
-              alt={userData?.username}
+              src={userData?.avatar || 'https://avatar.iran.liara.run/public/13'}
+              alt={userData?.username || "User Avatar"}
               width={80}
               height={80}
               className="rounded-2xl ring-4 ring-primary/30 glow-effect"

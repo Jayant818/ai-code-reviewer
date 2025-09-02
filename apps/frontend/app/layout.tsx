@@ -4,6 +4,8 @@ import "./globals.css";
 import React from "react";
 import ReactQueryProvider from "@/providers/QueryClientProviders";
 
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

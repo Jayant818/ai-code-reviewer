@@ -1,6 +1,6 @@
 # AI Code Reviewer 
 
-Github APP Link - [Code Sentinal](https://github.com/apps/code-sentinel-1)
+Github APP Link - [Vibe Lint](https://github.com/apps/vibe-lint)
 
 ![alt text](images/image.png)
 ![alt text](images/image-1.png)

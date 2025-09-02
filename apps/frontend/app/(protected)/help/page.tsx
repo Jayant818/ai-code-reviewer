@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import { GITHUB_APP, GITHUB_ISSUES, SUPPORT_EMAIL } from "@/lib/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";

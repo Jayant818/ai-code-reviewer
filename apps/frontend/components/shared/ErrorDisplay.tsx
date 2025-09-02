@@ -1,5 +1,4 @@
 import { APIError, ValidationError } from "@/lib/errors";
-import Link from "next/link";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 const ErrorDisplay = ({ 

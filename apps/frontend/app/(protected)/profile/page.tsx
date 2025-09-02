@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaGithub, FaArrowLeft } from "react-icons/fa";
@@ -57,18 +58,18 @@ export default function Profile() {
             
             <div className="flex items-center gap-6 mb-8">
               <Image
-                src={userData.avatar}
-                alt={userData.username}
+                src={userData?.avatar || 'https://avatar.iran.liara.run/public/13'}
+                alt={userData?.username || "User Avatar"}
                 width={80}
                 height={80}
                 className="rounded-full ring-2 ring-primary/20"
               />
               <div>
-                <h3 className="text-2xl font-bold">{userData.username}</h3>
-                <p className="text-muted-foreground">{userData.email}</p>
+                <h3 className="text-2xl font-bold">{userData?.username}</h3>
+                <p className="text-muted-foreground">{userData?.email}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <FaGithub className="w-4 h-4" />
-                  <span className="text-sm text-muted-foreground">GitHub ID: {userData.githubId}</span>
+                  <span className="text-sm text-muted-foreground">GitHub ID: {userData?.githubId}</span>
                 </div>
               </div>
             </div>

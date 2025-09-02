@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/shared"
 import ErrorWrapper from "@/components/shared/ErrorWrapper";
 import { getSession } from "@/lib/session";
+export const dynamic = "force-dynamic";
 export default async function NavbarLayout  ({
     children
 }: {

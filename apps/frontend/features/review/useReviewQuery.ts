@@ -1,7 +1,6 @@
 import { IErrorResponse } from "@/types/error.types";
 import {
   IRecentReviews,
-  IReview,
   IReviewAnalyticsResponse,
   IReviewInput,
   IReviewResponse,

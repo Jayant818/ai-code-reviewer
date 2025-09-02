@@ -20,7 +20,7 @@ interface Plan {
   price: string;
   period: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   features: PlanFeature[];
   popular?: boolean;
   buttonText: string;

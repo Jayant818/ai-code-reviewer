@@ -2,7 +2,6 @@ import { IErrorResponse } from "@/types/error.types";
 import {
   createSubscription,
   getOrgSubscription,
-  SubscriptionRequest,
 } from "@/features/subscription/subscription.api";
 import {
   useQuery,
@@ -13,6 +12,7 @@ import {
 import {
   ICreateSubscriptionResponse,
   ISubscriptionResponse,
+  SubscriptionRequest,
 } from "./api.types";
 import { APIError, ValidationError } from "@/lib/errors";
 
