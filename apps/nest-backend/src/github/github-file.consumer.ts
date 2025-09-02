@@ -5,12 +5,14 @@ import { ConfigService } from "@nestjs/config";
 import { Octokit } from "@octokit/rest";
 import { createAppAuth } from "@octokit/auth-app";
 import { AIService } from "src/ai/ai.service";
+import { TokenBucketService } from "src/tokenBucket/tokenBucket.service";
 
 @RabbitMqConsumer()
 export class GithubFileConsumer{
     constructor(
         private readonly configService: ConfigService,
         private readonly aiService: AIService,
+        private readonly tokenBucketService: TokenBucketService,
         private readonly rabbitMqService: RabbitMqService,
     ) { }
 
@@ -83,7 +85,32 @@ export class GithubFileConsumer{
         }) {
       let octokit: Octokit;
       console.log("Accessing File")
-        try {
+      try {
+          
+            const isAllowed = await this.tokenBucketService.isAllowed();
+            if (!isAllowed) {
+              this.rabbitMqService.publishMessage({
+                message: {
+                    content,
+                    filename,
+                    owner,
+                    repo,
+                    headSha,
+                  installationId,
+                  prNumber,
+                  check,
+                  reviewRecordId,
+                  orgId
+                },
+                messageMeta: {
+                  routingKey: RK_FILE_REVIEW,
+                  messageId: `file-review-queue-${Date.now()}`,
+                  maxRetries: 5,
+                }
+              });
+              console.log('Rate limit exceeded, re-queuing the message');
+              return;
+            }
 
             octokit = await this.getOctoKit(installationId);
 

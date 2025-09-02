@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { createAppAuth } from '@octokit/auth-app';
 import { Channel } from 'amqp-connection-manager';
 import { LLM } from 'src/organization/Model/organization.model';
+import { TokenBucketService } from 'src/tokenBucket/tokenBucket.service';
 
 @RabbitMqConsumer()
 export class GithubConsumer {
@@ -23,7 +24,8 @@ export class GithubConsumer {
     private readonly reviewRepository: ReviewsRepository,
     private readonly configService: ConfigService,
     private readonly rabbitMqService: RabbitMqService,
-    private readonly reviewsRepository:ReviewsRepository,
+    private readonly reviewsRepository: ReviewsRepository,
+    private readonly tokenBucketService: TokenBucketService,
   ) {}
 
   // HELPER METHODS
@@ -133,13 +135,35 @@ export class GithubConsumer {
     let octokit: Octokit;
     let orgId = new MongooseTypes.ObjectId(userOrgId);
     let check: any;
-    let reviewRecord : any;
+    let reviewRecord: any;
 
     try {
+      const isAllowed = await this.tokenBucketService.processRequest();
+      if (isAllowed) {
+
+      }
+      else {
+        this.rabbitMqService.publishMessage({
+          message: {
+            installationId,
+            owner,
+            repo,
+            prNumber,
+            userOrgId,
+            repoFullName
+          },
+          messageMeta: {
+            maxRetries: 4,
+            messageId: `pr-review-${Date.now()}`,
+            routingKey: RK_GITHUB_PR,
+          }
+        }) 
+        console.log("Rate limit exceeded. Re-queuing the PR review task.");
+        return;
+      }
 
       octokit = await this.getOctoKit(installationId);
 
-      const [owner, repo] = repoFullName.split('/');
 
        // Get PR Details to get the head SHA
         // file.sha - hash used to uniquely identify the file, so it can compare 2 file

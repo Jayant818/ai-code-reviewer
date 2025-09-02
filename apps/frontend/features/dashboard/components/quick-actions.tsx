@@ -100,13 +100,13 @@ export function QuickActions() {
         ))}
         
         {/* Slack Integration */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 + actions.length * 0.05 }}
         >
           <SlackIntegration />
-        </motion.div>
+        </motion.div> */}
         
         {/* Logout Button */}
         <motion.button

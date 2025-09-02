@@ -9,6 +9,7 @@ import { CommonModule } from '@app/common';
 import { OrganizationModule } from './organization/organization.module';
 import { ReviewModule } from './reviews/review.module';
 import { PaymentModule } from './payments/payments.module';
+import { TokenBucketModule } from './tokenBucket/tokenBucket.module';
 
 @Module({
   imports: [
@@ -18,8 +19,9 @@ import { PaymentModule } from './payments/payments.module';
     }),
     CommonModule,
     AIModule,
-  GithubModule,
+    GithubModule,
     IntegrationModule,
+    TokenBucketModule,
     AuthModule,
     OrganizationModule,
     ReviewModule,
