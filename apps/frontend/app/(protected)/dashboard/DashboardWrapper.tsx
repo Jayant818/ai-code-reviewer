@@ -15,7 +15,7 @@ export default function DashboardWrapper() {
 
   const { data: userData, isLoading: isUserLoading } = useGetCurrentUserDetailQuery();
 
-  const { data: orgIntegration, isLoading: isOrgIntegrationLoading } = useGetOrgIntegrationQuery({
+  const { data: orgIntegration } = useGetOrgIntegrationQuery({
     customConfig: {
       enabled: !isUserLoading && !!userData?.orgId,
     },

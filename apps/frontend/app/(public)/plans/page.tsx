@@ -20,6 +20,7 @@ interface Plan {
   price: string;
   period: string;
   description: string;
+  // @ts-ignore
   icon: React.ComponentType<any>;
   features: PlanFeature[];
   popular?: boolean;

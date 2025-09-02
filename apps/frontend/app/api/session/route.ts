@@ -20,7 +20,7 @@ const createSessionHandler = async (req: NextRequest) => {
   }
 };
 
-const deleteSessionHandler = async (req: NextRequest) => {
+const deleteSessionHandler = async () => {
   try {
     await deleteSession();
     return NextResponse.json({ "message:": "success" });
