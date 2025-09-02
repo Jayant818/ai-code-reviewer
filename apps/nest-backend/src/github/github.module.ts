@@ -9,10 +9,11 @@ import { ReviewModule } from 'src/reviews/review.module';
 import { GithubConsumer } from './github.consumer';
 import { RabbitMqModule, RabbitMqService } from '@app/rabbitMq';
 import { GithubFileConsumer } from './gitub-file.consumer';
+import { GithubCommentConsumer } from './github-comment.consumer';
 
 @Module({
   imports: [AIModule,IntegrationModule,OrganizationModule,UserModule,ReviewModule,RabbitMqModule],
-  controllers: [GithubController,GithubConsumer,GithubFileConsumer],
+  controllers: [GithubController,GithubConsumer,GithubFileConsumer,GithubCommentConsumer],
   providers: [GithubService],
   exports: [],
 })

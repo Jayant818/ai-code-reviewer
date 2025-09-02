@@ -1,6 +1,6 @@
 import { RabbitMqConsumer, RabbitMqHandler } from "@app/framework";
-import { RABBITMQ_QUEUES } from "@app/rabbitMq";
-import { RK_FILE_REVIEW } from "./DTO/consumer/github-pull-request.dto";
+import { RABBITMQ_QUEUES, RabbitMqService } from "@app/rabbitMq";
+import { RK_FILE_REVIEW, RK_GITHUB_COMMENT } from "./DTO/consumer/github-pull-request.dto";
 import { ConfigService } from "@nestjs/config";
 import { Octokit } from "@octokit/rest";
 import { createAppAuth } from "@octokit/auth-app";
@@ -10,7 +10,8 @@ import { AIService } from "src/ai/ai.service";
 export class GithubFileConsumer{
     constructor(
         private readonly configService: ConfigService,
-        private readonly aiService:AIService,
+        private readonly aiService: AIService,
+        private readonly rabbitMqService: RabbitMqService,
     ) { }
 
     // Helper function 
@@ -63,8 +64,16 @@ export class GithubFileConsumer{
         owner,
         repo,
         headSha,
-        installationId,
+      installationId,
+      prNumber,
+      check,
+      reviewRecordId,
+      orgId
     }: {
+        prNumber: number;
+        check: string;
+        reviewRecordId: string;
+        orgId: string;
         content: string;
         filename: string;
         owner: string;
@@ -72,7 +81,8 @@ export class GithubFileConsumer{
         headSha: string;
         installationId: number;
         }) {
-        let octokit: Octokit;
+      let octokit: Octokit;
+      console.log("Accessing File")
         try {
 
             octokit = await this.getOctoKit(installationId);
@@ -140,11 +150,25 @@ export class GithubFileConsumer{
               }
             //   await new Promise((r) => setTimeout(() => { r(null) }, 100));
             }
-
-            console.log("Reviews of one file", reviews);
-            // return reviews;
-          return;
-            // we get the reviews
+          
+          this.rabbitMqService.publishMessage({
+            message: {
+              fileReview: reviews,
+              installationId,
+              headSha,
+              owner,
+              repo,
+              prNumber,
+              check,
+              reviewRecordId,
+              orgId
+            },
+            messageMeta: {
+              routingKey: RK_GITHUB_COMMENT,
+              messageId: `file-comment-queue-${Date.now()}`,
+              maxRetries: 5,
+            }
+          });
           } catch (e: any) {
             console.log('Error in reviewing file:', e.message);
             console.log('Stack trace:', e.stack);
