@@ -46,7 +46,7 @@ const GithubCallbackPage = () => {
         };
 
         handleCallback();
-    }, [status, router, isSigningIn]);
+    }, [status, router, isSigningIn, update]);
 
     return (
         <div className="flex min-h-screen items-center justify-center">
