@@ -6,11 +6,13 @@ import { IntegrationModule } from 'src/Integrations/Integration.module';
 import { OrganizationModule } from 'src/organization/organization.module';
 import { UserModule } from 'src/user/user.module';
 import { ReviewModule } from 'src/reviews/review.module';
+import { GithubConsumer } from './github.consumer';
+import { RabbitMqModule, RabbitMqService } from '@app/rabbitMq';
 
 @Module({
-  imports: [AIModule,IntegrationModule,OrganizationModule,UserModule,ReviewModule],
+  imports: [AIModule,IntegrationModule,OrganizationModule,UserModule,ReviewModule,RabbitMqModule],
   controllers: [GithubController],
-  providers: [GithubService],
+  providers: [GithubService,GithubConsumer],
   exports: [],
 })
 export class GithubModule {}

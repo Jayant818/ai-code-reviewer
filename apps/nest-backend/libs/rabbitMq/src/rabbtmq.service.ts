@@ -126,8 +126,9 @@ export class RabbitMqService
 
         return;
       });
-      return router;
     }
+    return router;
+
   }
 
   private async setupExchanges(): Promise<void> {

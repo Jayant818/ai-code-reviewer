@@ -16,6 +16,8 @@ import { GITHUB_BATCH_SIZE } from 'src/common/constants';
 import { Integration_Types } from 'src/Integrations/model/app-installation.model';
 import { Inject } from '@nestjs/common';
 import { IOrganizationRepository } from 'src/organization/interfaces/organization-repository.interface';
+import { RabbitMqService } from '@app/rabbitMq';
+import { RK_GITHUB_PR } from './DTO/consumer/github-pull-request.dto';
 
 enum PULL_REQUEST_ACTIONS {
   OPENED = 'opened',
@@ -23,14 +25,14 @@ enum PULL_REQUEST_ACTIONS {
   SYNCHRONIZE = 'synchronize',
 }
 
-interface ReviewSuggestion {
+export interface ReviewSuggestion {
   body: string;
   improvedCode: string;
   startLine: number;
   endLine:number;
 }
 
-interface File {
+export interface File {
   filename: string;
   content: string;
 }
@@ -46,6 +48,7 @@ export class GithubService {
     private readonly userRepository: UserRepository,
     private readonly reviewsRepository: ReviewsRepository,
     private readonly integrationService: IntegrationService,
+    private readonly rabbitMqService:RabbitMqService
 
   ) {}
 
@@ -331,13 +334,13 @@ export class GithubService {
   // --------- Main Function ---------
 
   async createIntegration(payload: InstallationEventDTO) {
-    let org = await this.orgRepository.findOne({
+    let org = await this.organizationRepository.findOne({
       filter: {
         githubId: payload.installation.account.id,
       },        
     })
     if (!org) {
-      org = await this.orgRepository.createOrganization({
+      org = await this.organizationRepository.createOrganization({
         name: payload.installation.account.login,
         githubId: payload.installation.account.id,
         seatsLeft: 0,
@@ -389,8 +392,8 @@ export class GithubService {
   ) {
 
     let octokit : Octokit;
-    let check : any;
-    let reviewRecord : any;
+    // let check : any;
+    // let reviewRecord : any;
 
     octokit = await this.getOctoKit(installationId);
 
@@ -400,7 +403,7 @@ export class GithubService {
     // Get User Org Subscription
     const orgId = await this.integrationService.getOrgIdFromInstallationId(installationId);
 
-    const Subscription = await this.orgRepository.findOne({
+    const Subscription = await this.organizationRepository.findOne({
       filter: {
         _id: orgId,
       },
@@ -424,55 +427,70 @@ export class GithubService {
         // file.sha - hash used to uniquely identify the file, so it can compare 2 file
       // if the file contentes are same they will have the same file.sha
         // to get the file content we need the sha of the commit that we want to review
-      const prDetails = await this.getPullRequestDetails({
-        octokit,
-        owner,
-        repo,
-        prNumber,
-      });
+      // const prDetails = await this.getPullRequestDetails({
+      //   octokit,
+      //   owner,
+      //   repo,
+      //   prNumber,
+      // });
 
 
       // sha  - Commit ID , Its basically a hash
-      const headSha = prDetails.head.sha;
-      const baseSha = prDetails.base.sha;
-
-
-      reviewRecord = await this.reviewsRepository.createReview({
-        orgId,
-        repositoryName: repoFullName,
-        pullRequestNumber: prNumber,
-        pullRequestTitle: prDetails.title,
-        pullRequestUrl: prDetails.html_url,
-        commitSha: headSha,
-        author: prDetails.user.login,
-        aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
-        reviewRequestedAt:new Date(),
-      });
+      // const headSha = prDetails.head.sha;
+      // const baseSha = prDetails.base.sha;
 
       // when we create a PR or push a commit some checks need to be performed
       // Like Code Liniting  , Test Casees
       // Here we are adding our own check with status - "in_progress"
       // Create a check - for AI Review
-      check = await octokit.checks.create({
-        owner,
-        repo,
-        name: 'AI Code Review',
-        head_sha: headSha,
-        status: 'in_progress',
-        output: {
-          title: 'AI Code Review in Progress',
-          summary: 'Analyzing code changes...',
-        },
-      });
+      // check = await octokit.checks.create({
+      //   owner,
+      //   repo,
+      //   name: 'AI Code Review',
+      //   head_sha: headSha,
+      //   status: 'in_progress',
+      //   output: {
+      //     title: 'AI Code Review in Progress',
+      //     summary: 'Analyzing code changes...',
+      //   },
+      // });
+
+      // reviewRecord = await this.reviewsRepository.createReview({
+      //   orgId,
+      //   repositoryName: repoFullName,
+      //   pullRequestNumber: prNumber,
+      //   pullRequestTitle: prDetails.title,
+      //   pullRequestUrl: prDetails.html_url,
+      //   commitSha: headSha,
+      //   author: prDetails.user.login,
+      //   aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
+      //   reviewRequestedAt:new Date(),
+      // });
 
       // Getting changed details in patch
-      const files = await this.getPullRequestFiles({
-        octokit,
-        owner,
-        repo,
-        base_sha: baseSha,
-        head_sha: headSha,
-      });
+      // const files = await this.getPullRequestFiles({
+      //   octokit,
+      //   owner,
+      //   repo,
+      //   base_sha: baseSha,
+      //   head_sha: headSha,
+      // });
+
+      this.rabbitMqService.publishMessage({
+        message: {
+          installationId,
+          owner,
+          repo,
+          prNumber,
+          userOrgId: orgId,
+          repoFullName,
+        },
+        messageMeta: {
+          routingKey: RK_GITHUB_PR,
+          messageId: `review-pr-${Date.now()}`,
+          maxRetries:5
+        }
+      })
 
       // if the PR is opened for 1st time then add a summary
       // if (action === PULL_REQUEST_ACTIONS.OPENED) {
@@ -489,107 +507,107 @@ export class GithubService {
       //   });
       // }
 
-      const reviewPromise = files.map((file) =>
-        this.reviewFile({
-          content: file.patch,
-          filename: file.filename,
-          octokit,
-          owner,
-          repo,
-          headSha,
-        }),
-      );
+      // const reviewPromise = files.map((file) =>
+      //   this.reviewFile({
+      //     content: file.patch,
+      //     filename: file.filename,
+      //     octokit,
+      //     owner,
+      //     repo,
+      //     headSha,
+      //   }),
+      // );
 
-      const fileReviews = await Promise.all(reviewPromise);
+      // const fileReviews = await Promise.all(reviewPromise);
 
       // Use flatMap to flatten and filter out empty arrays
-      const flattenedReviews = fileReviews.flatMap((reviews) => reviews || []);
+      // const flattenedReviews = fileReviews.flatMap((reviews) => reviews || []);
 
-      console.log('File Review', flattenedReviews[0].review);
+      // console.log('File Review', flattenedReviews[0].review);
 
-      const issueComment = flattenedReviews.map((file) => {
-        return file.review.map(async (review: ReviewSuggestion) => {
-          console.log('Review', review);
-          try {            
-            if ((review?.startLine >= file.startLine) && review?.endLine <= file.endLine && review?.startLine <= file.endLine && review?.endLine >= file.startLine) { 
-              const remark = review.body;
-              const improvedCode = review.improvedCode;
+      // const issueComment = flattenedReviews.map((file) => {
+      //   return file.review.map(async (review: ReviewSuggestion) => {
+      //     console.log('Review', review);
+      //     try {            
+      //       if ((review?.startLine >= file.startLine) && review?.endLine <= file.endLine && review?.startLine <= file.endLine && review?.endLine >= file.startLine) { 
+      //         const remark = review.body;
+      //         const improvedCode = review.improvedCode;
   
-              const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
+      //         const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
   
-              return this.createReviewComment({
-                octokit,
-                owner,
-                repo,
-                pull_number: prNumber,
-                body: finalReview,
-                commit_id: headSha,
-                path: file.filename,
-                line: review.endLine,
-                start_side: 'RIGHT',
-                start_line: review.startLine,
-              });
-            }
+      //         return this.createReviewComment({
+      //           octokit,
+      //           owner,
+      //           repo,
+      //           pull_number: prNumber,
+      //           body: finalReview,
+      //           commit_id: headSha,
+      //           path: file.filename,
+      //           line: review.endLine,
+      //           start_side: 'RIGHT',
+      //           start_line: review.startLine,
+      //         });
+      //       }
 
-          } catch (error) {
-            console.error('Error processing review:', error);
-            return Promise.resolve(); // Continue with other reviews
-          }
-        });
-      });
+      //     } catch (error) {
+      //       console.error('Error processing review:', error);
+      //       return Promise.resolve(); // Continue with other reviews
+      //     }
+      //   });
+      // });
 
-      for (let i = 0; i < issueComment.length; i += GITHUB_BATCH_SIZE) {
-        await Promise.all(issueComment.slice(i, i + GITHUB_BATCH_SIZE));
-      }
+      // for (let i = 0; i < issueComment.length; i += GITHUB_BATCH_SIZE) {
+      //   await Promise.all(issueComment.slice(i, i + GITHUB_BATCH_SIZE));
+      // }
 
-      await octokit.checks.update({
-        owner,
-        repo,
-        check_run_id: check.data.id,
-        status: 'completed',
-        conclusion: 'success',
-        output: {
-          title: 'AI Code Review',
-          summary: 'Review completed',
-        },
-      });
+      // await octokit.checks.update({
+      //   owner,
+      //   repo,
+      //   check_run_id: check.data.id,
+      //   status: 'completed',
+      //   conclusion: 'success',
+      //   output: {
+      //     title: 'AI Code Review',
+      //     summary: 'Review completed',
+      //   },
+      // });
 
-      await this.reviewsRepository.updateReview({
-        filter: {
-          _id: reviewRecord._id
-        },
-        update: {
-          status: REVIEW_STATUS.COMPLETED,
-          reviewCompletedAt: new Date(),
-        } 
-      })
+      // await this.reviewsRepository.updateReview({
+      //   filter: {
+      //     _id: reviewRecord._id
+      //   },
+      //   update: {
+      //     status: REVIEW_STATUS.COMPLETED,
+      //     reviewCompletedAt: new Date(),
+      //   } 
+      // })
 
-      await this.orgRepository.updateOrganization({
-        filter: {
-          _id: orgId,
-        },
-        update: {
-          $inc: {
-            reviewsLeft: -1,
-          }
-        }
-      })
+      // await this.organizationRepository.updateOrganization({
+      //   filter: {
+      //     _id: orgId,
+      //   },
+      //   update: {
+      //     $inc: {
+      //       reviewsLeft: -1,
+      //     }
+      //   }
+      // })
 
     } catch (e: any) {
       console.log('Error in reviewing PR:', e);
-      if (octokit && check) {
-        await octokit.checks.update({
-          owner: repoFullName.split('/')[0],
-          repo: repoFullName.split('/')[1],
-          check_run_id: check.data.id,
-          status: 'completed',
-          conclusion: 'failure',
-          output: {
-            title: 'AI Code Review',
-            summary: `Error in review: ${e.message}`,
-          },
-        });
-      }
+      // if (octokit && check) {
+      //   await octokit.checks.update({
+      //     owner: repoFullName.split('/')[0],
+      //     repo: repoFullName.split('/')[1],
+      //     check_run_id: check.data.id,
+      //     status: 'completed',
+      //     conclusion: 'failure',
+      //     output: {
+      //       title: 'AI Code Review',
+      //       summary: `Error in review: ${e.message}`,
+      //     },
+      //   });
+      // }
     }
   }
 

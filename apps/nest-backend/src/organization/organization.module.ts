@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { OrganizationController } from './organization.controller';
 import { OrganizationRepository } from './organization.repository';
@@ -38,9 +38,9 @@ const OrganizationModules = [
 ]
 
 @Module({
-  imports:[MongooseModule.forFeature(OrganizationModules),UserModule],
+  imports:[MongooseModule.forFeature(OrganizationModules),UserModule,forwardRef(() => PaymentModule)],
   controllers: [OrganizationController],
-  providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService,OrderRepository,    { provide: IOrganizationRepository, useClass: OrganizationRepository },],
+  providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService,    { provide: IOrganizationRepository, useClass: OrganizationRepository },],
   exports:[OrganizationService,OrganizationRepository,IOrganizationRepository]
 })
 export class OrganizationModule {}
