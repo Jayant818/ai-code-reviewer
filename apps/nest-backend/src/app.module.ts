@@ -18,7 +18,7 @@ import { PaymentModule } from './payments/payments.module';
     }),
     CommonModule,
     AIModule,
-    GithubModule,
+  GithubModule,
     IntegrationModule,
     AuthModule,
     OrganizationModule,

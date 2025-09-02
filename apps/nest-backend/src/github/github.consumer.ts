@@ -28,30 +28,6 @@ export class GithubConsumer {
 
   // HELPER METHODS
 
-  private addLineNumbersToCode(code: string, startLine: number, endLine: number): string {
-    const lines = code.split("\n");
-    let currentLine = startLine;
-    const numberedLines: string[] = [];
-  
-    for (const line of lines) {
-      if (line.startsWith("-")) {
-        // Deleted line → keep without number
-        numberedLines.push(`    ${line}`);
-      } else {
-        // Added or unchanged line → add number
-        if (currentLine <= endLine) {
-          numberedLines.push(`${String(currentLine).padStart(4)} ${line}`);
-          currentLine++;
-        } else {
-          // If somehow we exceed endLine, just push line without number
-          numberedLines.push(`    ${line}`);
-        }
-      }
-    }
-  
-    return numberedLines.join("\n");
-  }
-
     private async getPullRequestDetails({
     octokit,
     owner,
@@ -70,6 +46,24 @@ export class GithubConsumer {
     });
 
     return data;
+    }
+  
+    private allowedFile(filename: string) {
+      return (
+        !filename.endsWith('.png') &&
+        !filename.endsWith('.jpg') &&
+        !filename.endsWith('.jpeg') &&
+        !filename.endsWith('.gif') &&
+        !filename.endsWith('.svg') &&
+        !filename.endsWith('.ico') &&
+        !filename.endsWith('.webp') &&
+        !filename.endsWith('.json') &&
+        !filename.endsWith('.lock') &&
+        !filename.endsWith('.yaml') &&
+        !filename.endsWith('.yml') &&
+        !filename.includes('package') &&
+        !filename.includes('tsconfig')
+      );
     }
   
   private async getPullRequestFiles({
@@ -146,93 +140,6 @@ export class GithubConsumer {
       start_side,
     });
   }
-
-   private async reviewFile({
-      content,
-      filename,
-      octokit,
-      repo,
-      owner,
-      headSha,
-    }: {
-      content: string;
-      filename: string;
-      octokit: Octokit;
-      repo: string;
-      owner: string;
-      headSha: string;
-    }) {
-      try {
-        let fileContentWithAllChanges = '';
-  
-        // Make a api call to get the fulll file Data
-        const file = await octokit.repos.getContent({
-          owner,
-          repo,
-          path: filename,
-          ref: headSha,
-        });
-  
-        if (!file || !file.data || !('content' in file.data)) {
-          console.log(`No file content for ${filename}`);
-        }
-  
-        // Decode the file content from base64
-        if (file.data && 'content' in file.data) {
-          fileContentWithAllChanges = Buffer.from(file.data.content, 'base64').toString();
-        }
-  
-        // Extract code from the patch
-        const hunks = content.split('@@');
-  
-        if (hunks.length <= 1) {
-          console.log(`No valid hunks found in patch for ${filename}`);
-          return [];
-        }
-  
-        const reviews = [];
-  
-        // Process each hunk (skipping the first element which is empty)
-        for (let i = 1; i < hunks.length; i += 2) {
-          // From i we get the hunk line and from i + 1 we get the code
-          if (i + 1 >= hunks.length) {
-            break;
-          }
-  
-          const [startLine, spanLine] = hunks[i].split('+')[1].split(',');
-          const endLine = (parseInt(startLine, 10) + parseInt(spanLine, 10) - 1).toString();
-  
-          const code = this.addLineNumbersToCode(hunks[i + 1], parseInt(startLine, 10), parseInt(endLine, 10));
-  
-          // Get AI review
-          if (!code) {
-            console.log('Hunk', hunks[i + 1]);
-            continue;
-          }
-  
-          const { review } = await this.aiService.getPRReview({
-            code,
-            provider: 'GEMINI',
-            fileContent: fileContentWithAllChanges,
-          });
-  
-          if (review) {
-            reviews.push({
-              filename,
-              startLine,
-              endLine,
-              review,
-            });
-          }
-          await new Promise((r) => setTimeout(() => { r(null) }, 100));
-        }
-        return reviews;
-      } catch (e: any) {
-        console.log('Error in reviewing file:', e.message);
-        console.log('Stack trace:', e.stack);
-        return [];
-      }
-   }
   
    private async getOctoKit(installationId: number) {
       const appId = this.configService.get('BUG_CHECKER_APP_ID');
@@ -269,13 +176,8 @@ export class GithubConsumer {
       repo: string;
       prNumber: number;
       userOrgId: string;
-      reviewRecord: {
-        _id: any;
-        status: string;
-        reviewCompletedAt?: Date;
-      };
     }) {
-    console.log('Received PR payload:', { prNumber, owner, repo, files: files.length });
+    console.log('Received PR payload:', { prNumber, owner, repo });
     let octokit: Octokit;
     let orgId = new MongooseTypes.ObjectId(userOrgId);
     let check: any;
@@ -319,15 +221,18 @@ export class GithubConsumer {
       });
 
        reviewRecord = await this.reviewsRepository.createReview({
-              orgId,
-              repositoryName: repoFullName,
-              pullRequestNumber: prNumber,
-              pullRequestTitle: prDetails.title,
-              pullRequestUrl: prDetails.html_url,
-              commitSha: headSha,
-              author: prDetails.user.login,
-              aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
-              reviewRequestedAt:new Date(),
+            orgId,
+            repositoryName: repoFullName,
+            pullRequestNumber: prNumber,
+            pullRequestTitle: prDetails.title,
+            pullRequestUrl: prDetails.html_url,
+            commitSha: headSha,
+            author: prDetails.user.login,
+            aiProvider: LLM.GEMINI, // Default provider, could be made configurable,
+            reviewRequestedAt: new Date(),
+            status: REVIEW_STATUS.IN_PROGRESS,
+            filesReviewed: 0,
+            totalFiles: prDetails.changed_files,
        });
       
        const files = await this.getPullRequestFiles({
@@ -339,117 +244,125 @@ export class GithubConsumer {
       });
       
       
-      const reviewPromise = files.map((file) =>
+      // const reviewPromise = files.map((file) =>
       
-        this.reviewFile({
-          content: file.patch,
-          filename: file.filename,
-          octokit,
-          owner,
-          repo,
-          headSha,
-        }),
-      );
+      //   this.reviewFile({
+      //     content: file.patch,
+      //     filename: file.filename,
+      //     octokit,
+      //     owner,
+      //     repo,
+      //     headSha,
+      //   }),
+      // );
 
-      this.rabbitMqService.publishMessage({
-        message: {
-          
-        },
-        messageMeta: {
-          maxRetries: 4,
-          messageId: `file-review-${Date.now()}`,
-          routingKey: RK_FILE_REVIEW,
-        }
-      })
+      console.log("Calling File Queue");
+      for (let i = 0; i < files.length; i++) {
+        this.rabbitMqService.publishMessage({
+          message: {
+            content: files[i].patch,
+            filename:files[i].filename,
+            owner,
+            repo,
+            headSha,
+            installationId
+          },
+          messageMeta: {
+            maxRetries: 4,
+            messageId: `file-review-${Date.now()}`,
+            routingKey: RK_FILE_REVIEW,
+          }
+        }) 
+      }
 
-      const fileReviews = await Promise.all(reviewPromise);
+      // const fileReviews = await Promise.all(reviewPromise);
 
       
 
        // Use flatMap to flatten and filter out empty arrays
-      const flattenedReviews = fileReviews.flatMap((reviews) => reviews || []);
+      // const flattenedReviews = fileReviews.flatMap((reviews) => reviews || []);
 
-      console.log('File Review', flattenedReviews[0].review);
+      // console.log('File Review', flattenedReviews[0].review);
 
-      const issueComment = flattenedReviews.map((file) => {
-        return file.review.map(async (review: ReviewSuggestion) => {
-          console.log('Review', review);
-          try {            
-            if ((review?.startLine >= file.startLine) && review?.endLine <= file.endLine && review?.startLine <= file.endLine && review?.endLine >= file.startLine) { 
-              const remark = review.body;
-              const improvedCode = review.improvedCode;
+      // const issueComment = flattenedReviews.map((file) => {
+      //   return file.review.map(async (review: ReviewSuggestion) => {
+      //     console.log('Review', review);
+      //     try {            
+      //       if ((review?.startLine >= file.startLine) && review?.endLine <= file.endLine && review?.startLine <= file.endLine && review?.endLine >= file.startLine) { 
+      //         const remark = review.body;
+      //         const improvedCode = review.improvedCode;
   
-              const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
+      //         const finalReview = `${remark}\n\n\`\`\`suggestion\n${improvedCode}\n\`\`\``;
   
-              return this.createReviewComment({
-                octokit,
-                owner,
-                repo,
-                pull_number: prNumber,
-                body: finalReview,
-                commit_id: headSha,
-                path: file.filename,
-                line: review.endLine,
-                start_side: 'RIGHT',
-                start_line: review.startLine,
-              });
-            }
+      //         return this.createReviewComment({
+      //           octokit,
+      //           owner,
+      //           repo,
+      //           pull_number: prNumber,
+      //           body: finalReview,
+      //           commit_id: headSha,
+      //           path: file.filename,
+      //           line: review.endLine,
+      //           start_side: 'RIGHT',
+      //           start_line: review.startLine,
+      //         });
+      //       }
 
-          } catch (error) {
-            console.error('Error processing review:', error);
-            return Promise.resolve(); // Continue with other reviews
-          }
-        });
-      });
+      //     } catch (error) {
+      //       console.error('Error processing review:', error);
+      //       return Promise.resolve(); // Continue with other reviews
+      //     }
+      //   });
+      // });
 
-        for (let i = 0; i < issueComment.length; i += GITHUB_BATCH_SIZE) {
-              await Promise.all(issueComment.slice(i, i + GITHUB_BATCH_SIZE));
-        }
+      //   for (let i = 0; i < issueComment.length; i += GITHUB_BATCH_SIZE) {
+      //         await Promise.all(issueComment.slice(i, i + GITHUB_BATCH_SIZE));
+      //   }
       
-        await octokit.checks.update({
-        owner,
-        repo,
-        check_run_id: check.data.id,
-        status: 'completed',
-        conclusion: 'success',
-        output: {
-          title: 'AI Code Review',
-          summary: 'Review completed',
-        },
-      });
+      //   await octokit.checks.update({
+      //   owner,
+      //   repo,
+      //   check_run_id: check.data.id,
+      //   status: 'completed',
+      //   conclusion: 'success',
+      //   output: {
+      //     title: 'AI Code Review',
+      //     summary: 'Review completed',
+      //   },
+      // });
       
-       await this.reviewRepository.updateReview({
-              filter: {
-                _id: reviewRecord._id
-              },
-              update: {
-                status: REVIEW_STATUS.COMPLETED,
-                reviewCompletedAt: new Date(),
-              } 
-            })
+      //  await this.reviewRepository.updateReview({
+      //         filter: {
+      //           _id: reviewRecord._id
+      //         },
+      //         update: {
+      //           status: REVIEW_STATUS.COMPLETED,
+      //           reviewCompletedAt: new Date(),
+      //         } 
+      //       })
       
-            await this.organizationRepository.updateOrganization({
-              filter: {
-                _id: new MongooseTypes.ObjectId(orgId),
-              },
-              update: {
-                $inc: {
-                  reviewsLeft: -1,
-                }
-              }
-            })
+      //       await this.organizationRepository.updateOrganization({
+      //         filter: {
+      //           _id: new MongooseTypes.ObjectId(orgId),
+      //         },
+      //         update: {
+      //           $inc: {
+      //             reviewsLeft: -1,
+      //           }
+      //         }
+      //       })
       
-            await this.organizationRepository.updateOrganization({
-              filter: {
-                _id: new MongooseTypes.ObjectId(orgId),
-              },
-              update: {
-                $inc: {
-                  reviewsLeft: -1,
-                }
-              }
-            })
-      
+      //       await this.organizationRepository.updateOrganization({
+      //         filter: {
+      //           _id: new MongooseTypes.ObjectId(orgId),
+      //         },
+      //         update: {
+      //           $inc: {
+      //             reviewsLeft: -1,
+      //           }
+      //         }
+      //       })
+      return;
 
     }
     catch (error) {

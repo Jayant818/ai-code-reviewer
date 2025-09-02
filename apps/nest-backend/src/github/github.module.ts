@@ -8,11 +8,12 @@ import { UserModule } from 'src/user/user.module';
 import { ReviewModule } from 'src/reviews/review.module';
 import { GithubConsumer } from './github.consumer';
 import { RabbitMqModule, RabbitMqService } from '@app/rabbitMq';
+import { GithubFileConsumer } from './gitub-file.consumer';
 
 @Module({
   imports: [AIModule,IntegrationModule,OrganizationModule,UserModule,ReviewModule,RabbitMqModule],
-  controllers: [GithubController],
-  providers: [GithubService,GithubConsumer],
+  controllers: [GithubController,GithubConsumer,GithubFileConsumer],
+  providers: [GithubService],
   exports: [],
 })
 export class GithubModule {}
