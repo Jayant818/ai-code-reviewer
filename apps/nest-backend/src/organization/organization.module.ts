@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { OrganizationController } from './organization.controller';
 import { OrganizationRepository } from './organization.repository';
@@ -12,6 +12,8 @@ import { orgSubscriptionLogsSchema } from './logs/org-subscription-logs.model';
 import { UserModule } from 'src/user/user.module';
 import { PlanSchema } from './Model/pricing-plan.model';
 import { PaymentModule } from 'src/payments/payments.module';
+import { OrderRepository } from 'src/payments/repositories/order.repository';
+import { IOrganizationRepository } from './interfaces/organization-repository.interface';
 
 
 const OrganizationModules = [
@@ -36,9 +38,9 @@ const OrganizationModules = [
 ]
 
 @Module({
-  imports:[MongooseModule.forFeature(OrganizationModules),UserModule,PaymentModule],
+  imports:[MongooseModule.forFeature(OrganizationModules),UserModule,forwardRef(() => PaymentModule)],
   controllers: [OrganizationController],
-  providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService],
-  exports:[OrganizationService,OrganizationRepository]
+  providers: [OrganizationService, OrganizationRepository,OrgSubscriptionService,    { provide: IOrganizationRepository, useClass: OrganizationRepository },],
+  exports:[OrganizationService,OrganizationRepository,IOrganizationRepository]
 })
 export class OrganizationModule {}

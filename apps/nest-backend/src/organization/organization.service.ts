@@ -3,11 +3,16 @@ import { OrganizationRepository } from './organization.repository';
 import { AppInjectable } from '@app/framework';
 import { PipelineStage } from 'mongoose';
 import { COLLECTION_NAMES } from 'src/common/constants';
+import { IOrganizationRepository } from './interfaces/organization-repository.interface';
+import { Inject } from '@nestjs/common';
 
 @AppInjectable()
 export class OrganizationService {
 
-  constructor(private readonly OrganizationRepository: OrganizationRepository) {
+  constructor(
+    @Inject(IOrganizationRepository)
+    private readonly OrganizationRepository: IOrganizationRepository
+  ) {
   }
 
   async getOrganizationModel(orgId: MongooseTypes.ObjectId) {

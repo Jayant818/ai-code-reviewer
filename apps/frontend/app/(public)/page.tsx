@@ -31,118 +31,84 @@ const features = [
 export default function Home() {
   return (
     <main className="min-h-screen relative overflow-hidden">
-      {/* Background Elements */}
+      {/* Simplified Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl floating"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl floating" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-accent/10 rounded-full blur-3xl floating" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-16">
         {/* Hero Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-32"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-24"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="mb-8"
-          >
-            <h1 className="text-6xl md:text-8xl font-bold mb-6 leading-tight">
-              <span className="text-gradient">AI-Powered</span>
+          <div className="mb-10">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI-Powered</span>
               <br />
               <span className="text-white">Code Reviews</span>
             </h1>
-            <div className="w-24 h-1 premium-gradient mx-auto rounded-full mb-8"></div>
-          </motion.div>
+            <div className="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-8"></div>
+          </div>
 
           <motion.p
-            className="text-xl md:text-2xl text-foreground-muted max-w-4xl mx-auto mb-12 leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-xl text-foreground-muted max-w-3xl mx-auto mb-10 leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
           >
             Transform your development workflow with intelligent code analysis.
-            Catch bugs before they ship, improve code quality, and accelerate your team's velocity
-            with AI that understands your codebase.
+            Catch bugs before they ship and improve code quality with AI that understands your codebase.
           </motion.p>
 
           {/* CTA Buttons */}
           <motion.div
-            className="flex flex-col sm:flex-row justify-center gap-6 mb-16"
-            initial={{ opacity: 0, y: 20 }}
+            className="flex flex-col sm:flex-row justify-center gap-5 mb-12"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.4, duration: 0.7 }}
           >
             <GitHubLoginButton size="lg" />
             <Link
-              className="group  flex gap-3 items-center justify-center px-8 py-4 glass-card text-foreground rounded-xl glow-effect transition-all duration-500 text-lg font-medium border-gradient"
-
+              className="flex items-center justify-center px-6 py-3.5 bg-foreground-muted/10 hover:bg-foreground-muted/20 border border-foreground-muted/20 rounded-lg text-foreground transition-all duration-300 text-base font-medium gap-2"
               href="/try"
               target="_blank"
             >
-              <span >Experience Demo</span>
-              <IoIosLink className="group-hover:translate-x-1 transition-transform duration-300" />
+              <span>Experience Demo</span>
+              <IoIosLink className="transition-transform duration-300" />
             </Link>
-          </motion.div>
-
-          {/* Trust Indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-            className="flex flex-wrap justify-center items-center gap-8 text-foreground-subtle text-sm"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-success rounded-full"></div>
-              <span>99.9% Uptime</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              <span>Secure</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-accent rounded-full"></div>
-              <span>Real-time Analysis</span>
-            </div>
           </motion.div>
         </motion.div>
 
         {/* Features Grid */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className="grid md:grid-cols-2 gap-8 mb-32"
+          transition={{ duration: 0.7, delay: 0.6 }}
+          className="grid md:grid-cols-2 gap-6 mb-24"
         >
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.0 + 0.1 * index }}
-              className="glass-card rounded-xl p-8 card-hover group shimmer-effect"
-              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ duration: 0.5, delay: 0.8 + 0.1 * index }}
+              className="bg-foreground-muted/5 backdrop-blur-sm rounded-xl p-6 border border-foreground-muted/10 hover:border-foreground-muted/20 transition-colors"
             >
-              <div className="flex items-start gap-6">
+              <div className="flex items-start gap-5">
                 <div className="flex-shrink-0">
-                  <motion.div
-                    className="w-16 h-16 premium-gradient rounded-xl flex items-center justify-center glow-effect"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <feature.icon className="w-8 h-8 text-white" />
-                  </motion.div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-3 text-gradient">
+                  <h3 className="text-lg font-semibold mb-2 text-white">
                     {feature.title}
                   </h3>
-                  <p className="text-foreground-muted leading-relaxed text-lg">
+                  <p className="text-foreground-muted">
                     {feature.description}
                   </p>
                 </div>
@@ -153,112 +119,66 @@ export default function Home() {
 
         {/* How it Works Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
-          className="glass-card rounded-2xl p-12 mb-24 border-gradient"
+          transition={{ duration: 0.7, delay: 1.0 }}
+          className="bg-foreground-muted/5 backdrop-blur-sm rounded-xl p-8 mb-20 border border-foreground-muted/10"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6, duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
               How it Works
             </h2>
-            <p className="text-xl text-foreground-muted max-w-2xl mx-auto">
+            <p className="text-foreground-muted max-w-2xl mx-auto">
               Get started in minutes with our streamlined integration process
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
-            <motion.div
-              className="text-center group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.6 }}
-            >
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((step, index) => (
               <motion.div
-                className="w-20 h-20 premium-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect group-hover:scale-110 transition-transform duration-300"
-                whileHover={{ rotate: 15 }}
+                key={step}
+                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 + 0.2 * index, duration: 0.5 }}
               >
-                <span className="text-white font-bold text-2xl">1</span>
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center mx-auto mb-5">
+                  <span className="text-white font-bold text-xl">{step}</span>
+                </div>
+                <h3 className="font-semibold mb-3 text-lg">
+                  {index === 0 && "Connect GitHub"}
+                  {index === 1 && "Install App"}
+                  {index === 2 && "Get Reviews"}
+                </h3>
+                <p className="text-foreground-muted text-sm">
+                  {index === 0 && "Seamlessly integrate with your GitHub repositories using secure OAuth"}
+                  {index === 1 && "Deploy our intelligent GitHub App to monitor and analyze your code"}
+                  {index === 2 && "Receive instant, intelligent code reviews with actionable insights"}
+                </p>
               </motion.div>
-              <h3 className="font-bold mb-4 text-xl text-gradient">Connect GitHub</h3>
-              <p className="text-foreground-muted leading-relaxed">
-                Seamlessly integrate with your GitHub repositories using secure OAuth authentication
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="text-center group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.0, duration: 0.6 }}
-            >
-              <motion.div
-                className="w-20 h-20 premium-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect group-hover:scale-110 transition-transform duration-300"
-                whileHover={{ rotate: -15 }}
-              >
-                <span className="text-white font-bold text-2xl">2</span>
-              </motion.div>
-              <h3 className="font-bold mb-4 text-xl text-gradient">Install App</h3>
-              <p className="text-foreground-muted leading-relaxed">
-                Deploy our intelligent GitHub App to monitor and analyze your code repositories
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="text-center group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.2, duration: 0.6 }}
-            >
-              <motion.div
-                className="w-20 h-20 premium-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect group-hover:scale-110 transition-transform duration-300"
-                whileHover={{ rotate: 15 }}
-              >
-                <span className="text-white font-bold text-2xl">3</span>
-              </motion.div>
-              <h3 className="font-bold mb-4 text-xl text-gradient">Get Reviews</h3>
-              <p className="text-foreground-muted leading-relaxed">
-                Receive instant, intelligent code reviews with actionable insights on every pull request
-              </p>
-            </motion.div>
+            ))}
           </div>
         </motion.div>
 
-        {/* Security & Trust Section */}
+        {/* Security Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.4 }}
-          className="text-center"
+          transition={{ duration: 0.7, delay: 1.6 }}
+          className="text-center max-w-2xl mx-auto"
         >
-          <motion.div
-            className="glass-card rounded-2xl p-8 max-w-4xl mx-auto border-gradient"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-success/20 rounded-xl flex items-center justify-center">
-                <span className="text-2xl">🔒</span>
+          <div className="bg-foreground-muted/5 backdrop-blur-sm rounded-xl p-8 border border-foreground-muted/10">
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center">
+                <span className="text-xl">🔒</span>
               </div>
-              <h3 className="text-2xl font-bold text-gradient">Advanced Security</h3>
+              <h3 className="text-xl font-semibold">Advanced Security</h3>
             </div>
-            <p className="text-lg text-foreground-muted leading-relaxed max-w-3xl mx-auto">
+            <p className="text-foreground-muted">
               Your code remains completely private and secure. We analyze pull requests in real-time
               without storing any of your source code.
             </p>
-
-            {/* <div className="grid md:grid-cols-3 gap-6 mt-8">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
-                <span className="text-foreground-subtle">Zero Data Storage</span>
-              </div>
-            </div> */}
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </main>

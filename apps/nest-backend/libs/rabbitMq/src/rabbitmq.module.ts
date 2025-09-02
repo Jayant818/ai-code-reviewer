@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
+import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
+import { RabbitMqService } from './rabbtmq.service';
 
 @Module({
-  imports: [],
-  providers: [DiscoveryService],
-  exports: [],
+  imports: [DiscoveryModule],
+  providers: [RabbitMqService],
+  exports: [RabbitMqService],
   controllers: [],
 })
 export class RabbitMqModule {}

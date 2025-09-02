@@ -21,6 +21,8 @@ import {
   RmqProducerType,
 } from './types';
 import { IRabbitMqHandler } from '@app/framework';
+import { inspect } from 'util';
+
 
 @Injectable()
 export class RabbitMqService
@@ -88,7 +90,7 @@ export class RabbitMqService
           Reflect.getMetadata(
             RABBITMQ_HANDLER.identifier,
             controllerPrototype[method],
-          ) === RABBITMQ_HANDLER,
+          ) === RABBITMQ_HANDLER.value,
       );
 
       methodsWithRabbitHandler.forEach((methodName) => {
@@ -98,7 +100,13 @@ export class RabbitMqService
           controllerPrototype[methodName],
         ) as IRabbitMqHandler;
 
-        const routeDetails = {
+        if (!msgRouter || !msgRouter.queue || !msgRouter.routingKey) {
+          console.log(`Missing router config on ${consumer.name}.${methodName}`);
+          return;
+        }
+  
+
+        const routeDetails: IRabbitHandlerInstance  = {
           // Pura controller ka instance
           controllerInstance,
           controllerPrototype,
@@ -108,8 +116,7 @@ export class RabbitMqService
         } as IRabbitHandlerInstance;
 
         if (!router[msgRouter.queue]) {
-          router[msgRouter.queue] = [routeDetails];
-          return;
+          router[msgRouter.queue] = [];
         }
 
         if (
@@ -126,43 +133,45 @@ export class RabbitMqService
 
         return;
       });
-      return router;
     }
+    return router;
+
   }
 
   private async setupExchanges(): Promise<void> {
-    const mainExchange = this.amqpChannel.assertExchange(
-      COMMON_EXCHANGE.name,
-      COMMON_EXCHANGE.type,
-      COMMON_EXCHANGE.options,
-    );
+    await this.amqpChannel.addSetup(async (channel) => {
 
-    const dlxExchange = this.amqpChannel.assertExchange(
-      COMMON_EXCHANGE_DLX.name,
-      COMMON_EXCHANGE_DLX.type,
-      COMMON_EXCHANGE_DLX.options,
-    );
+      await Promise.all([
 
-    await Promise.all([mainExchange, dlxExchange]);
+          channel.assertExchange(COMMON_EXCHANGE.name, COMMON_EXCHANGE.type, COMMON_EXCHANGE.options),
+
+          channel.assertExchange(COMMON_EXCHANGE_DLX.name, COMMON_EXCHANGE_DLX.type, COMMON_EXCHANGE_DLX.options),
+
+      ]);
+
+  });
+
   }
 
   private async setupQueues(): Promise<void> {
     const queuePromises = Object.keys(this.rabbitRouter).map(async (queue) => {
       // Create a Main Queue
+      const deadLetterQueueName = this.getDeadLetterQueueName(queue);
 
       const mainQueue = this.amqpChannel.assertQueue(queue, {
         durable: true,
         // rejected msg goes to this Dead letter exchange
         deadLetterExchange: COMMON_EXCHANGE_DLX.name,
+        deadLetterRoutingKey: deadLetterQueueName
       });
 
       // Create a DLX Queue
-      const deadLetterQueueName = this.getDeadLetterQueueName(queue);
       const deadLetterQueue = this.amqpChannel.assertQueue(
         deadLetterQueueName,
         {
           durable: true,
         },
+        
       );
 
       await Promise.all([mainQueue, deadLetterQueue]);
@@ -285,6 +294,8 @@ export class RabbitMqService
   async onModuleInit() {
     //  All the modules have resolved and initialized.
     this.rabbitRouter = this.fetchQueuesAndHandlers();
+     // ADD THIS LOG to see the discovered routes
+  // console.log('Discovered RabbitMQ Router:', inspect(this.rabbitRouter, null, 2));
     await this.setupExchanges();
     await this.setupQueues();
   }
@@ -315,3 +326,4 @@ export class RabbitMqService
     );
   }
 }
+

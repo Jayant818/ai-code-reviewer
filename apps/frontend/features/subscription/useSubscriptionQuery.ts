@@ -55,6 +55,7 @@ export const useSubscriptionMutation = ({
   >({
     mutationKey: subscriptionKeys.current,
     mutationFn: (data: SubscriptionRequest) => createSubscription(data),
+    throwOnError: true,
     ...customConfig,
   });
 

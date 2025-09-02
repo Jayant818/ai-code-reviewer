@@ -1,0 +1,14 @@
+version: '3.9'
+
+name: 'vibeLint-backend'
+
+services:
+  rabbitmq: 
+    container_name: 'vibeLint-queue'
+    image: rabbitmq:3-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ./docker/.data/:/var/lib/rabbitmq
+      - ./docker/.logs/:/var/log/rabbitmq 

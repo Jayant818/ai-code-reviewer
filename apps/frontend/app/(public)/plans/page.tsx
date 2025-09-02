@@ -31,7 +31,7 @@ const plans: Plan[] = [
   {
     id: 'trial',
     name: 'Free Trial',
-    price: '$0',
+    price: 'Rs 0',
     period: '/month',
     description: 'Perfect for trying out our AI code review capabilities',
     icon: FaRocket,

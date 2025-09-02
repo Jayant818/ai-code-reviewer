@@ -12,15 +12,16 @@ import {
 export const createSubscription = async (
   data: SubscriptionRequest
 ): Promise<ICreateSubscriptionResponse> => {
+  console.log("Creating subscription with data:", data);
   try {
     const inputCheck = SubscriptionRequestSchema.safeParse(data);
 
-    if (!inputCheck.success) {
-      throw new ValidationError(
-        "Invalid subscription request",
-        inputCheck.error
-      );
-    }
+    // if (!inputCheck.success) {
+    //   throw new ValidationError(
+    //     "Invalid subscription request",
+    //     inputCheck.error
+    //   );
+    // }
 
     const response = await axios.post("/organization/subscription", data);
 

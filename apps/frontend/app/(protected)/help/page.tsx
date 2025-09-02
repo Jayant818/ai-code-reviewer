@@ -1,5 +1,6 @@
 "use client";
 
+import { GITHUB_APP, GITHUB_ISSUES, SUPPORT_EMAIL } from "@/lib/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaArrowLeft, FaQuestionCircle, FaGithub, FaEnvelope } from "react-icons/fa";
@@ -99,12 +100,12 @@ export default function Help() {
                   <FaEnvelope className="w-5 h-5 fire-accent" />
                   <div>
                     <p className="font-medium text-sm">Email Support</p>
-                    <p className="text-xs text-muted-foreground">support@VibeLint.dev</p>
+                    <p className="text-xs text-muted-foreground">{SUPPORT_EMAIL}</p>
                   </div>
                 </a>
                 
                 <a
-                  href="https://github.com/jayant818/ai-code-reviewer/issues"
+                  href={GITHUB_ISSUES}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 glass-card rounded-lg hover:fire-glow transition-all duration-300"
@@ -131,13 +132,14 @@ export default function Help() {
                   Profile Settings
                 </Link>
                 <a 
-                  href="https://github.com/apps/vibe-lint 
+                  href={GITHUB_APP} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="block text-sm fire-accent hover:underline"
                 >
                   GitHub App
                 </a>
+
               </div>
             </div>
           </motion.div>

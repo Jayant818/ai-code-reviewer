@@ -58,8 +58,6 @@ export class Transaction{
         required: false,
         type: String,
         nullable: true,
-        unique: true,
-        sparse: true,
     })
     webhookEventId: string; // Razorpay event ID for idempotency
 

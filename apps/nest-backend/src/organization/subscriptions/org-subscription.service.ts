@@ -1,31 +1,34 @@
 import { AppInjectable } from "@app/framework";
 import { MongooseConnection, MongooseModel, MongooseTypes } from "@app/types";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
-import { OrganizationRepository } from "../organization.repository";
-import { ForbiddenException, NotFoundException, BadRequestException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException, BadRequestException, Inject } from "@nestjs/common";
 import { BILLING_PERIOD } from "./org-subscription.model";
 import { ClientSession } from "mongoose";
 import { ORGANIZATION_SUBSCRIPTION_LOG_EVENT } from "../logs/org-subscription-logs.model";
 import { SubscriptionType } from "../DTO/create-org-subscription.dto";
 import { UserRepository } from "src/user/user.repository";
 import { IPLAN, PLAN, PlanDocument } from "src/organization/Model/pricing-plan.model";
-import { OrderRepository } from "src/payments/repositories/order.repository";
 import { ORDER_STATUS, PAYMENT_PROVIDERS } from "src/payments/Model/order.model";
-import { PaymentsService } from "src/payments/payments.service";
 import { ConfigService } from "@nestjs/config";
 import { COLLECTION_NAMES } from "src/common/constants";
+import { IPaymentService } from "src/payments/interfaces/payment-service.interface";
+import { IOrderRepository } from "src/payments/interfaces/order-repository.interface";
+import { IOrganizationRepository } from "../interfaces/organization-repository.interface";
 
 @AppInjectable()
 export class OrgSubscriptionService {
     constructor(
         @InjectConnection()
         private readonly MongooseConnection: MongooseConnection,
-        private readonly OrganizationRepository: OrganizationRepository,
+        @Inject(IOrganizationRepository)
+        private readonly OrganizationRepository: IOrganizationRepository,
         private readonly UserRepository: UserRepository,
         @InjectModel(COLLECTION_NAMES.Plans.Plans)
         private readonly planModel: MongooseModel<PlanDocument>,
-        private readonly orderRepository: OrderRepository,
-        private readonly paymentService: PaymentsService,
+        @Inject(IOrderRepository)
+        private readonly orderRepository: IOrderRepository,
+        @Inject(IPaymentService)
+        private readonly paymentService: IPaymentService,
         private readonly configService: ConfigService,
     ) { }
 
@@ -99,13 +102,10 @@ export class OrgSubscriptionService {
     }) {
         try {
             // Get the Pricing Plan
-            console.log("type", type);
             const plan = await this.planModel.findOne({
                 name: PLAN.PRO,
             });
             
-            console.log("Plan", plan);
-
             // Create an order 
             const order = await this.orderRepository.createOrder({
                 orderData: {
@@ -280,7 +280,7 @@ export class OrgSubscriptionService {
                 session,
             })
 
-            if (subscription && subscription.expiresAt > new Date()) {
+            if (subscription && subscription.expiresAt > new Date() && plan !== PLAN.PRO) {
                 throw new ForbiddenException("Organization Already Has An Active Subscription");
             }
             console.log("Plan", plan);

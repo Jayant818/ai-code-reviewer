@@ -1,8 +1,11 @@
 "use client";
 
 import { ISubscriptionResponse } from "@/features/subscription/api.types";
+import { subscriptionKeys, useSubscriptionMutation } from "@/features/subscription/useSubscriptionQuery";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FaCrown, FaRocket, FaArrowUp, FaCalendarAlt } from "react-icons/fa";
 
 export function SubscriptionStatus({
@@ -11,7 +14,30 @@ export function SubscriptionStatus({
 }: {
     subscriptionData: ISubscriptionResponse | undefined;
     isSubscriptionLoading: boolean;
-}) {
+  }) {
+  
+  const queryClient = useQueryClient()
+  const router = useRouter();
+
+  const { mutate: subscribe, isPending: isSubscribing } = useSubscriptionMutation({
+    customConfig: {
+      onSuccess: async(data) => {
+        await queryClient.invalidateQueries({
+          queryKey: [subscriptionKeys.current]
+        })
+        if (data.url) {
+          router.push(data.url);
+        } else {
+          router.push("/dashboard")
+        }
+      },
+      onError: (error) => {
+        console.error('Subscription error:', error);
+      }
+    }
+  });
+
+  
   if (isSubscriptionLoading) {
     return (
       <motion.div
@@ -121,13 +147,15 @@ export function SubscriptionStatus({
 
       {/* Action Button */}
       {!isProPlan ? (
-        <Link
-          href="/plans"
+        <button
+          type="button"
+          onClick={() => subscribe({ type: 'pro' })}
+          disabled={isSubscribing}
           className="w-full premium-gradient text-white px-6 py-4 rounded-xl font-semibold glow-effect hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
         >
           <FaArrowUp className="w-4 h-4" />
           Upgrade to Pro
-        </Link>
+        </button>
       ) : (
         <div className="text-center">
           <p className="text-success font-semibold mb-2">✨ You're on Pro!</p>

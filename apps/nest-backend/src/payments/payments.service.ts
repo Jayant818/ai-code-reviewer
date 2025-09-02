@@ -2,18 +2,19 @@ import { AppInjectable } from "@app/framework";
 import { MongooseTypes } from "@app/types";
 import { IPaymentProviders, ORDER_STATUS } from "./Model/order.model";
 import { TransactionRepository } from "./repositories/transaction.repository";
-import { TRANSACTION_STATUS, TRANSACTION_TYPES } from "./Model/transaction.model";
-import { OrderRepository } from "./repositories/order.repository";
-import { InternalServerErrorException } from "@nestjs/common";
+import { Inject, InternalServerErrorException } from "@nestjs/common";
 import { PaymentFactory } from "./payment.factory";
 import { IBuyer } from "./interfaces/payment-provider.interface";
 import { RazorPayPaymentStrategy } from "./strategies/razorpay/razorpay.strategy";
+import { IPaymentService } from "./interfaces/payment-service.interface";
+import { IOrderRepository } from "./interfaces/order-repository.interface";
 
 @AppInjectable()
-export class PaymentsService{
+export class PaymentsService implements IPaymentService{
     constructor(
         private readonly transactionRepository: TransactionRepository,
-        private readonly orderRepository: OrderRepository,
+        @Inject(IOrderRepository)
+        private readonly orderRepository: IOrderRepository,
         private readonly paymentFactory: PaymentFactory,
         private readonly razorPayStrategy: RazorPayPaymentStrategy,
     ) { }

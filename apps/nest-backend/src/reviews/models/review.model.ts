@@ -84,6 +84,9 @@ export class Review {
   filesReviewed: number;
 
   @Prop({ required: false, default: 0 })
+  totalFiles: number;
+
+  @Prop({ required: false, default: 0 })
   commentsAdded: number;
 
   @Prop({
