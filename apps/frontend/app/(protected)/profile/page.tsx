@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaGithub, FaArrowLeft } from "react-icons/fa";

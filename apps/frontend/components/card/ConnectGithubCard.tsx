@@ -52,7 +52,7 @@ const ConnectGithubCard: React.FC<IConnectGithubCard> = ({ className = '', user 
       {user && (
         <div className="mt-6 p-3 rounded-radius-sm bg-background-tertiary border border-glass-border">
           <p className="text-foreground-secondary text-font-size-sm">
-            Logged in as: <span className="font-semibold text-foreground">{user.name}</span>
+            Logged in as: <span className="font-semibold text-foreground">{user.username}</span>
           </p>
         </div>
       )}

@@ -100,7 +100,7 @@ export function RecentActivity({ isLoading, recentReviews }: { isLoading: boolea
             <p className="text-sm">Your recent code reviews will appear here.</p>
           </div>
         ) : (
-          recentReviews.map((review, index) => (
+          recentReviews?.map((review, index) => (
             <motion.div
               key={review._id}
               initial={{ opacity: 0, x: -10 }}
